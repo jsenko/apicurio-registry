@@ -2998,6 +2998,32 @@
           }
         }
       }
+    },
+    {
+      "enabled": true,
+      "id": "Test",
+      "compatibility": "backward",
+      "original": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "postal_code": {
+            "type": "number"
+          },
+          "street": {
+            "type": "string"
+          }
+        }
+      },
+      "updated": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "street": {
+            "type": "string"
+          }
+        }
+      }
     }
   ]
 }
