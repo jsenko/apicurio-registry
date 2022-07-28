@@ -594,6 +594,13 @@
                 <artifactId>org.everit.json.schema</artifactId>
                 <version>${org.everit.json.schema.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-json-schema</artifactId>
+                <version>4.3.2</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-json-org</artifactId>
