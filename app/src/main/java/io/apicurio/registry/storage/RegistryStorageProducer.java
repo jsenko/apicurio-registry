@@ -16,21 +16,19 @@
 
 package io.apicurio.registry.storage;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-
 import io.apicurio.common.apps.config.DynamicConfigStorage;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecorator;
 import io.apicurio.registry.storage.impl.sql.InMemoryRegistryStorage;
 import io.apicurio.registry.types.Current;
+import org.slf4j.Logger;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 /**
  * @author Ales Justin
@@ -56,6 +54,15 @@ public class RegistryStorageProducer {
     @ApplicationScoped
     @Current
     public RegistryStorage realImpl() {
+        log.warn("Producing storage");
+        try {
+            log.warn("sleeping");
+            Thread.sleep(100 * 1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        log.warn("done");
+
         if (cachedImpl != null) {
             return cachedImpl;
         }
@@ -81,7 +88,7 @@ public class RegistryStorageProducer {
                 declist.forEach(d -> log.debug(d.getClass().getName()));
             }
 
-            for (int i = declist.size() - 1 ; i >= 0; i--) {
+            for (int i = declist.size() - 1; i >= 0; i--) {
                 RegistryStorageDecorator decorator = declist.get(i);
                 decorator.setDelegate(cachedImpl);
                 cachedImpl = decorator;

@@ -16,25 +16,6 @@
 
 package io.apicurio.registry.services.auth;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Priority;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.inject.Inject;
-
-import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
-import io.apicurio.rest.client.auth.exception.AuthException;
-import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import io.apicurio.common.apps.config.Dynamic;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.common.apps.logging.audit.AuditHttpRequestContext;
@@ -42,6 +23,8 @@ import io.apicurio.common.apps.logging.audit.AuditHttpRequestInfo;
 import io.apicurio.common.apps.logging.audit.AuditLogService;
 import io.apicurio.rest.client.JdkHttpClientProvider;
 import io.apicurio.rest.client.auth.OidcAuth;
+import io.apicurio.rest.client.auth.exception.AuthErrorHandler;
+import io.apicurio.rest.client.auth.exception.AuthException;
 import io.apicurio.rest.client.auth.exception.NotAuthorizedException;
 import io.apicurio.rest.client.spi.ApicurioHttpClient;
 import io.quarkus.oidc.runtime.BearerAuthenticationMechanism;
@@ -56,6 +39,22 @@ import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
 import io.quarkus.vertx.http.runtime.security.QuarkusHttpUser;
 import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import javax.annotation.PostConstruct;
+import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
 
 @Alternative
 @Priority(1)
@@ -89,6 +88,9 @@ public class CustomAuthenticationMechanism implements HttpAuthenticationMechanis
     @Inject
     AuditLogService auditLog;
 
+    @Inject
+    Logger log;
+
     private BearerAuthenticationMechanism bearerAuth;
 
     private ApicurioHttpClient httpClient;
@@ -103,6 +105,7 @@ public class CustomAuthenticationMechanism implements HttpAuthenticationMechanis
 
     @Override
     public Uni<SecurityIdentity> authenticate(RoutingContext context, IdentityProviderManager identityProviderManager) {
+        log.warn("fakeBasicAuthEnabled = {}", fakeBasicAuthEnabled.get());
         if (authEnabled) {
             setAuditLogger(context);
             if (fakeBasicAuthEnabled.get()) {
