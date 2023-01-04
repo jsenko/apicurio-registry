@@ -1,0 +1,25 @@
+name: ChatGPT CodeReview
+
+on:
+  pull_request:
+    branches: chatgpt-test
+
+concurrency:
+  # Only run once for latest commit per ref and cancel other (previous) runs.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chatgpt_code_review:
+    runs-on: ubuntu-latest
+    name: ChatGPT CodeReview
+    steps:
+      - name: ChatGPT Comment
+        uses: kxxt/chatgpt-action@v0.3
+        id: chatgpt
+        with:
+          number: ${{ github.event.pull_request.number }}
+          sessionToken: ${{ secrets.CHATGPT_TOKEN }}
+          split: 'yolo' # Use true to enable the unstable split feature.
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHATGPT_GITHUB_TOKEN }}
