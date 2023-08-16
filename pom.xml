@@ -153,7 +153,7 @@
         <node.version>16.17.0</node.version>
 
         <!-- Quarkus Version -->
-        <quarkus.version>3.0.4.Final</quarkus.version>
+        <quarkus.version>3.3.0</quarkus.version>
 
         <!-- Jandex -->
         <jandex.version>1.1.1</jandex.version>
