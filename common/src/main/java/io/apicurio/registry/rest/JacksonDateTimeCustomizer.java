@@ -16,21 +16,18 @@
 
 package io.apicurio.registry.rest;
 
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import io.apicurio.common.apps.config.Info;
+import io.quarkus.jackson.ObjectMapperCustomizer;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import io.apicurio.common.apps.config.Info;
-import io.quarkus.jackson.ObjectMapperCustomizer;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -97,6 +94,7 @@ public class JacksonDateTimeCustomizer implements ObjectMapperCustomizer {
         df.setTimeZone(TimeZone.getTimeZone(tz));
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setDateFormat(df);
+        df.format(new java.util.Date());
     }
     
 }

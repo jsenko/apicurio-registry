@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.apicurio.registry.storage.dto.ArtifactMetaDataDto;
 import io.apicurio.registry.storage.dto.ArtifactReferenceDto;
 import io.apicurio.registry.storage.dto.ArtifactVersionMetaDataDto;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.utils.StringUtil;
 
 import java.util.Collections;
@@ -34,8 +35,6 @@ import java.util.Map;
 public class SqlUtil {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-
-    private static final String NULL_GROUP_ID = "__$GROUPID$__";
 
     /**
      * Serializes the given collection of labels to a string for artifactStore in the DB.
@@ -143,17 +142,11 @@ public class SqlUtil {
     }
 
     public static String normalizeGroupId(String groupId) {
-        if (groupId == null) {
-            return NULL_GROUP_ID;
-        }
-        return groupId;
+        return new GroupId(groupId).getRawGroupId();
     }
 
     public static String denormalizeGroupId(String groupId) {
-        if (NULL_GROUP_ID.equals(groupId)) {
-            return null;
-        }
-        return groupId;
+        return new GroupId(groupId).getRawGroupIdWithNull();
     }
 
 
@@ -172,7 +165,7 @@ public class SqlUtil {
         artifactMeta.setProperties(versionMeta.getProperties());
         artifactMeta.setType(versionMeta.getType());
         artifactMeta.setVersion(versionMeta.getVersion());
-        artifactMeta.setVersionId(versionMeta.getVersionId());
+        artifactMeta.setVersionOrder(versionMeta.getVersionOrder());
         return artifactMeta;
     }
 }

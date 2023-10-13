@@ -21,6 +21,9 @@ import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.*;
+import io.apicurio.registry.model.BranchId;
+import io.apicurio.registry.model.GA;
+import io.apicurio.registry.model.GAV;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.utils.impexp.Entity;
 
@@ -393,11 +396,6 @@ public abstract class RegistryStorageDecoratorReadOnlyBase implements RegistrySt
 
 
     @Override
-    public String normalizeVersion(String groupId, String artifactId, String version) {
-        return delegate.normalizeVersion(groupId, artifactId, version);
-    }
-
-    @Override
     public List<Long> getEnabledArtifactContentIds(String groupId, String artifactId) {
         return delegate.getEnabledArtifactContentIds(groupId, artifactId);
     }
@@ -405,5 +403,23 @@ public abstract class RegistryStorageDecoratorReadOnlyBase implements RegistrySt
     @Override
     public List<String> getArtifactVersions(String groupId, String artifactId, ArtifactRetrievalBehavior behavior) throws ArtifactNotFoundException, RegistryStorageException {
         return delegate.getArtifactVersions(groupId, artifactId, behavior);
+    }
+
+
+    @Override
+    public GAV getArtifactBranchLeaf(GA ga, BranchId branchId, ArtifactRetrievalBehavior behavior) {
+        return delegate.getArtifactBranchLeaf(ga, branchId, behavior);
+    }
+
+
+    @Override
+    public Map<String, List<GAV>> getArtifactBranches(GA ga) {
+        return delegate.getArtifactBranches(ga);
+    }
+
+
+    @Override
+    public List<GAV> getArtifactBranch(GA ga, BranchId branchId) {
+        return delegate.getArtifactBranch(ga, branchId);
     }
 }

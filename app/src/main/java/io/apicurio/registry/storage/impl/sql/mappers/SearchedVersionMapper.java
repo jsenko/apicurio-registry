@@ -16,13 +16,13 @@
 
 package io.apicurio.registry.storage.impl.sql.mappers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import io.apicurio.registry.storage.dto.SearchedVersionDto;
 import io.apicurio.registry.storage.impl.sql.SqlUtil;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.types.ArtifactState;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -45,7 +45,7 @@ public class SearchedVersionMapper implements RowMapper<SearchedVersionDto> {
         SearchedVersionDto dto = new SearchedVersionDto();
         dto.setGlobalId(rs.getLong("globalId"));
         dto.setVersion(rs.getString("version"));
-        dto.setVersionId(rs.getInt("versionId"));
+        dto.setVersionOrder(rs.getInt("versionOrder"));
         dto.setContentId(rs.getLong("contentId"));
         dto.setState(ArtifactState.valueOf(rs.getString("state")));
         dto.setCreatedBy(rs.getString("createdBy"));

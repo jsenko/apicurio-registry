@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Red Hat
+ * Copyright 2021 Red Hat
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package io.apicurio.registry.storage.dto;
-
-import lombok.*;
-
-import java.util.Date;
+package io.apicurio.registry.storage.impl.sql.jdb;
 
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
-public class SearchedGroupDto {
+@FunctionalInterface
+public interface HandleAction<X extends Exception> {
 
-    private String id;
-    private String description;
-    private Date createdOn;
-    private String createdBy;
-    private Date modifiedOn;
-    private String modifiedBy;
+    /**
+     * Will be invoked with an open Handle. The handle may be closed when this callback returns.
+     *
+     * @param handle Handle to be used only within scope of this callback
+     * @throws X optional exception thrown by the callback
+     */
+    void withHandle(Handle handle) throws X;
 }

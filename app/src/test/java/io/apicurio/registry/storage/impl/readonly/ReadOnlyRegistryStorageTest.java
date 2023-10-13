@@ -140,7 +140,6 @@ public class ReadOnlyRegistryStorageTest {
                 entry("nextCommentId0", new State(true, RegistryStorage::nextCommentId)),
                 entry("nextContentId0", new State(true, RegistryStorage::nextContentId)),
                 entry("nextGlobalId0", new State(true, RegistryStorage::nextGlobalId)),
-                entry("normalizeVersion3", new State(false, s -> s.normalizeVersion(null, null, null))),
                 entry("resetCommentId0", new State(true, RegistryStorage::resetCommentId)),
                 entry("resetContentId0", new State(true, RegistryStorage::resetContentId)),
                 entry("resetGlobalId0", new State(true, RegistryStorage::resetGlobalId)),

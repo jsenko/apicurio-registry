@@ -1,5 +1,6 @@
 /*
- * Copyright 2021 Red Hat
+ * Copyright 2020 Red Hat
+ * Copyright 2020 IBM
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +17,9 @@
 
 package io.apicurio.registry.storage.dto;
 
-import io.apicurio.registry.types.ArtifactState;
+import io.apicurio.registry.model.GAV;
 import lombok.*;
 
-import java.util.*;
-
-/**
- * @author eric.wittmann@gmail.com
- */
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,18 +27,20 @@ import java.util.*;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class SearchedVersionDto {
+public class BranchDto {
 
-    private String name;
-    private String description;
-    private Date createdOn;
-    private String createdBy;
-    private String type;
-    private List<String> labels = new ArrayList<>();
-    private Map<String, String> properties = new HashMap<>();
-    private ArtifactState state;
-    private long globalId;
-    private long contentId;
+    private String groupId;
+
+    private String artifactId;
+
+    private String branch;
+
+    private int branchOrder;
+
     private String version;
-    private int versionOrder;
+
+
+    public GAV toGAV() {
+        return new GAV(groupId, artifactId, version);
+    }
 }

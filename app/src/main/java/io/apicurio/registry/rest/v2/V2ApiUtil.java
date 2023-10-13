@@ -17,34 +17,14 @@
 
 package io.apicurio.registry.rest.v2;
 
+import io.apicurio.registry.rest.v2.beans.*;
+import io.apicurio.registry.storage.dto.*;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import io.apicurio.registry.rest.v2.beans.ArtifactMetaData;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rest.v2.beans.ArtifactSearchResults;
-import io.apicurio.registry.rest.v2.beans.Comment;
-import io.apicurio.registry.rest.v2.beans.GroupMetaData;
-import io.apicurio.registry.rest.v2.beans.GroupSearchResults;
-import io.apicurio.registry.rest.v2.beans.SearchedArtifact;
-import io.apicurio.registry.rest.v2.beans.SearchedGroup;
-import io.apicurio.registry.rest.v2.beans.SearchedVersion;
-import io.apicurio.registry.rest.v2.beans.SortOrder;
-import io.apicurio.registry.rest.v2.beans.VersionMetaData;
-import io.apicurio.registry.rest.v2.beans.VersionSearchResults;
-import io.apicurio.registry.storage.dto.ArtifactMetaDataDto;
-import io.apicurio.registry.storage.dto.ArtifactReferenceDto;
-import io.apicurio.registry.storage.dto.ArtifactSearchResultsDto;
-import io.apicurio.registry.storage.dto.ArtifactVersionMetaDataDto;
-import io.apicurio.registry.storage.dto.CommentDto;
-import io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto;
-import io.apicurio.registry.storage.dto.GroupMetaDataDto;
-import io.apicurio.registry.storage.dto.GroupSearchResultsDto;
-import io.apicurio.registry.storage.dto.VersionSearchResultsDto;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -346,23 +326,5 @@ public final class V2ApiUtil {
                 .createdOn(new Date(dto.getCreatedOn()))
                 .value(dto.getValue())
                 .build();
-    }
-
-    public static String prettyPrintReferences(Collection<ArtifactReference> references) {
-        return references.stream()
-                .map(ar -> nullGroupIdToDefault(ar.getGroupId()) + ":" + ar.getArtifactId() + ":" + ar.getVersion() + "->" + ar.getName())
-                .reduce((left, right) -> left + ", " + right)
-                .orElse("");
-    }
-
-    public static String defaultGroupIdToNull(String groupId) {
-        if ("default".equalsIgnoreCase(groupId)) {
-            return null;
-        }
-        return groupId;
-    }
-
-    public static String nullGroupIdToDefault(String groupId) {
-        return groupId != null ? groupId : "default";
     }
 }

@@ -1062,24 +1062,24 @@ public abstract class AbstractRegistryStorageTest extends AbstractResourceTestBa
         Assertions.assertEquals(GROUP_ID, dto.getGroupId());
         Assertions.assertEquals(artifactId, dto.getId());
 
-        List<CommentDto> comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest");
+        List<CommentDto> comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest"); // TODO: "latest" is not valid here
         Assertions.assertTrue(comments.isEmpty());
 
-        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_1");
-        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_2");
-        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_3");
+        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_1"); // TODO: "latest" is not valid here
+        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_2"); // TODO: "latest" is not valid here
+        storage().createArtifactVersionComment(GROUP_ID, artifactId, "latest", "TEST_COMMENT_3"); // TODO: "latest" is not valid here
 
-        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest");
+        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest"); // TODO: "latest" is not valid here
         Assertions.assertEquals(3, comments.size());
 
-        storage().deleteArtifactVersionComment(GROUP_ID, artifactId, "latest", comments.get(1).getCommentId());
+        storage().deleteArtifactVersionComment(GROUP_ID, artifactId, "latest", comments.get(1).getCommentId()); // TODO: "latest" is not valid here
 
-        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest");
+        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest"); // TODO: "latest" is not valid here
         Assertions.assertEquals(2, comments.size());
 
-        storage().updateArtifactVersionComment(GROUP_ID, artifactId, "latest", comments.get(0).getCommentId(), "TEST_COMMENT_4");
+        storage().updateArtifactVersionComment(GROUP_ID, artifactId, "latest", comments.get(0).getCommentId(), "TEST_COMMENT_4"); // TODO: "latest" is not valid here
 
-        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest");
+        comments = storage().getArtifactVersionComments(GROUP_ID, artifactId, "latest"); // TODO: "latest" is not valid here
         Assertions.assertEquals(2, comments.size());
         Assertions.assertEquals("TEST_COMMENT_4", comments.get(0).getValue());
     }

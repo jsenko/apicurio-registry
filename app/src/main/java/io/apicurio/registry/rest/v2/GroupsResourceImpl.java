@@ -25,6 +25,7 @@ import io.apicurio.registry.auth.AuthorizedStyle;
 import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.metrics.health.liveness.ResponseErrorLivenessCheck;
 import io.apicurio.registry.metrics.health.readiness.ResponseTimeoutReadinessCheck;
+import io.apicurio.registry.model.*;
 import io.apicurio.registry.rest.HeadersHack;
 import io.apicurio.registry.rest.MissingRequiredParameterException;
 import io.apicurio.registry.rest.ParametersConflictException;
@@ -33,6 +34,7 @@ import io.apicurio.registry.rest.v2.beans.*;
 import io.apicurio.registry.rest.v2.shared.CommonResourceOperations;
 import io.apicurio.registry.rules.RuleApplicationType;
 import io.apicurio.registry.rules.RulesService;
+import io.apicurio.registry.storage.RegistryStorage.ArtifactRetrievalBehavior;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.*;
 import io.apicurio.registry.types.ArtifactState;
@@ -48,6 +50,7 @@ import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.NotAllowedException;
@@ -67,12 +70,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static io.apicurio.common.apps.logging.audit.AuditingConstants.*;
 import static io.apicurio.registry.logging.audit.AuditingConstants.KEY_OWNER;
-import static io.apicurio.registry.rest.v2.V2ApiUtil.defaultGroupIdToNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Implements the {@link GroupsResource} JAX-RS interface.
@@ -116,17 +119,17 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
             references = HandleReferencesType.PRESERVE;
         }
 
-        ArtifactMetaDataDto metaData = storage.getArtifactMetaData(defaultGroupIdToNull(groupId), artifactId);
+        ArtifactMetaDataDto metaData = storage.getArtifactMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
         if (ArtifactState.DISABLED.equals(metaData.getState())) {
             throw new ArtifactNotFoundException(groupId, artifactId);
         }
-        StoredArtifactDto artifact = storage.getArtifact(defaultGroupIdToNull(groupId), artifactId);
+        StoredArtifactDto artifact = storage.getArtifact(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
 
         MediaType contentType = factory.getArtifactMediaType(metaData.getType());
 
         ContentHandle contentToReturn = artifact.getContent();
-        contentToReturn = handleContentReferences(references, metaData.getType(), contentToReturn, artifact.getReferences());  
-        
+        contentToReturn = handleContentReferences(references, metaData.getType(), contentToReturn, artifact.getReferences());
+
         Response.ResponseBuilder builder = Response.ok(contentToReturn, contentType);
         checkIfDeprecated(metaData::getState, groupId, artifactId, metaData.getVersion(), builder);
         return builder.build();
@@ -162,15 +165,22 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
      */
     @Override
     public List<ArtifactReference> getArtifactVersionReferences(String groupId, String artifactId,
-            String version, ReferenceType refType) {
+                                                                String version, ReferenceType refType) {
+
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
         if (refType == null || refType == ReferenceType.OUTBOUND) {
-            return storage.getArtifactVersion(defaultGroupIdToNull(groupId), artifactId, version).getReferences().stream()
+            return storage.getArtifactVersion(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId())
+                    .getReferences()
+                    .stream()
                     .map(V2ApiUtil::referenceDtoToReference)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         } else {
-            return storage.getInboundArtifactReferences(defaultGroupIdToNull(groupId), artifactId, version).stream()
+            return storage.getInboundArtifactReferences(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId())
+                    .stream()
                     .map(V2ApiUtil::referenceDtoToReference)
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
 
@@ -202,7 +212,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
 
-        storage.deleteArtifact(defaultGroupIdToNull(groupId), artifactId);
+        storage.deleteArtifact(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
     }
 
     /**
@@ -214,8 +224,8 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
 
-        ArtifactMetaDataDto dto = storage.getArtifactMetaData(defaultGroupIdToNull(groupId), artifactId);
-        return V2ApiUtil.dtoToMetaData(defaultGroupIdToNull(groupId), artifactId, dto.getType(), dto);
+        ArtifactMetaDataDto dto = storage.getArtifactMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
+        return V2ApiUtil.dtoToMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, dto.getType(), dto);
     }
 
     /**
@@ -237,7 +247,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         dto.setDescription(data.getDescription());
         dto.setLabels(data.getLabels());
         dto.setProperties(data.getProperties());
-        storage.updateArtifactMetaData(defaultGroupIdToNull(groupId), artifactId, dto);
+        storage.updateArtifactMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, dto);
     }
 
     @Override
@@ -246,7 +256,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
 
-        ArtifactMetaDataDto dto = storage.getArtifactMetaData(defaultGroupIdToNull(groupId), artifactId);
+        ArtifactMetaDataDto dto = storage.getArtifactMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
         ArtifactOwner owner = new ArtifactOwner();
         owner.setOwner(dto.getCreatedBy());
         return owner;
@@ -265,7 +275,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         }
 
         ArtifactOwnerDto dto = new ArtifactOwnerDto(data.getOwner());
-        storage.updateArtifactOwner(defaultGroupIdToNull(groupId), artifactId, dto);
+        storage.updateArtifactOwner(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, dto);
     }
 
     @Override
@@ -351,8 +361,8 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
 
         final List<ArtifactReferenceDto> artifactReferenceDtos = toReferenceDtos(artifactReferences);
 
-        ArtifactVersionMetaDataDto dto = storage.getArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, canonical, content, artifactReferenceDtos);
-        return V2ApiUtil.dtoToVersionMetaData(defaultGroupIdToNull(groupId), artifactId, dto.getType(), dto);
+        ArtifactVersionMetaDataDto dto = storage.getArtifactVersionMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, canonical, content, artifactReferenceDtos);
+        return V2ApiUtil.dtoToVersionMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, dto.getType(), dto);
     }
 
     /**
@@ -364,7 +374,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
 
-        return storage.getArtifactRules(defaultGroupIdToNull(groupId), artifactId);
+        return storage.getArtifactRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
     }
 
     /**
@@ -387,11 +397,11 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         RuleConfigurationDto config = new RuleConfigurationDto();
         config.setConfiguration(data.getConfig());
 
-        if (!storage.isArtifactExists(defaultGroupIdToNull(groupId), artifactId)) {
+        if (!storage.isArtifactExists(new GroupId(groupId).getRawGroupIdWithNull(), artifactId)) {
             throw new ArtifactNotFoundException(groupId, artifactId);
         }
 
-        storage.createArtifactRule(defaultGroupIdToNull(groupId), artifactId, data.getType(), config);
+        storage.createArtifactRule(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, data.getType(), config);
     }
 
     /**
@@ -404,7 +414,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
 
-        storage.deleteArtifactRules(defaultGroupIdToNull(groupId), artifactId);
+        storage.deleteArtifactRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId);
     }
 
     /**
@@ -417,7 +427,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("rule", rule);
 
-        RuleConfigurationDto dto = storage.getArtifactRule(defaultGroupIdToNull(groupId), artifactId, rule);
+        RuleConfigurationDto dto = storage.getArtifactRule(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, rule);
         Rule rval = new Rule();
         rval.setConfig(dto.getConfiguration());
         rval.setType(rule);
@@ -436,7 +446,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("rule", rule);
 
         RuleConfigurationDto dto = new RuleConfigurationDto(data.getConfig());
-        storage.updateArtifactRule(defaultGroupIdToNull(groupId), artifactId, rule, dto);
+        storage.updateArtifactRule(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, rule, dto);
         Rule rval = new Rule();
         rval.setType(rule);
         rval.setConfig(data.getConfig());
@@ -454,7 +464,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("rule", rule);
 
-        storage.deleteArtifactRule(defaultGroupIdToNull(groupId), artifactId, rule);
+        storage.deleteArtifactRule(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, rule);
     }
 
     /**
@@ -467,7 +477,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
         requireParameter("body.state", data.getState());
-        storage.updateArtifactState(defaultGroupIdToNull(groupId), artifactId, data.getState());
+        storage.updateArtifactState(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, data.getState());
     }
 
     /**
@@ -489,7 +499,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         }
 
         String artifactType = lookupArtifactType(groupId, artifactId);
-        rulesService.applyRules(defaultGroupIdToNull(groupId), artifactId, artifactType, content, RuleApplicationType.UPDATE, Collections.emptyList(), Collections.emptyMap()); //TODO:references not supported for testing update
+        rulesService.applyRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, content, RuleApplicationType.UPDATE, Collections.emptyList(), Collections.emptyMap()); //TODO:references not supported for testing update
     }
 
     /**
@@ -502,20 +512,23 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
         if (references == null) {
             references = HandleReferencesType.PRESERVE;
         }
 
-        ArtifactVersionMetaDataDto metaData = storage.getArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, version);
+        ArtifactVersionMetaDataDto metaData = storage.getArtifactVersionMetaData(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
         if (ArtifactState.DISABLED.equals(metaData.getState())) {
             throw new VersionNotFoundException(groupId, artifactId, version);
         }
-        StoredArtifactDto artifact = storage.getArtifactVersion(defaultGroupIdToNull(groupId), artifactId, version);
+        StoredArtifactDto artifact = storage.getArtifactVersion(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
 
         MediaType contentType = factory.getArtifactMediaType(metaData.getType());
 
         ContentHandle contentToReturn = artifact.getContent();
-        contentToReturn = handleContentReferences(references, metaData.getType(), contentToReturn, artifact.getReferences());  
+        contentToReturn = handleContentReferences(references, metaData.getType(), contentToReturn, artifact.getReferences());
 
         Response.ResponseBuilder builder = Response.ok(contentToReturn, contentType);
         checkIfDeprecated(metaData::getState, groupId, artifactId, version, builder);
@@ -536,7 +549,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
-        storage.deleteArtifactVersion(defaultGroupIdToNull(groupId), artifactId, version);
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        storage.deleteArtifactVersion(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
     }
 
     /**
@@ -549,8 +565,11 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
-        ArtifactVersionMetaDataDto dto = storage.getArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, version);
-        return V2ApiUtil.dtoToVersionMetaData(defaultGroupIdToNull(groupId), artifactId, dto.getType(), dto);
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        ArtifactVersionMetaDataDto dto = storage.getArtifactVersionMetaData(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
+        return V2ApiUtil.dtoToVersionMetaData(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), dto.getType(), dto);
     }
 
     /**
@@ -563,6 +582,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
+
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
         if (data.getProperties() != null) {
             data.getProperties().forEach((k, v) -> requireParameter("property value", v));
         }
@@ -571,7 +594,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         dto.setDescription(data.getDescription());
         dto.setLabels(data.getLabels());
         dto.setProperties(data.getProperties());
-        storage.updateArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, version, dto);
+        storage.updateArtifactVersionMetaData(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId(), dto);
     }
 
     /**
@@ -585,9 +608,12 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
-        storage.deleteArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, version);
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        storage.deleteArtifactVersionMetaData(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
     }
-    
+
     /**
      * @see io.apicurio.registry.rest.v2.GroupsResource#addArtifactVersionComment(java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.rest.v2.beans.NewComment)
      */
@@ -598,11 +624,15 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
-        
-        CommentDto newComment = storage.createArtifactVersionComment(defaultGroupIdToNull(groupId), artifactId, version, data.getValue());
+
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        CommentDto newComment = storage.createArtifactVersionComment(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(),
+                gav.getRawVersionId(), data.getValue());
         return V2ApiUtil.commentDtoToComment(newComment);
     }
-    
+
     /**
      * @see io.apicurio.registry.rest.v2.GroupsResource#deleteArtifactVersionComment(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
@@ -615,9 +645,12 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("version", version);
         requireParameter("commentId", commentId);
 
-        storage.deleteArtifactVersionComment(defaultGroupIdToNull(groupId), artifactId, version, commentId);
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        storage.deleteArtifactVersionComment(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId(), commentId);
     }
-    
+
     /**
      * @see io.apicurio.registry.rest.v2.GroupsResource#getArtifactVersionComments(java.lang.String, java.lang.String, java.lang.String)
      */
@@ -628,11 +661,15 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
-        return storage.getArtifactVersionComments(defaultGroupIdToNull(groupId), artifactId, version).stream()
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        return storage.getArtifactVersionComments(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId())
+                .stream()
                 .map(V2ApiUtil::commentDtoToComment)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
-    
+
     /**
      * @see io.apicurio.registry.rest.v2.GroupsResource#updateArtifactVersionComment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.rest.v2.beans.NewComment)
      */
@@ -646,7 +683,11 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("commentId", commentId);
         requireParameter("value", data.getValue());
 
-        storage.updateArtifactVersionComment(defaultGroupIdToNull(groupId), artifactId, version, commentId, data.getValue());
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        storage.updateArtifactVersionComment(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(),
+                gav.getRawVersionId(), commentId, data.getValue());
     }
 
     /**
@@ -660,7 +701,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("artifactId", artifactId);
         requireParameter("version", version);
 
-        storage.updateArtifactState(defaultGroupIdToNull(groupId), artifactId, version, data.getState());
+        var gav = VersionExpressionParser.parse(new GA(groupId, artifactId), version,
+                (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
+
+        storage.updateArtifactState(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId(), data.getState());
     }
 
     /**
@@ -686,7 +730,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         final OrderDirection oDir = order == null || order == SortOrder.asc ? OrderDirection.asc : OrderDirection.desc;
 
         Set<SearchFilter> filters = new HashSet<>();
-        filters.add(SearchFilter.ofGroup(defaultGroupIdToNull(groupId)));
+        filters.add(SearchFilter.ofGroup(new GroupId(groupId).getRawGroupIdWithNull()));
 
         ArtifactSearchResultsDto resultsDto = storage.searchArtifacts(filters, oBy, oDir, offset.intValue(), limit.intValue());
         return V2ApiUtil.dtoToSearchResults(resultsDto);
@@ -701,7 +745,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
     public void deleteArtifactsInGroup(String groupId) {
         requireParameter("groupId", groupId);
 
-        storage.deleteArtifacts(defaultGroupIdToNull(groupId));
+        storage.deleteArtifacts(new GroupId(groupId).getRawGroupIdWithNull());
     }
 
     /**
@@ -893,13 +937,13 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
             //Try to resolve the new artifact references and the nested ones (if any)
             final Map<String, ContentHandle> resolvedReferences = storage.resolveReferences(referencesAsDtos);
 
-            rulesService.applyRules(defaultGroupIdToNull(groupId), artifactId, artifactType, content, RuleApplicationType.CREATE, references, resolvedReferences);
+            rulesService.applyRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, content, RuleApplicationType.CREATE, references, resolvedReferences);
 
             final String finalArtifactId = artifactId;
             EditableArtifactMetaDataDto metaData = getEditableMetaData(artifactName, artifactDescription);
 
-            ArtifactMetaDataDto amd = storage.createArtifactWithMetadata(defaultGroupIdToNull(groupId), artifactId, xRegistryVersion, artifactType, content, metaData, referencesAsDtos);
-            return V2ApiUtil.dtoToMetaData(defaultGroupIdToNull(groupId), finalArtifactId, artifactType, amd);
+            ArtifactMetaDataDto amd = storage.createArtifactWithMetadata(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, xRegistryVersion, artifactType, content, metaData, referencesAsDtos);
+            return V2ApiUtil.dtoToMetaData(new GroupId(groupId).getRawGroupIdWithNull(), finalArtifactId, artifactType, amd);
         } catch (ArtifactAlreadyExistsException ex) {
             return handleIfExists(groupId, xRegistryArtifactId, xRegistryVersion, ifExists, artifactName, artifactDescription, content, ct, fcanonical, references);
         }
@@ -921,7 +965,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
             limit = BigInteger.valueOf(20);
         }
 
-        VersionSearchResultsDto resultsDto = storage.searchVersions(defaultGroupIdToNull(groupId), artifactId, offset.intValue(), limit.intValue());
+        VersionSearchResultsDto resultsDto = storage.searchVersions(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, offset.intValue(), limit.intValue());
         return V2ApiUtil.dtoToSearchResults(resultsDto);
     }
 
@@ -950,6 +994,70 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("content", data.getContent());
         return this.createArtifactVersionWithRefs(groupId, artifactId, xRegistryVersion, xRegistryName, xRegistryDescription, xRegistryDescriptionEncoded, xRegistryNameEncoded, IoUtil.toStream(data.getContent()), data.getReferences());
     }
+
+
+    @Override
+    @Audited(extractParameters = {"0", KEY_GROUP_ID, "1", KEY_ARTIFACT_ID})
+    @Authorized(style = AuthorizedStyle.GroupAndArtifact, level = AuthorizedLevel.Read)
+    public Branches listArtifactBranches(String groupId, String artifactId) {
+        requireParameter("groupId", groupId);
+        requireParameter("artifactId", artifactId);
+        var res = new Branches();
+        for (Entry<String, List<GAV>> branch : storage.getArtifactBranches(new GA(groupId, artifactId)).entrySet()) {
+            res.setAdditionalProperty(branch.getKey(), branch.getValue()
+                    .stream()
+                    .map(gav -> new Gav(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), gav.getRawVersionId()))
+                    .collect(toList())
+            );
+        }
+        return res;
+    }
+
+
+    @Override
+    @Audited(extractParameters = {"0", KEY_GROUP_ID, "1", KEY_ARTIFACT_ID, "2", "branch_id"}) // TODO
+    @Authorized(style = AuthorizedStyle.GroupAndArtifact, level = AuthorizedLevel.Read)
+    public List<Gav> getArtifactBranch(String groupId, String artifactId, String branchId) {
+        requireParameter("groupId", groupId);
+        requireParameter("artifactId", artifactId);
+        requireParameter("branchId", branchId);
+        return storage.getArtifactBranch(new GA(groupId, artifactId), new BranchId(branchId))
+                .stream()
+                .map(gav -> new Gav(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), gav.getRawVersionId()))
+                .collect(toList());
+    }
+
+
+    @Override
+    @Audited(extractParameters = {"0", KEY_GROUP_ID, "1", KEY_ARTIFACT_ID, "2", "branch_id", "3", KEY_VERSION}) // TODO
+    @Authorized(style = AuthorizedStyle.GroupAndArtifact, level = AuthorizedLevel.Write)
+    public List<Gav> createOrUpdateArtifactBranch(String groupId, String artifactId, String branchId, @NotNull String data) {
+        requireParameter("groupId", groupId);
+        requireParameter("artifactId", artifactId);
+        requireParameter("branchId", branchId);
+        requireParameter("version", data);
+        var gav = new GAV(groupId, artifactId, data);
+        var branch = new BranchId(branchId);
+        storage.createOrUpdateArtifactBranch(gav, branch);
+        return storage.getArtifactBranch(gav, branch)
+                .stream()
+                .map(gav2 -> new Gav(gav2.getRawGroupIdWithDefault(), gav2.getRawArtifactId(), gav2.getRawVersionId()))
+                .collect(toList());
+    }
+
+
+    @Override
+    @Audited(extractParameters = {"0", KEY_GROUP_ID, "1", KEY_ARTIFACT_ID, "2", "branch_id"}) // TODO
+    @Authorized(style = AuthorizedStyle.GroupAndArtifact, level = AuthorizedLevel.Write)
+    public void deleteArtifactBranch(String groupId, String artifactId, String branchId) {
+        requireParameter("groupId", groupId);
+        requireParameter("artifactId", artifactId);
+        requireParameter("branchId", branchId);
+        storage.deleteArtifactBranch(new GA(groupId, artifactId), new BranchId(branchId));
+    }
+
+
+    // ========== Not endpoints: ==========
 
     /**
      * Creates an artifact version with references.  Shared implementation for both variants of createArtifactVersion.
@@ -991,10 +1099,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         final Map<String, ContentHandle> resolvedReferences = storage.resolveReferences(referencesAsDtos);
 
         String artifactType = lookupArtifactType(groupId, artifactId);
-        rulesService.applyRules(defaultGroupIdToNull(groupId), artifactId, artifactType, content, RuleApplicationType.UPDATE, references, resolvedReferences);
+        rulesService.applyRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, content, RuleApplicationType.UPDATE, references, resolvedReferences);
         EditableArtifactMetaDataDto metaData = getEditableMetaData(artifactName, artifactDescription);
-        ArtifactMetaDataDto amd = storage.updateArtifactWithMetadata(defaultGroupIdToNull(groupId), artifactId, xRegistryVersion, artifactType, content, metaData, referencesAsDtos);
-        return V2ApiUtil.dtoToVersionMetaData(defaultGroupIdToNull(groupId), artifactId, artifactType, amd);
+        ArtifactMetaDataDto amd = storage.updateArtifactWithMetadata(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, xRegistryVersion, artifactType, content, metaData, referencesAsDtos);
+        return V2ApiUtil.dtoToVersionMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, amd);
     }
 
     /**
@@ -1017,7 +1125,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
      * @param artifactId
      */
     private String lookupArtifactType(String groupId, String artifactId) {
-        return storage.getArtifactMetaData(defaultGroupIdToNull(groupId), artifactId).getType();
+        return storage.getArtifactMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId).getType();
     }
 
     /**
@@ -1075,8 +1183,8 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
                                                           String artifactName, String artifactDescription,
                                                           ContentHandle content, String contentType, boolean canonical, List<ArtifactReference> references) {
         try {
-            ArtifactVersionMetaDataDto mdDto = this.storage.getArtifactVersionMetaData(defaultGroupIdToNull(groupId), artifactId, canonical, content, toReferenceDtos(references));
-            ArtifactMetaData md = V2ApiUtil.dtoToMetaData(defaultGroupIdToNull(groupId), artifactId, null, mdDto);
+            ArtifactVersionMetaDataDto mdDto = this.storage.getArtifactVersionMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, canonical, content, toReferenceDtos(references));
+            ArtifactMetaData md = V2ApiUtil.dtoToMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, null, mdDto);
             return md;
         } catch (ArtifactNotFoundException nfe) {
             // This is OK - we'll update the artifact if there is no matching content already there.
@@ -1099,10 +1207,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
 
         final Map<String, ContentHandle> resolvedReferences = storage.resolveReferences(referencesAsDtos);
 
-        rulesService.applyRules(defaultGroupIdToNull(groupId), artifactId, artifactType, content, RuleApplicationType.UPDATE, references, resolvedReferences);
+        rulesService.applyRules(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, content, RuleApplicationType.UPDATE, references, resolvedReferences);
         EditableArtifactMetaDataDto metaData = getEditableMetaData(name, description);
-        ArtifactMetaDataDto dto = storage.updateArtifactWithMetadata(defaultGroupIdToNull(groupId), artifactId, version, artifactType, content, metaData, referencesAsDtos);
-        return V2ApiUtil.dtoToMetaData(defaultGroupIdToNull(groupId), artifactId, artifactType, dto);
+        ArtifactMetaDataDto dto = storage.updateArtifactWithMetadata(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, version, artifactType, content, metaData, referencesAsDtos);
+        return V2ApiUtil.dtoToMetaData(new GroupId(groupId).getRawGroupIdWithNull(), artifactId, artifactType, dto);
     }
 
     private EditableArtifactMetaDataDto getEditableMetaData(String name, String description) {
@@ -1118,11 +1226,11 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         }
         return references.stream()
                 .map(r -> {
-                    r.setGroupId(defaultGroupIdToNull(r.getGroupId()));
+                    r.setGroupId(new GroupId(r.getGroupId()).getRawGroupIdWithNull());
                     return r;
                 }) // .peek(...) may be optimized away
                 .map(V2ApiUtil::referenceToDto)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
 }

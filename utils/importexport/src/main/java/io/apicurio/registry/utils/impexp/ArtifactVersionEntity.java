@@ -42,7 +42,7 @@ public class ArtifactVersionEntity extends Entity {
     public String groupId;
     public String artifactId;
     public String version;
-    public int versionId;
+    public int versionOrder;
     public String artifactType;
     public ArtifactState state;
     public String name;
@@ -51,7 +51,6 @@ public class ArtifactVersionEntity extends Entity {
     public long createdOn;
     public List<String> labels;
     public Map<String, String> properties;
-    public boolean isLatest;
     public long contentId;
 
     /**
