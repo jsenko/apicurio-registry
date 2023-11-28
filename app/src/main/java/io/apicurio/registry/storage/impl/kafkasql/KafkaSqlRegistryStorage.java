@@ -22,6 +22,10 @@ import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.metrics.StorageMetricsApply;
 import io.apicurio.registry.metrics.health.liveness.PersistenceExceptionLivenessApply;
 import io.apicurio.registry.metrics.health.readiness.PersistenceTimeoutReadinessApply;
+import io.apicurio.registry.model.BranchId;
+import io.apicurio.registry.model.GA;
+import io.apicurio.registry.model.GAV;
+import io.apicurio.registry.model.VersionId;
 import io.apicurio.registry.storage.ArtifactStateExt;
 import io.apicurio.registry.storage.StorageEvent;
 import io.apicurio.registry.storage.StorageEventType;
@@ -40,9 +44,6 @@ import io.apicurio.registry.storage.impl.sql.SqlRegistryStorage;
 import io.apicurio.registry.storage.impl.sql.SqlUtil;
 import io.apicurio.registry.storage.importing.DataImporter;
 import io.apicurio.registry.storage.importing.SqlDataImporter;
-import io.apicurio.registry.model.BranchId;
-import io.apicurio.registry.model.GA;
-import io.apicurio.registry.model.GAV;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.utils.ConcurrentUtil;
@@ -315,8 +316,20 @@ public class KafkaSqlRegistryStorage extends RegistryStorageDecoratorReadOnlyBas
         String createdBy = securityIdentity.getPrincipal().getName();
         Date createdOn = new Date();
 
-        if (metaData == null) {
-            metaData = utils.extractEditableArtifactMetadata(artifactType, content);
+        // TODO: Duplicated code, refactor this?
+        if (metaData == null || version == null) {
+            var extractionResult = utils.extractEditableArtifactMetadata(artifactType, content);
+            if (metaData == null) {
+                metaData = extractionResult.getMetaDataDto();
+            }
+            if (version == null) {
+                var exVersion = extractionResult.getVersion();
+                if (exVersion == null || VersionId.isValid(exVersion)) {
+                    version = exVersion;
+                } else {
+                    log.warn("Version '" + exVersion + "' that was extracted from artifact content does not have valid format.");
+                }
+            }
         }
 
         if (groupId != null && !isGroupExists(groupId)) {
@@ -408,8 +421,20 @@ public class KafkaSqlRegistryStorage extends RegistryStorageDecoratorReadOnlyBas
         String createdBy = securityIdentity.getPrincipal().getName();
         Date createdOn = new Date();
 
-        if (metaData == null) {
-            metaData = utils.extractEditableArtifactMetadata(artifactType, content);
+        // TODO: Duplicated code, refactor this?
+        if (metaData == null || version == null) {
+            var extractionResult = utils.extractEditableArtifactMetadata(artifactType, content);
+            if (metaData == null) {
+                metaData = extractionResult.getMetaDataDto();
+            }
+            if (version == null) {
+                var exVersion = extractionResult.getVersion();
+                if (exVersion == null || VersionId.isValid(exVersion)) {
+                    version = exVersion;
+                } else {
+                    log.warn("Version '" + exVersion + "' that was extracted from artifact content does not have valid format.");
+                }
+            }
         }
 
         long globalId = globalIdGenerator.generate();

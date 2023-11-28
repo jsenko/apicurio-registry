@@ -167,7 +167,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals(name, emd.getName());
     }
 
@@ -208,7 +207,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals(name, emd.getName());
         Assertions.assertEquals(description, emd.getDescription());
     }
@@ -250,7 +248,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals(name, emd.getName());
         Assertions.assertEquals(description, emd.getDescription());
     }
@@ -292,7 +289,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals(name, emd.getName());
         Assertions.assertEquals(description, emd.getDescription());
     }
@@ -332,7 +328,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals("StockQuote", emd.getName());
         Assertions.assertNull(emd.getDescription());
     }
@@ -362,7 +357,6 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         ContentExtractor extractor = provider.getContentExtractor();
 
         ExtractedMetaData emd = extractor.extract(ContentHandle.create(content));
-        Assertions.assertTrue(extractor.isExtracted(emd));
         Assertions.assertEquals("http://tempuri.org/PurchaseOrderSchema.xsd", emd.getName());
         Assertions.assertNull(emd.getDescription());
     }

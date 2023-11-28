@@ -8,6 +8,7 @@ import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
 import io.apicurio.registry.util.ArtifactTypeUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 
@@ -123,23 +124,34 @@ public class RegistryStorageContentUtils {
     }
 
 
-    public EditableArtifactMetaDataDto extractEditableArtifactMetadata(String artifactType, ContentHandle content) {
+    public MetadataExtractionResult extractEditableArtifactMetadata(String artifactType, ContentHandle content) {
         var provider = factory.getArtifactTypeProvider(artifactType);
         var extractor = provider.getContentExtractor();
         var extractedMetadata = extractor.extract(content);
-        if (extractedMetadata != null) {
-            return new EditableArtifactMetaDataDto(
-                    extractedMetadata.getName(),
-                    extractedMetadata.getDescription(),
-                    extractedMetadata.getLabels(),
-                    extractedMetadata.getProperties());
-        } else {
-            return new EditableArtifactMetaDataDto();
-        }
+        return MetadataExtractionResult.builder()
+                .metaDataDto(new EditableArtifactMetaDataDto(
+                        extractedMetadata.getName(),
+                        extractedMetadata.getDescription(),
+                        extractedMetadata.getLabels(),
+                        extractedMetadata.getProperties()))
+                .version(extractedMetadata.getVersion())
+                .build();
     }
 
 
     public static boolean notEmpty(Collection<?> collection) {
         return collection != null && !collection.isEmpty();
+    }
+
+
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @EqualsAndHashCode
+    @ToString
+    public static class MetadataExtractionResult {
+
+        private final EditableArtifactMetaDataDto metaDataDto;
+        private final String version;
     }
 }

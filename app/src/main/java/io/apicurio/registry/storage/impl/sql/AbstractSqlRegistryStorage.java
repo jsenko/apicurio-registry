@@ -23,6 +23,7 @@ import io.apicurio.common.apps.config.Info;
 import io.apicurio.common.apps.core.System;
 import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.exception.UnreachableCodeException;
+import io.apicurio.registry.model.*;
 import io.apicurio.registry.storage.*;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.*;
@@ -33,10 +34,6 @@ import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.storage.impl.sql.mappers.*;
 import io.apicurio.registry.storage.importing.DataImporter;
 import io.apicurio.registry.storage.importing.SqlDataImporter;
-import io.apicurio.registry.model.BranchId;
-import io.apicurio.registry.model.GA;
-import io.apicurio.registry.model.GAV;
-import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.util.DtoUtil;
@@ -47,8 +44,10 @@ import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.semver4j.Semver;
 import org.slf4j.Logger;
 
 import java.sql.ResultSet;
@@ -62,6 +61,7 @@ import java.util.stream.Stream;
 
 import static io.apicurio.registry.storage.RegistryStorage.ArtifactRetrievalBehavior.DEFAULT;
 import static io.apicurio.registry.storage.impl.sql.RegistryStorageContentUtils.notEmpty;
+import static io.apicurio.registry.storage.impl.sql.SemverBranchingMode.*;
 import static io.apicurio.registry.storage.impl.sql.SqlUtil.convert;
 import static io.apicurio.registry.storage.impl.sql.SqlUtil.normalizeGroupId;
 import static io.apicurio.registry.utils.StringUtil.limitStr;
@@ -121,6 +121,17 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     @ConfigProperty(name = "registry.sql.init", defaultValue = "true")
     @Info(category = "storage", description = "SQL init", availableSince = "2.0.0.Final")
     boolean initDB;
+
+    // TODO: Refactor this into a global/artifact rule. However, that would require rules that can also be executed *after* version is created or updated.
+    // We should also support creation of empty artifacts so a rule can be applied to an initial version.
+    @ConfigProperty(name = "registry.rules.semver-validator.enabled", defaultValue = "false")
+    @Info(category = "rules", description = "Validate that all artifact versions conform to Semantic Versioning 2 format (https://semver.org)", availableSince = "3.0.0")
+    boolean semverValidatorEnabled;
+
+    @ConfigProperty(name = "registry.rules.semver-branching.mode", defaultValue = "disabled")
+    @Info(category = "rules", description = "Automatically create or update branches for major ('A.x') and minor ('A.B.x') artifact versions. One of 'disabled', 'coerce', or 'strict'. " +
+            "If not disabled, versions must either conform or can be coerced to Semantic Versioning 2 format (https://semver.org)", availableSince = "3.0.0")
+    SemverBranchingMode semverBranchingMode;
 
     @Inject
     Event<SqlStorageEvent> sqlStorageEvent;
@@ -448,6 +459,12 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                                                                 Map<String, String> properties, String createdBy, Date createdOn,
                                                                 Long contentId, IdGenerator globalIdGenerator) {
 
+        if (version == null && semverBranchingMode != DISABLED) {
+            log.warn("Configuration option 'registry.rules.semver-branching.mode' is not set to 'disabled', " +
+                    "and no explicit version was provided or extracted from the schema. " +
+                    "As a result, a simple monotonic numeric version was generated, which does not conform to Semantic Versioning 2 format.");
+        }
+
         ArtifactState state = ArtifactState.ENABLED;
         String labelsStr = SqlUtil.serializeLabels(labels);
         String propertiesStr = SqlUtil.serializeProperties(properties);
@@ -482,9 +499,10 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                         .bind(11, contentId)
                         .execute();
 
-                createOrUpdateArtifactBranch(new GAV(groupId, artifactId, finalVersion1), BranchId.LATEST);
+                var gav = new GAV(groupId, artifactId, finalVersion1);
+                createOrUpdateArtifactBranch(gav, BranchId.LATEST);
+                updateSemverArtifactBranches(gav);
 
-                return null;
             });
         } else {
             final String finalVersion2 = version; // Lambda requirement
@@ -517,8 +535,8 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
 
                 var gav = getGAVByGlobalId(globalId);
                 createOrUpdateArtifactBranch(gav, BranchId.LATEST);
+                updateSemverArtifactBranches(gav);
 
-                return null;
             });
         }
 
@@ -695,14 +713,25 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
         // Put the content in the DB and get the unique content ID back.
         long contentId = getOrCreateContent(artifactType, content, references);
 
-        // If the metaData provided is null, try to figure it out from the content.
-        EditableArtifactMetaDataDto md = metaData;
-        if (md == null) {
-            md = utils.extractEditableArtifactMetadata(artifactType, content);
+        // TODO: Duplicated code, refactor this?
+        if (metaData == null || version == null) {
+            var extractionResult = utils.extractEditableArtifactMetadata(artifactType, content);
+            if (metaData == null) {
+                metaData = extractionResult.getMetaDataDto();
+            }
+            if (version == null) {
+                var exVersion = extractionResult.getVersion();
+                if (exVersion == null || VersionId.isValid(exVersion)) {
+                    version = exVersion;
+                } else {
+                    log.warn("Version '" + exVersion + "' that was extracted from artifact content does not have valid format.");
+                }
+            }
         }
+
         // This current method is skipped in KafkaSQL, and the one below is called directly,
         // so references must be added to the metadata there.
-        return createArtifactWithMetadataRaw(groupId, artifactId, version, artifactType, contentId, createdBy, createdOn, md, null);
+        return createArtifactWithMetadataRaw(groupId, artifactId, version, artifactType, contentId, createdBy, createdOn, metaData, null);
     }
 
 
@@ -929,9 +958,20 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
             return getOrCreateContent(artifactType, content, references);
         });
 
-        // Extract meta-data from the content if no metadata is provided
-        if (metaData == null) {
-            metaData = utils.extractEditableArtifactMetadata(artifactType, content);
+        // TODO: Duplicated code, refactor this?
+        if (metaData == null || version == null) {
+            var extractionResult = utils.extractEditableArtifactMetadata(artifactType, content);
+            if (metaData == null) {
+                metaData = extractionResult.getMetaDataDto();
+            }
+            if (version == null) {
+                var exVersion = extractionResult.getVersion();
+                if (exVersion == null || VersionId.isValid(exVersion)) {
+                    version = exVersion;
+                } else {
+                    log.warn("Version '" + exVersion + "' that was extracted from artifact content does not have valid format.");
+                }
+            }
         }
 
         return updateArtifactWithMetadataRaw(groupId, artifactId, version, contentId, createdBy, createdOn,
@@ -1039,7 +1079,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
             selectTemplate.append("SELECT {{selectColumns}} ")
                     .append("FROM artifacts a ")
                     .append("JOIN versions v ON v.groupId = a.groupId AND v.artifactId = a.artifactId ")
-                    .append("JOIN artifact_version_branches avb ON avb.groupId = v.groupId AND avb.artifactId = v.artifactId AND avb.branch = '")
+                    .append("JOIN artifact_version_branches avb ON avb.groupId = v.groupId AND avb.artifactId = v.artifactId AND avb.version = v.version AND avb.branch = '")
                     .append(BranchId.LATEST.getRawBranchId())
                     .append("' ");
 
@@ -3623,6 +3663,34 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                 deleteArtifactVersion(gav.getRawGroupId(), gav.getRawArtifactId(), gav.getRawVersionId());
             }
         });
+    }
+
+
+    /**
+     * IMPORTANT: Private methods can't be @Transactional. Callers MUST have started a transaction.
+     */
+    public void updateSemverArtifactBranches(GAV gav) {
+        Semver semver = null;
+        if (semverValidatorEnabled || semverBranchingMode == STRICT) {
+            semver = Semver.parse(gav.getRawVersionId());
+            if (semver == null) {
+                throw new ValidationException("Version '" + gav.getRawVersionId() + "' does not conform to Semantic Versioning 2 format.");
+            }
+        }
+        if (semverBranchingMode == DISABLED) {
+            return;
+        }
+        if (semverBranchingMode == COERCE) {
+            semver = Semver.coerce(gav.getRawVersionId());
+            if (semver == null) {
+                throw new ValidationException("Version '" + gav.getRawVersionId() + "' cannot be coerced to Semantic Versioning 2 format.");
+            }
+        }
+        if (semver == null) {
+            throw new UnreachableCodeException();
+        }
+        createOrUpdateArtifactBranch(gav, new BranchId(semver.getMajor() + ".x"));
+        createOrUpdateArtifactBranch(gav, new BranchId(semver.getMajor() + "." + semver.getMinor() + ".x"));
     }
 
 

@@ -16,17 +16,17 @@
 
 package io.apicurio.registry.content.extract;
 
-import java.io.InputStream;
-
+import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.util.DocumentBuilderAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.util.DocumentBuilderAccessor;
+import java.io.InputStream;
 
 /**
  * Performs meta-data extraction for WSDL or XSD content.
+ *
  * @author eric.wittmann@gmail.com
  */
 public class WsdlOrXsdContentExtractor implements ContentExtractor {
@@ -40,15 +40,14 @@ public class WsdlOrXsdContentExtractor implements ContentExtractor {
             String name = document.getDocumentElement().getAttribute("name");
             String targetNS = document.getDocumentElement().getAttribute("targetNamespace");
 
-            ExtractedMetaData metaData = null;
-            if (name != null && !name.equals("")) {
-                metaData = new ExtractedMetaData();
+            ExtractedMetaData metaData = new ExtractedMetaData();
+            if (!name.isEmpty()) {
                 metaData.setName(name);
-            } else if (targetNS != null && !targetNS.equals("")) {
-                metaData = new ExtractedMetaData();
+            } else if (!targetNS.isEmpty()) {
                 metaData.setName(targetNS);
             }
             return metaData;
+
         } catch (Exception e) {
             log.debug("Error extracting metadata from WSDL/XSD: {}", e.getMessage());
             return null;

@@ -16,18 +16,18 @@
 
 package io.apicurio.registry.content.extract;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.TraverserDirection;
 import io.apicurio.datamodels.models.Document;
 import io.apicurio.datamodels.models.Info;
 import io.apicurio.datamodels.models.visitors.CombinedVisitorAdapter;
 import io.apicurio.registry.content.ContentHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Performs meta-data extraction for OpenAPI content.
+ *
  * @author eric.wittmann@gmail.com
  */
 public class ApicurioDataModelsContentExtractor implements ContentExtractor {
@@ -41,17 +41,12 @@ public class ApicurioDataModelsContentExtractor implements ContentExtractor {
             MetaDataVisitor viz = new MetaDataVisitor();
             Library.visitTree(openApi, viz, TraverserDirection.down);
 
-            ExtractedMetaData metaData = null;
-            if (viz.name != null || viz.description != null) {
-                metaData = new ExtractedMetaData();
-            }
-            if (viz.name != null) {
-                metaData.setName(viz.name);
-            }
-            if (viz.description != null) {
-                metaData.setDescription(viz.description);
-            }
+            ExtractedMetaData metaData = new ExtractedMetaData();
+            metaData.setName(viz.name);
+            metaData.setDescription(viz.description);
+            metaData.setVersion(viz.version);
             return metaData;
+
         } catch (Exception e) {
             log.warn("Error extracting metadata from Open/Async API: {}", e.getMessage());
             return null;
@@ -62,6 +57,7 @@ public class ApicurioDataModelsContentExtractor implements ContentExtractor {
 
         String name;
         String description;
+        String version;
 
         /**
          * @see io.apicurio.datamodels.combined.visitors.CombinedVisitorAdapter#visitInfo(io.apicurio.datamodels.core.models.common.Info)
@@ -70,6 +66,7 @@ public class ApicurioDataModelsContentExtractor implements ContentExtractor {
         public void visitInfo(Info node) {
             name = node.getTitle();
             description = node.getDescription();
+            version = node.getVersion();
         }
 
     }
