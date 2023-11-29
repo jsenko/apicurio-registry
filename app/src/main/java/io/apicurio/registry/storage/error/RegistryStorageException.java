@@ -19,6 +19,8 @@ package io.apicurio.registry.storage.error;
 import io.apicurio.registry.types.RegistryException;
 
 /**
+ * This exception (not subclasses) should be used for general, major, and unexpected (e.g. SQL) errors.
+ *
  * @author eric.wittmann@gmail.com
  */
 // TODO Should be abstract and more specific exception should be used
