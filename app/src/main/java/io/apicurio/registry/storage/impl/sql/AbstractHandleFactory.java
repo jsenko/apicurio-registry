@@ -18,13 +18,11 @@ package io.apicurio.registry.storage.impl.sql;
 
 import io.agroal.api.AgroalDataSource;
 import io.apicurio.registry.storage.error.RegistryStorageException;
-import io.apicurio.registry.storage.impl.sql.jdb.Handle;
 import io.apicurio.registry.storage.impl.sql.jdb.HandleAction;
 import io.apicurio.registry.storage.impl.sql.jdb.HandleCallback;
 import io.apicurio.registry.storage.impl.sql.jdb.HandleImpl;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,32 +50,41 @@ public abstract class AbstractHandleFactory implements HandleFactory {
 
     @Override
     public <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X {
-        /*
-         * Handles are cached and reused if calls to this method are nested.
-         * Make sure that all nested uses of a handle are either within a transaction context,
-         * or without one. Starting a transaction with a nested handle will cause an exception.
-         */
         try {
-            if (get().handle == null) {
-                get().handle = new HandleImpl(dataSource.getConnection());
+            if (state().handle == null) {
+                state().handle = new HandleImpl(dataSource.getConnection());
+                log.trace("Acquired connection: {} #{}", state().handle.getConnection(), state().handle.getConnection().hashCode());
             } else {
-                get().level++;
+                state().level++;
+                log.trace("Entering nested call (level {}): {} #{}", state().level, state().handle.getConnection(), state().handle.getConnection().hashCode());
             }
-            return callback.withHandle(get().handle);
-        } catch (SQLException e) {
-            throw new RegistryStorageException(e);
+            return callback.withHandle(state().handle);
+        } catch (SQLException ex) {
+            state().rollback = true;
+            throw new RegistryStorageException(ex);
+        } catch (Exception ex) {
+            state().rollback = true;
+            throw ex;
         } finally {
-            if (get().level > 0) {
-                get().level--;
+            if (state().level > 0) {
+                log.trace("Exiting nested call (level {}): {} #{}", state().level, state().handle.getConnection(), state().handle.getConnection().hashCode());
+                state().level--;
             } else {
                 try {
-                    LocalState partialState = get();
-                    if (partialState.handle != null) {
-                        partialState.handle.close();
+                    if (state().handle != null) {
+                        if (state().rollback) {
+                            log.trace("Rollback: {} #{}", state().handle.getConnection(), state().handle.getConnection().hashCode());
+                            state().handle.getConnection().rollback();
+                        } else {
+                            log.trace("Commit: {} #{}", state().handle.getConnection(), state().handle.getConnection().hashCode());
+                            state().handle.getConnection().commit();
+                        }
+                        state().handle.close();
+                        log.trace("Closed connection: {} #{}", state().handle.getConnection(), state().handle.getConnection().hashCode());
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     // Nothing we can do
-                    log.error("Could not close a database handle", ex);
+                    log.error("Could not release database handle", ex);
                 } finally {
                     local.get().remove(dataSourceId);
                 }
@@ -90,10 +97,10 @@ public abstract class AbstractHandleFactory implements HandleFactory {
     public <R, X extends Exception> R withHandleNoException(HandleCallback<R, X> callback) {
         try {
             return withHandle(callback);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RegistryStorageException(e);
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new RegistryStorageException(ex);
         }
     }
 
@@ -105,23 +112,25 @@ public abstract class AbstractHandleFactory implements HandleFactory {
                 action.withHandle(handle);
                 return null;
             });
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RegistryStorageException(e);
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new RegistryStorageException(ex);
         }
     }
 
 
-    private LocalState get() {
+    private LocalState state() {
         return local.get().computeIfAbsent(dataSourceId, k -> new LocalState());
     }
 
 
     private static class LocalState {
 
-        Handle handle;
+        HandleImpl handle;
 
         int level;
+
+        boolean rollback;
     }
 }

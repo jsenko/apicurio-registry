@@ -34,5 +34,4 @@ public interface Handle extends Closeable {
      * @param sql
      */
     Update createUpdate(String sql);
-
 }
