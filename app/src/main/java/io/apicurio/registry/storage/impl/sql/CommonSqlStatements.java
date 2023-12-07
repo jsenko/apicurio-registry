@@ -1029,8 +1029,7 @@ public abstract class CommonSqlStatements implements SqlStatements {
     @Override
     public String selectDoesArtifactBranchExist() {
         return "SELECT 1 FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? " +
-                "LIMIT 1";
+                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ?";
     }
 
 
@@ -1052,8 +1051,7 @@ public abstract class CommonSqlStatements implements SqlStatements {
     @Override
     public String selectDoesArtifactBranchContainVersion() {
         return "SELECT 1 FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? AND avb.version = ? " +
-                "LIMIT 1";
+                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? AND avb.version = ? ";
     }
 
 
@@ -1085,35 +1083,35 @@ public abstract class CommonSqlStatements implements SqlStatements {
 
     @Override
     public String deleteArtifactBranch() {
-        return "DELETE FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ?";
+        return "DELETE FROM artifact_version_branches " +
+                "WHERE groupId = ? AND artifactId = ? AND branch = ?";
     }
 
 
     @Override
     public String deleteAllBranchesInArtifact() {
-        return "DELETE FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ? AND avb.artifactId = ?";
+        return "DELETE FROM artifact_version_branches " +
+                "WHERE groupId = ? AND artifactId = ?";
     }
 
 
     @Override
     public String deleteAllBranchesInGroup() {
-        return "DELETE FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ?";
+        return "DELETE FROM artifact_version_branches " +
+                "WHERE groupId = ?";
     }
 
 
     @Override
     public String deleteAllBranches() {
-        return "DELETE FROM artifact_version_branches avb";
+        return "DELETE FROM artifact_version_branches";
     }
 
 
     @Override
     public String deleteVersionInBranches() {
-        return "DELETE FROM artifact_version_branches avb " +
-                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.version = ?";
+        return "DELETE FROM artifact_version_branches " +
+                "WHERE groupId = ? AND artifactId = ? AND version = ?";
     }
 
 
