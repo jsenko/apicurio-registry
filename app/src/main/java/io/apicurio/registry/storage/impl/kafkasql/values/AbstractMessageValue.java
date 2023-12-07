@@ -16,26 +16,21 @@
 
 package io.apicurio.registry.storage.impl.kafkasql.values;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 /**
  * Base class for all message value classes.
+ *
  * @author eric.wittmann@gmail.com
  */
+@SuperBuilder
+@NoArgsConstructor
+@Getter
+@Setter
 public abstract class AbstractMessageValue implements MessageValue {
 
     private ActionType action;
-
-    /**
-     * @return the action
-     */
-    public ActionType getAction() {
-        return action;
-    }
-
-    /**
-     * @param action the action to set
-     */
-    public void setAction(ActionType action) {
-        this.action = action;
-    }
-    
 }

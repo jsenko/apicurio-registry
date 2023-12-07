@@ -16,26 +16,47 @@
 
 package io.apicurio.registry.storage.impl.kafkasql.keys;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.apicurio.registry.storage.impl.kafkasql.MessageType;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import lombok.*;
 
 /**
- * When the KSQL artifactStore publishes a message to its Kafka topic, the message key will be a class that
- * implements this interface.
- *
  * @author eric.wittmann@gmail.com
  */
 @RegisterForReflection
-public interface MessageKey {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@EqualsAndHashCode
+@ToString
+public class ArtifactBranchKey implements MessageKey {
 
 
-    @JsonIgnore
-    MessageType getType();
+    private String groupId;
 
-    /**
-     * Returns the key that should be used when partitioning the messages.
-     */
-    @JsonIgnore
-    String getPartitionKey();
+    private String artifactId;
+
+    private String branchId;
+
+
+    public static ArtifactBranchKey create(String groupId, String artifactId, String branchId) {
+        return ArtifactBranchKey.builder()
+                .groupId(groupId)
+                .artifactId(artifactId)
+                .branchId(branchId)
+                .build();
+    }
+
+
+    @Override
+    public MessageType getType() {
+        return MessageType.ArtifactBranch;
+    }
+
+
+    @Override
+    public String getPartitionKey() {
+        return groupId + "/" + artifactId + "/" + branchId;
+    }
 }
