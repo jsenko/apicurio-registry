@@ -40,19 +40,18 @@ public class AvroContentExtractor implements ContentExtractor {
 
     @Override
     public ExtractedMetaData extract(ContentHandle content) {
+        ExtractedMetaData metaData = new ExtractedMetaData();
         try {
             JsonNode avroSchema = mapper.readTree(content.bytes());
             JsonNode name = avroSchema.get("name");
 
-            ExtractedMetaData metaData = new ExtractedMetaData();
+
             if (name != null && !name.isNull()) {
                 metaData.setName(name.asText());
             }
-            return metaData;
-
-        } catch (IOException e) {
-            log.warn("Error extracting metadata from JSON: {}", e.getMessage());
-            return null;
+        } catch (IOException ex) {
+            log.warn("Error extracting metadata from JSON: {}", ex.getMessage());
         }
+        return metaData;
     }
 }

@@ -607,6 +607,8 @@ public interface SqlStatements {
 
     String selectArtifactBranchOrdered();
 
+    String selectArtifactBranchOrderedNotDisabled();
+
     String selectDoesArtifactBranchContainVersion();
 
     String insertArtifactBranch();

@@ -22,6 +22,7 @@ import com.microsoft.kiota.http.OkHttpRequestAdapter;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.registry.AbstractResourceTestBase;
 import io.apicurio.registry.BasicAuthenticationProvider;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.Rule;
@@ -83,7 +84,7 @@ public class AuthTestProfileBasicClientCredentials extends AbstractResourceTestB
         RegistryClient client = new RegistryClient(adapter);
         String artifactId = TestUtils.generateArtifactId();
         try {
-            client.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+            client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
             ArtifactContent content = new ArtifactContent();
             content.setContent("{}");
             var res = client

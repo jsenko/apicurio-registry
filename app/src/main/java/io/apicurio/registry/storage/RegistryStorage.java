@@ -922,13 +922,13 @@ public interface RegistryStorage extends DynamicConfigStorage {
     /**
      * @return map from a branch to a sorted list of GAVs, leaf (latest) version first.
      */
-    Map<String, List<GAV>> getArtifactBranches(GA ga);
+    Map<BranchId, List<GAV>> getArtifactBranches(GA ga);
 
 
     /**
      * @return sorted list of GAVs, leaf (latest) version first.
      */
-    List<GAV> getArtifactBranch(GA ga, BranchId branchId);
+    List<GAV> getArtifactBranch(GA ga, BranchId branchId, ArtifactRetrievalBehavior behavior);
 
 
     /**

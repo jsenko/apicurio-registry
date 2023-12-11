@@ -21,6 +21,7 @@ import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 import io.apicurio.registry.AbstractRegistryTestBase;
 import io.apicurio.registry.AbstractResourceTestBase;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.models.*;
 import io.apicurio.registry.storage.impl.sql.SqlUtil;
 import io.apicurio.registry.types.ArtifactType;
@@ -1398,14 +1399,12 @@ public class RegistryClientTest extends AbstractResourceTestBase {
     @Test
     @DisabledIfEnvironmentVariable(named = AbstractRegistryTestBase.CURRENT_ENV, matches = AbstractRegistryTestBase.CURRENT_ENV_MAS_REGEX)
     public void testDefaultGroup() throws Exception {
-        String nullDefaultGroup = "default";
         String artifactId1 = "testDefaultGroup-" + UUID.randomUUID().toString();
-        createArtifact(nullDefaultGroup, artifactId1);
+        createArtifact(GroupId.DEFAULT.getRawGroupIdWithDefaultString(), artifactId1);
         verifyGroupNullInMetadata(artifactId1, ARTIFACT_CONTENT);
 
-        String defaultDefaultGroup = "default";
         String artifactId2 = "testDefaultGroup-" + UUID.randomUUID().toString();
-        createArtifact(defaultDefaultGroup, artifactId2);
+        createArtifact(GroupId.DEFAULT.getRawGroupIdWithDefaultString(), artifactId2);
         verifyGroupNullInMetadata(artifactId2, ARTIFACT_CONTENT);
 
         String dummyGroup = "dummy";
@@ -1440,18 +1439,18 @@ public class RegistryClientTest extends AbstractResourceTestBase {
     }
 
     private void verifyGroupNullInMetadata(String artifactId, String content) throws Exception {
-        ArtifactMetaData meta = clientV2.groups().byGroupId("default").artifacts().byArtifactId(artifactId).meta().get().get(3, TimeUnit.SECONDS);
+        ArtifactMetaData meta = clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).meta().get().get(3, TimeUnit.SECONDS);
         assertNull(meta.getGroupId());
 
-        VersionMetaData vmeta = clientV2.groups().byGroupId("default").artifacts().byArtifactId(artifactId).versions().byVersion(meta.getVersion()).meta().get().get(3, TimeUnit.SECONDS);
+        VersionMetaData vmeta = clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).versions().byVersion(meta.getVersion()).meta().get().get(3, TimeUnit.SECONDS);
         assertNull(vmeta.getGroupId());
 
         ArtifactContent artifactContent = new ArtifactContent();
         artifactContent.setContent(content);
-        vmeta = clientV2.groups().byGroupId("default").artifacts().byArtifactId(artifactId).versions().post(artifactContent).get(3, TimeUnit.SECONDS);
+        vmeta = clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).versions().post(artifactContent).get(3, TimeUnit.SECONDS);
         assertNull(vmeta.getGroupId());
 
-        clientV2.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS).getArtifacts()
+        clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS).getArtifacts()
                 .stream()
                 .filter(s -> s.getId().equals(artifactId))
                 .forEach(s -> assertNull(s.getGroupId()));
@@ -1489,7 +1488,7 @@ public class RegistryClientTest extends AbstractResourceTestBase {
     @NotNull
     private ArtifactMetaData checkArtifact(String groupId, String artifactId, ArtifactMetaData created) throws Exception {
         assertNotNull(created);
-        if (groupId == null || groupId.equals("default")) {
+        if (new GroupId(groupId).isDefaultGroup()) {
             assertNull(created.getGroupId());
         } else {
             assertEquals(groupId, created.getGroupId());
@@ -1747,7 +1746,7 @@ public class RegistryClientTest extends AbstractResourceTestBase {
 
             ArtifactContent content = new ArtifactContent();
             content.setContent("{}");
-            var executionException2 = Assertions.assertThrows(ExecutionException.class, () -> client.groups().byGroupId("default").artifacts().post(content, config -> {
+            var executionException2 = Assertions.assertThrows(ExecutionException.class, () -> client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().post(content, config -> {
                 config.headers.add("X-Registry-ArtifactId", "aaa");
             }).get(30, TimeUnit.SECONDS));
             Assertions.assertNotNull(executionException2.getCause());

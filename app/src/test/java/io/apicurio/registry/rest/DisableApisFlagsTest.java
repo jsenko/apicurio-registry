@@ -18,6 +18,7 @@ package io.apicurio.registry.rest;
 
 import io.apicurio.registry.AbstractResourceTestBase;
 import io.apicurio.registry.ccompat.rest.ContentTypes;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.noprofile.ccompat.rest.CCompatTestConstants;
 import io.apicurio.registry.services.DisabledApisMatcherService;
 import io.apicurio.registry.types.ArtifactType;
@@ -25,10 +26,10 @@ import io.apicurio.registry.utils.tests.ApicurioTestTags;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import jakarta.inject.Inject;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -90,24 +91,24 @@ public class DisableApisFlagsTest extends AbstractResourceTestBase {
                 .body("openapi", equalTo("3.0.2"))
                 .body("info.title", equalTo("Empty API"));
 
-        //Get the artifact version 1
+        //Get the artifact version 1.0.0
         given()
                 .when()
                 .pathParam("groupId", GROUP)
                 .pathParam("artifactId", "testDeleteArtifactVersion/EmptyAPI")
-                .pathParam("version", "1")
+                .pathParam("version", "1.0.0")
                 .get("/registry/v2/groups/{groupId}/artifacts/{artifactId}/versions/{version}")
                 .then()
                 .statusCode(200)
                 .body("openapi", equalTo("3.0.2"))
                 .body("info.title", equalTo("Empty API"));
 
-        // Try to delete artifact version 1. Should return 405 as feature is disabled
+        // Try to delete artifact version 1.0.0. Should return 405 as feature is disabled
         given()
                 .when()
                 .pathParam("groupId", GROUP)
                 .pathParam("artifactId", "testDeleteArtifactVersion/EmptyAPI")
-                .pathParam("version", "1")
+                .pathParam("version", "1.0.0")
                 .delete("/registry/v2/groups/{groupId}/artifacts/{artifactId}/versions/{version}")
                 .then()
                 .statusCode(405)
@@ -152,7 +153,7 @@ public class DisableApisFlagsTest extends AbstractResourceTestBase {
         var req = given()
             .when()
                 .contentType(CT_JSON + "; artifactType=AVRO")
-                .pathParam("groupId", "default")
+                .pathParam("groupId", GroupId.DEFAULT.getRawGroupIdWithDefaultString())
                 .header("X-Registry-ArtifactId", schemaId)
                 .body(artifactContent)
                 .post("/registry/v2/groups/{groupId}/artifacts")

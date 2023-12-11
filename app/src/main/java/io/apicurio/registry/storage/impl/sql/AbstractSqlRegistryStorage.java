@@ -39,7 +39,6 @@ import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.util.DtoUtil;
 import io.apicurio.registry.utils.IoUtil;
 import io.apicurio.registry.utils.impexp.*;
-import io.quarkus.runtime.configuration.ConfigUtils;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -890,10 +889,10 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                         .bind(2, gav.getRawVersionId())
                         .map(StoredArtifactMapper.instance)
                         .findOne()
-                        .orElseThrow(() -> new ArtifactNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId()));
+                        .orElseThrow(() -> new ArtifactNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId()));
 
             } catch (VersionNotFoundException ex) {
-                throw new ArtifactNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId(), ex);
+                throw new ArtifactNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId(), ex);
             }
         });
     }
@@ -1233,10 +1232,10 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                         .bind(2, gav.getRawVersionId())
                         .map(ArtifactMetaDataDtoMapper.instance)
                         .findOne()
-                        .orElseThrow(() -> new ArtifactNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId()));
+                        .orElseThrow(() -> new ArtifactNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId()));
 
             } catch (VersionNotFoundException ex) {
-                throw new ArtifactNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId(), ex);
+                throw new ArtifactNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId(), ex);
             }
         });
     }
@@ -1479,10 +1478,14 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
             throws ArtifactNotFoundException, RegistryStorageException {
         log.debug("Getting a list of versions for artifact: {} {}", groupId, artifactId);
 
-        return getArtifactBranch(new GA(groupId, artifactId), BranchId.LATEST)
-                .stream()
-                .map(GAV::getRawVersionId) // TODO
-                .collect(toList());
+        try {
+            return getArtifactBranch(new GA(groupId, artifactId), BranchId.LATEST, behavior)
+                    .stream()
+                    .map(GAV::getRawVersionId) // TODO
+                    .collect(toList());
+        } catch (BranchNotFoundException ex) {
+            throw new ArtifactNotFoundException(groupId, artifactId);
+        }
     }
 
 
@@ -3127,9 +3130,14 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
 
 
     @Override
-    public Map<String, List<GAV>> getArtifactBranches(GA ga) {
+    public Map<BranchId, List<GAV>> getArtifactBranches(GA ga) {
 
         var data1 = handles.withHandleNoException(handle -> {
+
+            if (!isArtifactExists(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId())) {
+                throw new ArtifactNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId());
+            }
+
             return handle.createQuery(sqlStatements.selectArtifactBranches())
                     .bind(0, ga.getRawGroupId())
                     .bind(1, ga.getRawArtifactId())
@@ -3137,9 +3145,9 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .list();
         });
 
-        var data2 = new HashMap<String, List<BranchDto>>();
+        var data2 = new HashMap<BranchId, List<BranchDto>>();
         for (BranchDto dto : data1) {
-            data2.compute(dto.getBranch(), (_ignored, v) -> {
+            data2.compute(new BranchId(dto.getBranch()), (_ignored, v) -> {
                 if (v == null) {
                     var initial = new ArrayList<BranchDto>();
                     initial.add(dto);
@@ -3151,8 +3159,8 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
             });
         }
 
-        var data3 = new HashMap<String, List<GAV>>();
-        for (Entry<String, List<BranchDto>> entry : data2.entrySet()) {
+        var data3 = new HashMap<BranchId, List<GAV>>();
+        for (Entry<BranchId, List<BranchDto>> entry : data2.entrySet()) {
             data3.put(entry.getKey(), entry.getValue().stream()
                     .sorted(Comparator.comparingInt(BranchDto::getBranchOrder).reversed()) // Highest first
                     .map(BranchDto::toGAV)
@@ -3164,10 +3172,24 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
 
 
     @Override
-    public List<GAV> getArtifactBranch(GA ga, BranchId branchId) {
+    public List<GAV> getArtifactBranch(GA ga, BranchId branchId, ArtifactRetrievalBehavior behavior) {
+
+        String sql;
+        switch (behavior) {
+            case DEFAULT:
+                sql = sqlStatements.selectArtifactBranchOrdered();
+                break;
+            case SKIP_DISABLED_LATEST:
+                sql = sqlStatements.selectArtifactBranchOrderedNotDisabled();
+                break;
+            default:
+                throw new UnreachableCodeException();
+        }
+        var finalSql = sql;
 
         var res = handles.withHandleNoException(handle -> {
-            return handle.createQuery(sqlStatements.selectArtifactBranchOrdered())
+
+            return handle.createQuery(finalSql)
                     .bind(0, ga.getRawGroupId())
                     .bind(1, ga.getRawArtifactId())
                     .bind(2, branchId.getRawBranchId())
@@ -3251,7 +3273,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                             .bind(2, branchId.getRawBranchId())
                             .map(GAVMapper.instance)
                             .findOne()
-                            .orElseThrow(() -> new VersionNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId(),
+                            .orElseThrow(() -> new VersionNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId(),
                                     "<leaf of branch '" + branchId.getRawBranchId() + "'>"));
 
                 case SKIP_DISABLED_LATEST:
@@ -3261,7 +3283,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                             .bind(2, branchId.getRawBranchId())
                             .map(GAVMapper.instance)
                             .findOne()
-                            .orElseThrow(() -> new VersionNotFoundException(ga.getRawGroupIdWithDefault(), ga.getRawArtifactId(),
+                            .orElseThrow(() -> new VersionNotFoundException(ga.getRawGroupIdWithDefaultString(), ga.getRawArtifactId(),
                                     "<leaf of branch '" + branchId.getRawBranchId() + "' that does not  have disabled status>"));
             }
             throw new UnreachableCodeException();
@@ -3301,7 +3323,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
 
     @Override
     public void deleteArtifactBranch(GA ga, BranchId branchId) {
-        if (BranchId.LATEST.equals(branchId) && !ConfigUtils.isProfileActive("test")) {
+        if (BranchId.LATEST.equals(branchId)) {
             throw new NotAllowedException("Artifact version branch 'latest' cannot be deleted.");
         }
 
@@ -3324,7 +3346,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .list();
 
             for (GAV gav : gavs) {
-                deleteArtifactVersion(gav.getRawGroupId(), gav.getRawArtifactId(), gav.getRawVersionId());
+                deleteArtifactVersion(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
             }
         });
     }

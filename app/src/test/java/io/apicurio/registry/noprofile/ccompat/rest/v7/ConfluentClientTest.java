@@ -19,6 +19,7 @@ package io.apicurio.registry.noprofile.ccompat.rest.v7;
 import io.apicurio.registry.AbstractResourceTestBase;
 import io.apicurio.registry.ccompat.dto.SchemaContent;
 import io.apicurio.registry.ccompat.rest.error.ErrorCode;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.Headers;
 import io.apicurio.registry.rest.client.models.Rule;
 import io.apicurio.registry.rest.client.models.RuleType;
@@ -61,15 +62,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +88,7 @@ public class ConfluentClientTest extends AbstractResourceTestBase {
     @AfterEach
     protected void afterEach() throws Exception {
         try {
-            clientV2.groups().byGroupId("default").artifacts().delete().get(3, TimeUnit.SECONDS);
+            clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().delete().get(3, TimeUnit.SECONDS);
         } catch (ExecutionException ignored) {
         }
     }

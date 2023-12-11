@@ -413,13 +413,13 @@ public abstract class RegistryStorageDecoratorReadOnlyBase implements RegistrySt
 
 
     @Override
-    public Map<String, List<GAV>> getArtifactBranches(GA ga) {
+    public Map<BranchId, List<GAV>> getArtifactBranches(GA ga) {
         return delegate.getArtifactBranches(ga);
     }
 
 
     @Override
-    public List<GAV> getArtifactBranch(GA ga, BranchId branchId) {
-        return delegate.getArtifactBranch(ga, branchId);
+    public List<GAV> getArtifactBranch(GA ga, BranchId branchId, ArtifactRetrievalBehavior behavior) {
+        return delegate.getArtifactBranch(ga, branchId, behavior);
     }
 }

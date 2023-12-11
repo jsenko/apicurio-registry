@@ -16,15 +16,8 @@
 
 package io.apicurio.registry.noprofile.content;
 
-import java.util.concurrent.TimeUnit;
-
-import jakarta.inject.Inject;
-
-import io.apicurio.registry.content.ContentHandle;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import io.apicurio.registry.AbstractResourceTestBase;
+import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.content.extract.ContentExtractor;
 import io.apicurio.registry.content.extract.ExtractedMetaData;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
@@ -33,6 +26,11 @@ import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
 import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Ales Justin
@@ -91,9 +89,9 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
     private static final String asyncapiFormat = "{\r\n" +
             "  \"asyncapi\" : \"2.0.0\",\r\n" +
             "  \"info\" : {\r\n" +
+            "    \"version\": \"%s\",\r\n" +
             "    \"title\": \"%s\",\r\n" +
-            "    \"description\": \"%s\",\r\n" +
-            "    \"version\": \"1.0.1\"\r\n" +
+            "    \"description\": \"%s\"\r\n" +
             "  }\r\n" +
             "}";
 
@@ -274,7 +272,9 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         name = "api-" + generateArtifactId();
         content = String.format(openapiFormat, name, description);
         data.setContent(content);
-        amd = clientV2.groups().byGroupId(groupId).artifacts().byArtifactId(artifactId).put(data).get(3, TimeUnit.SECONDS);
+        amd = clientV2.groups().byGroupId(groupId).artifacts().byArtifactId(artifactId).put(data, config -> {
+            config.headers.add("X-Registry-Version", "2");
+        }).get(3, TimeUnit.SECONDS);
 
         Assertions.assertEquals(name, amd.getName());
     }
@@ -283,7 +283,7 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
     public void testAsyncApi() {
         String name = "api-" + generateArtifactId();
         String description = "Automatic description generated at: " + System.currentTimeMillis();
-        String content = String.format(asyncapiFormat, name, description);
+        String content = String.format(asyncapiFormat, "1.0.0", name, description);
 
         ArtifactTypeUtilProvider provider = factory.getArtifactTypeProvider(ArtifactType.ASYNCAPI);
         ContentExtractor extractor = provider.getContentExtractor();
@@ -299,7 +299,7 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
 
         String name = "api-" + generateArtifactId();
         String description = "Automatic description generated at: " + System.currentTimeMillis();
-        String content = String.format(asyncapiFormat, name, description);
+        String content = String.format(asyncapiFormat, "1.0.0", name, description);
 
         ArtifactContent data = new ArtifactContent();
         data.setContent(content);
@@ -313,7 +313,7 @@ public class ContentExtractorTest extends AbstractResourceTestBase {
         // test update
 
         name = "api-" + generateArtifactId();
-        content = String.format(asyncapiFormat, name, description);
+        content = String.format(asyncapiFormat, "2.0.0", name, description);
         data.setContent(content);
         amd = clientV2.groups().byGroupId(groupId).artifacts().byArtifactId(artifactId).put(data).get(3, TimeUnit.SECONDS);
 

@@ -23,6 +23,11 @@ public class GAV extends GA {
     }
 
 
+    public GAV(GA ga, String rawVersionId) {
+        this(ga, new VersionId(rawVersionId));
+    }
+
+
     public String getRawVersionId() {
         return versionId.getRawVersionId();
     }

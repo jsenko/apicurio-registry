@@ -20,13 +20,9 @@ import com.microsoft.kiota.authentication.BaseBearerTokenAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.registry.AbstractResourceTestBase;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.RegistryClient;
-import io.apicurio.registry.rest.client.models.ArtifactContent;
-import io.apicurio.registry.rest.client.models.RoleMapping;
-import io.apicurio.registry.rest.client.models.RoleType;
-import io.apicurio.registry.rest.client.models.Rule;
-import io.apicurio.registry.rest.client.models.RuleType;
-import io.apicurio.registry.rest.client.models.UpdateRole;
+import io.apicurio.registry.rest.client.models.*;
 import io.apicurio.registry.rules.validity.ValidityLevel;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.utils.tests.ApicurioTestTags;
@@ -99,7 +95,7 @@ public class AuthTestLocalRoles extends AbstractResourceTestBase {
 
         // User is authenticated but no roles assigned yet - operations should fail.
         var executionException1 = Assertions.assertThrows(ExecutionException.class, () -> {
-            client.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+            client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
         });
         assertForbidden(executionException1);
 
@@ -126,7 +122,7 @@ public class AuthTestLocalRoles extends AbstractResourceTestBase {
         clientAdmin.admin().roleMappings().post(roMapping).get(3, TimeUnit.SECONDS);
 
         // Now the user should be able to read but nothing else
-        client.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+        client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
 
         var executionException4 = Assertions.assertThrows(ExecutionException.class, () -> {
             client
@@ -156,7 +152,7 @@ public class AuthTestLocalRoles extends AbstractResourceTestBase {
                 .get(3, TimeUnit.SECONDS);
 
         // Now the user can read and write but not admin
-        client.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+        client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
         client
                 .groups()
                 .byGroupId(UUID.randomUUID().toString())
@@ -181,7 +177,7 @@ public class AuthTestLocalRoles extends AbstractResourceTestBase {
                 .get(3, TimeUnit.SECONDS);
 
         // Now the user can do everything
-        client.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+        client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
         client
                 .groups()
                 .byGroupId(UUID.randomUUID().toString())

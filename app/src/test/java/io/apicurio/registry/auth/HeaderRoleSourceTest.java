@@ -20,6 +20,7 @@ import com.microsoft.kiota.authentication.BaseBearerTokenAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.registry.AbstractResourceTestBase;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rules.validity.ValidityLevel;
 import io.apicurio.registry.utils.tests.ApicurioTestTags;
@@ -98,7 +99,7 @@ public class HeaderRoleSourceTest extends AbstractResourceTestBase {
 
         // User is authenticated but no roles assigned - operations should fail.
         var executionException1 = Assertions.assertThrows(ExecutionException.class, () -> {
-            noRoleClient.groups().byGroupId("default").artifacts().get().get(3, TimeUnit.SECONDS);
+            noRoleClient.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get().get(3, TimeUnit.SECONDS);
         });
         assertForbidden(executionException1);
 
@@ -120,7 +121,7 @@ public class HeaderRoleSourceTest extends AbstractResourceTestBase {
 
 
         // Now using the read client user should be able to read but nothing else
-        readClient.groups().byGroupId("default").artifacts().get(config -> {
+        readClient.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get(config -> {
             config.headers.add("X-Registry-Role", "sr-readonly");
         }).get(3, TimeUnit.SECONDS);
         var executionException4 = Assertions.assertThrows(ExecutionException.class, () -> {
@@ -143,7 +144,7 @@ public class HeaderRoleSourceTest extends AbstractResourceTestBase {
         assertForbidden(executionException5);
 
         // the user can read and write with the developer client but not admin
-        devClient.groups().byGroupId("default").artifacts().get(config -> {
+        devClient.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get(config -> {
             config.headers.add("X-Registry-Role", "sr-developer");
         }).get(3, TimeUnit.SECONDS);
         devClient
@@ -162,7 +163,7 @@ public class HeaderRoleSourceTest extends AbstractResourceTestBase {
         assertForbidden(executionException6);
 
         // the user can do everything with the admin client
-        adminClient.groups().byGroupId("default").artifacts().get(config -> {
+        adminClient.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().get(config -> {
             config.headers.add("X-Registry-Role", "sr-admin");
         }).get(3, TimeUnit.SECONDS);
         adminClient

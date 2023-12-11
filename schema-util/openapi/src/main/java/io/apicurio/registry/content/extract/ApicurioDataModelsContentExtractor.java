@@ -36,21 +36,20 @@ public class ApicurioDataModelsContentExtractor implements ContentExtractor {
 
     @Override
     public ExtractedMetaData extract(ContentHandle content) {
+        ExtractedMetaData metaData = new ExtractedMetaData();
         try {
             Document openApi = Library.readDocumentFromJSONString(content.content());
             MetaDataVisitor viz = new MetaDataVisitor();
             Library.visitTree(openApi, viz, TraverserDirection.down);
 
-            ExtractedMetaData metaData = new ExtractedMetaData();
             metaData.setName(viz.name);
             metaData.setDescription(viz.description);
             metaData.setVersion(viz.version);
-            return metaData;
 
-        } catch (Exception e) {
-            log.warn("Error extracting metadata from Open/Async API: {}", e.getMessage());
-            return null;
+        } catch (Exception ex) {
+            log.warn("Error extracting metadata from Open/Async API: {}", ex.getMessage());
         }
+        return metaData;
     }
 
     private static class MetaDataVisitor extends CombinedVisitorAdapter {

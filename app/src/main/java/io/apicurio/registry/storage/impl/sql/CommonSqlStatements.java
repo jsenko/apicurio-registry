@@ -1049,6 +1049,15 @@ public abstract class CommonSqlStatements implements SqlStatements {
 
 
     @Override
+    public String selectArtifactBranchOrderedNotDisabled() {
+        return "SELECT avb.groupId, avb.artifactId, avb.branch, avb.branchOrder, avb.version FROM artifact_version_branches avb " +
+                "JOIN versions v ON avb.groupId = v.groupId AND avb.artifactId = v.artifactId AND avb.version = v.version " +
+                "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? AND v.state != 'DISABLED' " +
+                "ORDER BY avb.branchOrder DESC";
+    }
+
+
+    @Override
     public String selectDoesArtifactBranchContainVersion() {
         return "SELECT 1 FROM artifact_version_branches avb " +
                 "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? AND avb.version = ? ";

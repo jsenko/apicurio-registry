@@ -14,7 +14,7 @@ public class VersionExpressionParser {
 
     public static GAV parse(GA ga, String versionExpression, BiFunction<GA, BranchId, GAV> branchToVersion) {
         if (VersionId.isValid(versionExpression)) {
-            return new GAV(ga, new VersionId(versionExpression));
+            return new GAV(ga, versionExpression);
         }
         var parts = versionExpression.split("=");
         if (parts.length == 2) {

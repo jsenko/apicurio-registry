@@ -10,13 +10,16 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode
 public class ArtifactId {
 
-    /**
-     * Pattern requirements:
-     * - Must not contain reserved characters ":=,<>" (see VersionExpressionParser)
-     * - Must accept valid Kafka topic name
-     * - Must fit in the database column
-     */
-    private static final Pattern VALID_PATTERN = Pattern.compile("[A-Za-z0-9._-]{1,512}"); // TODO: UPGRADE INCOMPATIBILITY
+    // TODO: It would be very hard to restrict artifact ID format. Probably not worth it.
+    // /**
+    //  * Pattern requirements:
+    //  * - Must not contain reserved characters ":=,<>" (see VersionExpressionParser)
+    //  * - Must accept valid Kafka topic name
+    //  * - Must fit in the database column
+    //  */
+    // private static final Pattern VALID_PATTERN = Pattern.compile("[A-Za-z0-9._-]{1,512}"); // TODO: UPGRADE INCOMPATIBILITY
+
+    private static final Pattern VALID_PATTERN = Pattern.compile(".{1,512}");
 
     private final String rawArtifactId;
 

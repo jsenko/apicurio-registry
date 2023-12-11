@@ -515,7 +515,7 @@ public class GitOpsRegistryStorage extends AbstractReadOnlyRegistryStorage {
 
 
     @Override
-    public Map<String, List<GAV>> getArtifactBranches(GA ga) {
+    public Map<BranchId, List<GAV>> getArtifactBranches(GA ga) {
         return proxy(storage -> storage.getArtifactBranches(ga));
     }
 
@@ -527,7 +527,7 @@ public class GitOpsRegistryStorage extends AbstractReadOnlyRegistryStorage {
 
 
     @Override
-    public List<GAV> getArtifactBranch(GA ga, BranchId branchId) {
-        return proxy(storage -> storage.getArtifactBranch(ga, branchId));
+    public List<GAV> getArtifactBranch(GA ga, BranchId branchId, ArtifactRetrievalBehavior behavior) {
+        return proxy(storage -> storage.getArtifactBranch(ga, branchId, behavior));
     }
 }

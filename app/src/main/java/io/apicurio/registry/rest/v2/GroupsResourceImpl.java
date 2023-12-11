@@ -569,7 +569,7 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
                 (ga, branchId) -> storage.getArtifactBranchLeaf(ga, branchId, ArtifactRetrievalBehavior.DEFAULT));
 
         ArtifactVersionMetaDataDto dto = storage.getArtifactVersionMetaData(gav.getRawGroupIdWithNull(), gav.getRawArtifactId(), gav.getRawVersionId());
-        return V2ApiUtil.dtoToVersionMetaData(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), dto.getType(), dto);
+        return V2ApiUtil.dtoToVersionMetaData(gav.getRawGroupIdWithDefaultString(), gav.getRawArtifactId(), dto.getType(), dto);
     }
 
     /**
@@ -1003,10 +1003,10 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
         var res = new Branches();
-        for (Entry<String, List<GAV>> branch : storage.getArtifactBranches(new GA(groupId, artifactId)).entrySet()) {
-            res.setAdditionalProperty(branch.getKey(), branch.getValue()
+        for (Entry<BranchId, List<GAV>> branch : storage.getArtifactBranches(new GA(groupId, artifactId)).entrySet()) {
+            res.setAdditionalProperty(branch.getKey().getRawBranchId(), branch.getValue()
                     .stream()
-                    .map(gav -> new Gav(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), gav.getRawVersionId()))
+                    .map(gav -> new Gav(gav.getRawGroupIdWithDefaultString(), gav.getRawArtifactId(), gav.getRawVersionId()))
                     .collect(toList())
             );
         }
@@ -1021,9 +1021,9 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         requireParameter("groupId", groupId);
         requireParameter("artifactId", artifactId);
         requireParameter("branchId", branchId);
-        return storage.getArtifactBranch(new GA(groupId, artifactId), new BranchId(branchId))
+        return storage.getArtifactBranch(new GA(groupId, artifactId), new BranchId(branchId), ArtifactRetrievalBehavior.DEFAULT)
                 .stream()
-                .map(gav -> new Gav(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), gav.getRawVersionId()))
+                .map(gav -> new Gav(gav.getRawGroupIdWithDefaultString(), gav.getRawArtifactId(), gav.getRawVersionId()))
                 .collect(toList());
     }
 
@@ -1039,9 +1039,9 @@ public class GroupsResourceImpl extends AbstractResourceImpl implements GroupsRe
         var gav = new GAV(groupId, artifactId, data);
         var branch = new BranchId(branchId);
         storage.createOrUpdateArtifactBranch(gav, branch);
-        return storage.getArtifactBranch(gav, branch)
+        return storage.getArtifactBranch(gav, branch, ArtifactRetrievalBehavior.DEFAULT)
                 .stream()
-                .map(gav2 -> new Gav(gav2.getRawGroupIdWithDefault(), gav2.getRawArtifactId(), gav2.getRawVersionId()))
+                .map(gav2 -> new Gav(gav2.getRawGroupIdWithDefaultString(), gav2.getRawArtifactId(), gav2.getRawVersionId()))
                 .collect(toList());
     }
 

@@ -63,8 +63,8 @@ public class VersionNotFoundException extends NotFoundException {
 
 
     public VersionNotFoundException(GAV gav, Throwable cause) {
-        super(message(gav.getRawGroupIdWithDefault(), gav.getRawArtifactId(), gav.getRawVersionId(), null), cause);
-        this.groupId = gav.getRawGroupIdWithDefault(); // TODO
+        super(message(gav.getRawGroupIdWithDefaultString(), gav.getRawArtifactId(), gav.getRawVersionId(), null), cause);
+        this.groupId = gav.getRawGroupIdWithDefaultString(); // TODO
         this.artifactId = gav.getRawArtifactId();
         this.version = gav.getRawVersionId();
     }

@@ -122,7 +122,7 @@ public abstract class AbstractResourceTestBase extends AbstractRegistryTestBase 
     }
 
     protected Long createArtifact(String artifactId, String artifactType, String artifactContent) throws Exception {
-        return createArtifact("default", artifactId, artifactType, artifactContent);
+        return createArtifact(GroupId.DEFAULT.getRawGroupIdWithDefaultString(), artifactId, artifactType, artifactContent);
     }
 
 
@@ -223,7 +223,7 @@ public abstract class AbstractResourceTestBase extends AbstractRegistryTestBase 
     }
 
     protected Long createArtifactVersion(String artifactId, String artifactType, String artifactContent) throws Exception {
-        return createArtifactVersion("default", artifactId, artifactType, artifactContent);
+        return createArtifactVersion(GroupId.DEFAULT.getRawGroupIdWithDefaultString(), artifactId, artifactType, artifactContent);
     }
 
     protected Long createArtifactVersion(String groupId, String artifactId, String artifactType, String artifactContent) throws Exception {

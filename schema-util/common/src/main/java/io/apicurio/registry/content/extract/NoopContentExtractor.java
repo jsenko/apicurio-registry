@@ -28,6 +28,6 @@ public class NoopContentExtractor implements ContentExtractor {
     }
 
     public ExtractedMetaData extract(ContentHandle content) {
-        return null;
+        return new ExtractedMetaData();
     }
 }

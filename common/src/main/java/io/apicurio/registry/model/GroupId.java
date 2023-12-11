@@ -10,12 +10,9 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode
 public class GroupId {
 
-    /**
-     * Pattern requirements:
-     * - Must not contain reserved characters ":=,<>" (see VersionExpressionParser)
-     * - Must fit in the database column
-     */
     private static final Pattern VALID_PATTERN = Pattern.compile("[a-zA-Z0-9._-]{1,512}"); // TODO: UPGRADE INCOMPATIBILITY
+
+    private static final String DEFAULT_STRING = "default";
 
     public static final GroupId DEFAULT = new GroupId();
 
@@ -33,7 +30,7 @@ public class GroupId {
             throw new ValidationException("Group ID '" + rawGroupId + "' is invalid. " +
                     "It must consist of alphanumeric characters or '._-', and have length 1..512 (inclusive).");
         }
-        this.rawGroupId = rawGroupId == null || "default".equalsIgnoreCase(rawGroupId) ? DEFAULT.getRawGroupId() : rawGroupId;
+        this.rawGroupId = rawGroupId == null || DEFAULT_STRING.equalsIgnoreCase(rawGroupId) ? DEFAULT.getRawGroupId() : rawGroupId;
     }
 
 
@@ -42,8 +39,8 @@ public class GroupId {
     }
 
 
-    public String getRawGroupIdWithDefault() {
-        return isDefaultGroup() ? "default" : rawGroupId;
+    public String getRawGroupIdWithDefaultString() {
+        return isDefaultGroup() ? DEFAULT_STRING : rawGroupId;
     }
 
 
@@ -54,7 +51,7 @@ public class GroupId {
 
     @Override
     public String toString() {
-        return getRawGroupIdWithDefault();
+        return getRawGroupIdWithDefaultString();
     }
 
 

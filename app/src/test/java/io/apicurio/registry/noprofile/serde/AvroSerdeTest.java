@@ -16,27 +16,18 @@
 
 package io.apicurio.registry.noprofile.serde;
 
-import com.kubetrade.schema.trade.AvroSchemaA;
-import com.kubetrade.schema.trade.AvroSchemaB;
-import com.kubetrade.schema.trade.AvroSchemaC;
-import com.kubetrade.schema.trade.AvroSchemaD;
-import com.kubetrade.schema.trade.AvroSchemaE;
-import com.kubetrade.schema.trade.AvroSchemaF;
+import com.kubetrade.schema.trade.*;
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
 import io.apicurio.registry.AbstractResourceTestBase;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.resolver.SchemaResolverConfig;
 import io.apicurio.registry.resolver.strategy.ArtifactReferenceResolverStrategy;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 import io.apicurio.registry.serde.SerdeConfig;
 import io.apicurio.registry.serde.SerdeHeaders;
-import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
-import io.apicurio.registry.serde.avro.AvroKafkaSerdeConfig;
-import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
-import io.apicurio.registry.serde.avro.DefaultAvroDatumProvider;
-import io.apicurio.registry.serde.avro.ReflectAllowNullAvroDatumProvider;
-import io.apicurio.registry.serde.avro.ReflectAvroDatumProvider;
+import io.apicurio.registry.serde.avro.*;
 import io.apicurio.registry.serde.avro.strategy.QualifiedRecordIdStrategy;
 import io.apicurio.registry.serde.avro.strategy.RecordIdStrategy;
 import io.apicurio.registry.serde.avro.strategy.TopicRecordIdStrategy;
@@ -65,11 +56,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -168,7 +155,7 @@ public class AvroSerdeTest extends AbstractResourceTestBase {
     public void testAvroQualifiedRecordIdStrategy() throws Exception {
         testAvroAutoRegisterIdInBody(QualifiedRecordIdStrategy.class, () -> {
             try {
-                return restClient.groups().byGroupId("default").artifacts().byArtifactId("test-group-avro.myrecord3").meta().get().get();
+                return restClient.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId("test-group-avro.myrecord3").meta().get().get();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {

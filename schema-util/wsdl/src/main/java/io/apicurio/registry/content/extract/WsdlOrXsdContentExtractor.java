@@ -35,22 +35,21 @@ public class WsdlOrXsdContentExtractor implements ContentExtractor {
 
     @Override
     public ExtractedMetaData extract(ContentHandle content) {
+        ExtractedMetaData metaData = new ExtractedMetaData();
         try (InputStream contentIS = content.stream()) {
             Document document = DocumentBuilderAccessor.getDocumentBuilder().parse(contentIS);
             String name = document.getDocumentElement().getAttribute("name");
             String targetNS = document.getDocumentElement().getAttribute("targetNamespace");
 
-            ExtractedMetaData metaData = new ExtractedMetaData();
             if (!name.isEmpty()) {
                 metaData.setName(name);
             } else if (!targetNS.isEmpty()) {
                 metaData.setName(targetNS);
             }
-            return metaData;
 
-        } catch (Exception e) {
-            log.debug("Error extracting metadata from WSDL/XSD: {}", e.getMessage());
-            return null;
+        } catch (Exception ex) {
+            log.debug("Error extracting metadata from WSDL/XSD: {}", ex.getMessage());
         }
+        return metaData;
     }
 }

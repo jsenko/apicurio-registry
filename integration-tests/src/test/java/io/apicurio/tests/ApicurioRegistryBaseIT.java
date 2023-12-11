@@ -128,7 +128,7 @@ public class ApicurioRegistryBaseIT implements TestSeparator, Constants {
             for (SearchedArtifact artifact : artifacts.getArtifacts()) {
                 try {
                     registryClient.groups().byGroupId(normalizeGroupId(artifact.getGroupId())).artifacts().byArtifactId(artifact.getId()).delete().get(3, TimeUnit.SECONDS);
-                    registryClient.groups().byGroupId("default").artifacts().delete().get(3, TimeUnit.SECONDS);
+                    registryClient.groups().byGroupId("default").artifacts().delete().get(3, TimeUnit.SECONDS); // TODO
                 } catch (ExecutionException e) {
                     //because of async storage artifact may be already deleted but listed anyway
                     logger.info(e.getMessage());
@@ -151,7 +151,7 @@ public class ApicurioRegistryBaseIT implements TestSeparator, Constants {
     }
 
     private static String normalizeGroupId(String groupId) {
-        return groupId != null ? groupId : "default";
+        return groupId != null ? groupId : "default"; // TODO
     }
 
     protected ArtifactMetaData createArtifact(String groupId, String artifactId, String artifactType, InputStream artifact) throws Exception {

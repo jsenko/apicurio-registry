@@ -16,14 +16,15 @@
 
 package io.apicurio.registry.noprofile.rest.v2.impexp;
 
-import java.util.UUID;
-
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
+import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.Rule;
 import io.apicurio.registry.rest.client.models.RuleType;
+
+import java.util.UUID;
 
 /**
  * Used to create the export.zip file used by the import test in {@link AdminResourceTest}.
@@ -50,10 +51,10 @@ public class ExportLoader {
             String artifactId = UUID.randomUUID().toString();
             ArtifactContent content = new ArtifactContent();
             content.setContent(data);
-            client.groups().byGroupId("default").artifacts().post(content, config -> {
+            client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().post(content, config -> {
                 config.headers.add("X-Registry-ArtifactId", artifactId);
             }).get();
-            client.groups().byGroupId("default").artifacts().byArtifactId(artifactId).delete().get();
+            client.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).delete().get();
         }
 
         String testContent = CONTENT.replace("Empty API", "Test Artifact");

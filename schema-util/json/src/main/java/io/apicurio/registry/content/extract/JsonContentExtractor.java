@@ -37,23 +37,21 @@ public class JsonContentExtractor implements ContentExtractor {
 
     @Override
     public ExtractedMetaData extract(ContentHandle content) {
+        ExtractedMetaData metaData = new ExtractedMetaData();
         try {
             JsonNode jsonSchema = mapper.readTree(content.bytes());
             JsonNode title = jsonSchema.get("title");
             JsonNode desc = jsonSchema.get("description");
 
-            ExtractedMetaData metaData = new ExtractedMetaData();
             if (title != null && !title.isNull()) {
                 metaData.setName(title.asText());
             }
             if (desc != null && !desc.isNull()) {
                 metaData.setDescription(desc.asText());
             }
-            return metaData;
-
-        } catch (IOException e) {
-            log.warn("Error extracting metadata from JSON: {}", e.getMessage());
-            return null;
+        } catch (IOException ex) {
+            log.warn("Error extracting metadata from JSON: {}", ex.getMessage());
         }
+        return metaData;
     }
 }
