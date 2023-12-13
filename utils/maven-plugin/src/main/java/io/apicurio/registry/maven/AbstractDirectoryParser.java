@@ -18,7 +18,7 @@ package io.apicurio.registry.maven;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.ArtifactMetaData;

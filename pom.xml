@@ -71,11 +71,14 @@
 
     <modules>
         <module>common</module>
+        <module>schema-util/schema-spi</module>
+        <module>storage-spi</module>
         <module>app</module>
         <module>utils/converter</module>
         <module>utils/kafka</module>
         <module>utils/maven-plugin</module>
         <module>utils/tools</module>
+        <module>utils/migration</module>
         <module>utils/importexport</module>
         <module>utils/exportConfluent</module>
         <module>utils/protobuf-schema-utilities</module>
@@ -238,6 +241,11 @@
             </dependency>
             <dependency>
                 <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-storage-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.apicurio</groupId>
                 <artifactId>apicurio-registry-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -258,6 +266,11 @@
             </dependency>
             <dependency>
                 <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-utils-migration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.apicurio</groupId>
                 <artifactId>apicurio-registry-utils-kafka</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
@@ -266,6 +279,11 @@
             <dependency>
                 <groupId>io.apicurio</groupId>
                 <artifactId>apicurio-registry-utils-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-schema-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

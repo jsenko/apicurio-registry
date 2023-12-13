@@ -16,15 +16,17 @@
 
 package io.apicurio.registry.rules.validity;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.schema.DocumentBuilderAccessor;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.util.DocumentBuilderAccessor;
 
 /**
  * @author cfoskin@redhat.com This class can be used to validate plain XML and only does syntax validation
@@ -38,25 +40,26 @@ public class XmlContentValidator implements ContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, java.util.Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, java.util.Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try (InputStream stream = artifactContent.stream()) {
                 DocumentBuilderAccessor.getDocumentBuilder().parse(stream);
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for XML artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
-        // Note: not yet implemented!
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
+        // TODO Implement this, or throw new UnsupportedOperationException();
+        return ValidationResult.SUCCESS_EMPTY;
     }
-
 }

@@ -16,25 +16,24 @@
 
 package io.apicurio.registry.rules.integrity;
 
+import io.apicurio.common.apps.logging.Logged;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.rules.RuleContext;
+import io.apicurio.registry.rules.RuleExecutor;
+import io.apicurio.registry.rules.RuleViolationException;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.types.RuleType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import io.apicurio.common.apps.logging.Logged;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleContext;
-import io.apicurio.registry.rules.RuleExecutor;
-import io.apicurio.registry.rules.RuleViolation;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.rules.validity.ContentValidator;
-import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
 
 /**
  * @author eric.wittmann@gmail.com

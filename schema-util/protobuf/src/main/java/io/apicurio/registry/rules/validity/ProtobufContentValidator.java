@@ -16,26 +16,21 @@
 
 package io.apicurio.registry.rules.validity;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.google.protobuf.Descriptors;
 import com.squareup.wire.schema.internal.parser.MessageElement;
 import com.squareup.wire.schema.internal.parser.ProtoFileElement;
-
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolation;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.rules.integrity.IntegrityLevel;
-import io.apicurio.registry.types.RuleType;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import io.apicurio.registry.utils.protobuf.schema.FileDescriptorUtils;
 import io.apicurio.registry.utils.protobuf.schema.ProtobufFile;
 import io.apicurio.registry.utils.protobuf.schema.ProtobufSchema;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A content validator implementation for the Protobuf content type.
@@ -51,10 +46,10 @@ public class ProtobufContentValidator implements ContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try {
                 if (resolvedReferences == null || resolvedReferences.isEmpty()) {
@@ -80,17 +75,18 @@ public class ProtobufContentValidator implements ContentValidator {
                         ContentHandle.create(getFileDescriptorFromElement(protoFileElement).toString());
                     }
                 }
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for Protobuf artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
         try {
             Set<String> mappedRefs = references.stream().map(ref -> ref.getName()).collect(Collectors.toSet());
 
@@ -98,17 +94,17 @@ public class ProtobufContentValidator implements ContentValidator {
             Set<String> allImports = new HashSet<>();
             allImports.addAll(protoFileElement.getImports());
             allImports.addAll(protoFileElement.getPublicImports());
-            
+
             Set<RuleViolation> violations = allImports.stream().filter(_import -> !mappedRefs.contains(_import)).map(missingRef -> {
                 return new RuleViolation("Unmapped reference detected.", missingRef);
             }).collect(Collectors.toSet());
-            if (!violations.isEmpty()) {
-                throw new RuleViolationException("Unmapped reference(s) detected.", RuleType.INTEGRITY, IntegrityLevel.ALL_REFS_MAPPED.name(), violations);
-            }
-        } catch (RuleViolationException rve) {
-            throw rve;
+
+            return ValidationResult.builder()
+                    .violations(violations)
+                    .build();
         } catch (Exception e) {
             // Do nothing - we don't care if it can't validate.  Another rule will handle that.
+            return ValidationResult.SUCCESS_EMPTY;
         }
     }
 

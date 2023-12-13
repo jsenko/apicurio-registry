@@ -27,9 +27,10 @@ import io.apicurio.registry.rest.v2.beans.Error;
 import io.apicurio.registry.rest.v2.beans.RuleViolationCause;
 import io.apicurio.registry.rest.v2.beans.RuleViolationError;
 import io.apicurio.registry.rules.DefaultRuleDeletionException;
-import io.apicurio.registry.rules.RuleViolation;
 import io.apicurio.registry.rules.RuleViolationException;
 import io.apicurio.registry.rules.UnprocessableSchemaException;
+import io.apicurio.registry.schema.InvalidArtifactTypeException;
+import io.apicurio.registry.schema.compat.RuleViolation;
 import io.apicurio.registry.storage.error.*;
 import io.apicurio.rest.client.auth.exception.ForbiddenException;
 import io.apicurio.rest.client.auth.exception.NotAuthorizedException;
@@ -163,7 +164,7 @@ public class RegistryExceptionMapperService {
         if (t instanceof RuleViolationException) {
             RuleViolationException rve = (RuleViolationException) t;
             error = new RuleViolationError();
-            ((RuleViolationError) error).setCauses(toRestCauses(rve.getCauses()));
+            ((RuleViolationError) error).setCauses(toRestCauses(rve.getViolations()));
         } else {
             error = new Error();
         }

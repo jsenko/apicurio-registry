@@ -16,11 +16,12 @@
 
 package io.apicurio.registry.storage.impl.sql.mappers;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.v2.ContentEntity;
+import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
-import io.apicurio.registry.utils.impexp.ContentEntity;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -44,7 +45,7 @@ public class ContentEntityMapper implements RowMapper<ContentEntity> {
         entity.contentId = rs.getLong("contentId");
         entity.canonicalHash = rs.getString("canonicalHash");
         entity.contentHash = rs.getString("contentHash");
-        entity.contentBytes = rs.getBytes("content");
+        entity.content = ContentHandle.create(rs.getBytes("content"));
         try {
             entity.serializedReferences = rs.getString("artifactreferences");
         } catch (Exception e) {

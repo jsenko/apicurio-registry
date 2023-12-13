@@ -4,9 +4,11 @@ import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.common.apps.logging.Logged;
 import io.apicurio.registry.exception.RuntimeAssertionFailedException;
 import io.apicurio.registry.exception.UnreachableCodeException;
+import io.apicurio.registry.impexp.v2.*;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;
+import io.apicurio.registry.storage.IdGenerator;
 import io.apicurio.registry.storage.dto.ArtifactOwnerDto;
 import io.apicurio.registry.storage.dto.GroupMetaDataDto;
 import io.apicurio.registry.storage.error.ArtifactAlreadyExistsException;
@@ -18,10 +20,8 @@ import io.apicurio.registry.storage.impl.kafkasql.KafkaSqlSubmitter;
 import io.apicurio.registry.storage.impl.kafkasql.MessageType;
 import io.apicurio.registry.storage.impl.kafkasql.keys.*;
 import io.apicurio.registry.storage.impl.kafkasql.values.*;
-import io.apicurio.registry.storage.impl.sql.IdGenerator;
 import io.apicurio.registry.storage.impl.sql.SqlRegistryStorage;
 import io.apicurio.registry.types.RegistryException;
-import io.apicurio.registry.utils.impexp.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
@@ -246,7 +246,7 @@ public class KafkaSqlSink {
                 entity.modifiedBy = value.getModifiedBy();
                 entity.modifiedOn = value.getModifiedOn();
                 entity.properties = value.getProperties();
-                sqlStore.importGroup(entity);
+                sqlStore.importEntity(entity);
                 return null;
             default:
                 return unsupported(key, value);
@@ -288,7 +288,7 @@ public class KafkaSqlSink {
                     entity.labels = value.getMetaData().getLabels();
                     entity.properties = value.getMetaData().getProperties();
                     entity.contentId = value.getContentId();
-                    sqlStore.importArtifactVersion(entity);
+                    sqlStore.importEntity(entity);
                     return null;
                 default:
                     return unsupported(key, value);
@@ -327,7 +327,7 @@ public class KafkaSqlSink {
                 entity.artifactId = key.getArtifactId();
                 entity.type = key.getRuleType();
                 entity.configuration = value.getConfig().getConfiguration();
-                sqlStore.importArtifactRule(entity);
+                sqlStore.importEntity(entity);
                 return null;
             default:
                 return unsupported(key, value);
@@ -394,11 +394,11 @@ public class KafkaSqlSink {
                             .contentId(key.getContentId())
                             .contentHash(key.getContentHash())
                             .canonicalHash(value.getCanonicalHash())
-                            .contentBytes(value.getContent().bytes())
+                            .content(value.getContent())
                             .serializedReferences(value.getSerializedReferences())
                             .build();
 
-                    sqlStore.importContent(entity);
+                    sqlStore.importEntity(entity);
                 }
                 return null;
             case IMPORT:
@@ -406,9 +406,9 @@ public class KafkaSqlSink {
                 entity.contentId = key.getContentId();
                 entity.contentHash = key.getContentHash();
                 entity.canonicalHash = value.getCanonicalHash();
-                entity.contentBytes = value.getContent().bytes();
+                entity.content = value.getContent();
                 entity.serializedReferences = value.getSerializedReferences();
-                sqlStore.importContent(entity);
+                sqlStore.importEntity(entity);
                 return null;
             case UPDATE:
                 sqlStore.updateContentCanonicalHash(value.getCanonicalHash(), key.getContentId(), key.getContentHash());
@@ -440,7 +440,7 @@ public class KafkaSqlSink {
                 GlobalRuleEntity entity = new GlobalRuleEntity();
                 entity.ruleType = key.getRuleType();
                 entity.configuration = value.getConfig().getConfiguration();
-                sqlStore.importGlobalRule(entity);
+                sqlStore.importEntity(entity);
                 return null;
             default:
                 return unsupported(key, value);
@@ -567,7 +567,7 @@ public class KafkaSqlSink {
                 entity.createdBy = value.getCreatedBy();
                 entity.createdOn = value.getCreatedOn().getTime();
                 entity.value = value.getValue();
-                sqlStore.importComment(entity);
+                sqlStore.importEntity(entity);
                 return null;
             default:
                 return unsupported(key, value);

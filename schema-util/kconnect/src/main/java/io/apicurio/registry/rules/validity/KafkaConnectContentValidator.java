@@ -16,29 +16,31 @@
 
 package io.apicurio.registry.rules.validity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.json.JsonConverterConfig;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.json.JsonConverterConfig;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.types.RuleType;
-
 /**
  * A content validator implementation for the Kafka Connect schema content type.
+ *
  * @author eric.wittmann@gmail.com
  */
 public class KafkaConnectContentValidator implements ContentValidator {
 
     private static final ObjectMapper mapper;
     private static final JsonConverter jsonConverter;
+
     static {
         mapper = new ObjectMapper();
         jsonConverter = new JsonConverter();
@@ -55,26 +57,28 @@ public class KafkaConnectContentValidator implements ContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try {
                 JsonNode jsonNode = mapper.readTree(artifactContent.content());
                 jsonConverter.asConnectSchema(jsonNode);
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for Kafka Connect Schema artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
-        // Note: not yet implemented!
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
+        // TODO Implement this, or throw new UnsupportedOperationException();
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
 }

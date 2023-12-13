@@ -16,7 +16,7 @@
 
 package io.apicurio.registry.storage.impl.kafkasql.values;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.impl.kafkasql.MessageType;
 import lombok.ToString;
 

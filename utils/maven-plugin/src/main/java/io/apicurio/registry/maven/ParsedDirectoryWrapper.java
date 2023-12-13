@@ -16,7 +16,7 @@
 
 package io.apicurio.registry.maven;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 
 import java.util.Map;
 

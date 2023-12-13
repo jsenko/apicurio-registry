@@ -27,16 +27,16 @@ import io.apicurio.registry.JsonSchemas;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.apicurio.registry.rules.compatibility.CompatibilityChecker;
-import io.apicurio.registry.rules.compatibility.CompatibilityDifference;
-import io.apicurio.registry.rules.compatibility.CompatibilityExecutionResult;
-import io.apicurio.registry.rules.compatibility.CompatibilityLevel;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
+import io.apicurio.registry.schema.compat.CompatibilityDifference;
+import io.apicurio.registry.schema.compat.CompatibilityExecutionResult;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.DiffType;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.Difference;
 import io.apicurio.registry.rules.compatibility.JsonSchemaCompatibilityDifference;
 import io.apicurio.registry.types.ArtifactType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**

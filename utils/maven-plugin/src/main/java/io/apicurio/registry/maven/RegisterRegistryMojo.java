@@ -44,9 +44,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Descriptors.FileDescriptor;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.content.refs.ExternalReference;
-import io.apicurio.registry.content.refs.ReferenceFinder;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 import io.apicurio.registry.maven.refs.IndexedResource;
 import io.apicurio.registry.maven.refs.ReferenceIndex;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
@@ -54,8 +54,8 @@ import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 import io.apicurio.registry.rest.client.models.ArtifactReference;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.ContentTypes;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.DefaultArtifactTypeUtilProviderImpl;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactoryImpl;
 
 /**
  * Register artifacts against registry.
@@ -83,7 +83,7 @@ public class RegisterRegistryMojo extends AbstractRegistryMojo {
     @Parameter(property = "skipRegister", defaultValue = "false")
     boolean skip;
 
-    DefaultArtifactTypeUtilProviderImpl utilProviderFactory = new DefaultArtifactTypeUtilProviderImpl();
+    ArtifactTypeUtilProviderFactoryImpl utilProviderFactory = new ArtifactTypeUtilProviderFactoryImpl();
 
     /**
      * Validate the configuration.

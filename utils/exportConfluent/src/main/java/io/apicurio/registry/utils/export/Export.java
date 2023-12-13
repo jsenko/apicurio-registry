@@ -18,12 +18,13 @@ package io.apicurio.registry.utils.export;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.v2.*;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.IoUtil;
 import io.apicurio.registry.utils.export.mappers.ArtifactReferenceMapper;
-import io.apicurio.registry.utils.impexp.*;
+import io.apicurio.registry.utils.impexp.ZipEntityWriter;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.RestService;
@@ -34,7 +35,6 @@ import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientExcept
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.jboss.logging.Logger;
 
 import javax.net.ssl.SSLContext;
@@ -45,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.*;
 import java.util.zip.ZipOutputStream;
 
@@ -94,16 +95,14 @@ public class Export implements QuarkusApplication {
             System.out.println("Exporting confluent schema registry data to " + output.getName());
 
             ZipOutputStream zip = new ZipOutputStream(fos, StandardCharsets.UTF_8);
-            ExportContext context = new ExportContext(new EntityWriter(zip), restService, client);
+            ExportContext context = new ExportContext(new ZipEntityWriter(zip), restService, client);
 
             // Add a basic Manifest to the export
             ManifestEntity manifest = new ManifestEntity();
             manifest.exportedBy = "export-confluent-utility";
-            manifest.exportedOn = new Date();
-            manifest.systemDescription = "Unknown remote confluent schema registry (export created using apicurio confluent schema registry export utility).";
+            manifest.exportedOn = Instant.now();
             manifest.systemName = "Remote Confluent Schema Registry";
-            manifest.systemVersion = "n/a";
-            context.getWriter().writeEntity(manifest);
+            context.getWriter().importEntity(manifest);
 
             Collection<String> subjects = context.getSchemaRegistryClient().getAllSubjects();
 
@@ -126,7 +125,7 @@ public class Export implements QuarkusApplication {
                     ruleEntity.groupId = null;
                     ruleEntity.type = RuleType.COMPATIBILITY;
 
-                    context.getWriter().writeEntity(ruleEntity);
+                    context.getWriter().importEntity(ruleEntity);
                 } catch (RestClientException ex) {
                     // Subject does not have specific compatibility rule
                 }
@@ -139,14 +138,14 @@ public class Export implements QuarkusApplication {
             ruleEntity.configuration = globalCompatibility;
             ruleEntity.ruleType = RuleType.COMPATIBILITY;
 
-            context.getWriter().writeEntity(ruleEntity);
+            context.getWriter().importEntity(ruleEntity);
 
             // Enable Global Validation rule bcs it is confluent default behavior
             GlobalRuleEntity ruleEntity2 = new GlobalRuleEntity();
             ruleEntity2.configuration = "SYNTAX_ONLY";
             ruleEntity2.ruleType = RuleType.VALIDITY;
 
-            context.getWriter().writeEntity(ruleEntity2);
+            context.getWriter().importEntity(ruleEntity2);
 
             zip.flush();
             zip.close();
@@ -186,8 +185,8 @@ public class Export implements QuarkusApplication {
         SchemaString schemaString = context.getRestService().getId(metadata.getId());
 
         String content = schemaString.getSchemaString();
-        byte[] contentBytes = IoUtil.toBytes(content);
-        String contentHash = DigestUtils.sha256Hex(contentBytes);
+        var contentBytes = ContentHandle.create(content);
+        String contentHash = contentBytes.getSha256Hash();
 
         // Export all references first
         for (SchemaReference ref : metadata.getReferences()) {
@@ -203,12 +202,12 @@ public class Export implements QuarkusApplication {
             contentEntity.contentId = metadata.getId();
             contentEntity.contentHash = contentHash;
             contentEntity.canonicalHash = null;
-            contentEntity.contentBytes = contentBytes;
+            contentEntity.content = contentBytes;
             contentEntity.artifactType = artifactType;
             contentEntity.serializedReferences = serializeReferences(references);
             try {
-                context.getWriter().writeEntity(contentEntity);
-            } catch (IOException e) {
+                context.getWriter().importEntity(contentEntity);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
@@ -231,7 +230,7 @@ public class Export implements QuarkusApplication {
         versionEntity.version = String.valueOf(metadata.getVersion());
         versionEntity.versionOrder = metadata.getVersion();
 
-        context.getWriter().writeEntity(versionEntity);
+        context.getWriter().importEntity(versionEntity);
     }
 
     /**

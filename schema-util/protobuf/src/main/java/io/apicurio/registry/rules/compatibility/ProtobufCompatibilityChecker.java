@@ -16,15 +16,18 @@
 
 package io.apicurio.registry.rules.compatibility;
 
-import static java.util.Objects.requireNonNull;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rules.compatibility.protobuf.ProtobufCompatibilityCheckerLibrary;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
+import io.apicurio.registry.schema.compat.CompatibilityExecutionResult;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
+import io.apicurio.registry.utils.protobuf.schema.ProtobufFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.compatibility.protobuf.ProtobufCompatibilityCheckerLibrary;
-import io.apicurio.registry.utils.protobuf.schema.ProtobufFile;
-import org.jetbrains.annotations.NotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author Ales Justin
@@ -74,7 +77,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
         for (ContentHandle existing : existingSchemas) {
             fileBefore = new ProtobufFile(existing.content());
             if (!testFull(fileBefore, fileAfter).isCompatible()) {
-                return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not fully compatible.");
+                return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not fully compatible.");
             }
         }
         return CompatibilityExecutionResult.compatible();
@@ -85,7 +88,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
         ProtobufCompatibilityCheckerLibrary backwardChecker = new ProtobufCompatibilityCheckerLibrary(fileBefore, fileAfter);
         ProtobufCompatibilityCheckerLibrary forwardChecker = new ProtobufCompatibilityCheckerLibrary(fileAfter, fileBefore);
         if (!backwardChecker.validate() && !forwardChecker.validate()) {
-            return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not fully compatible.");
+            return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not fully compatible.");
         } else {
             return CompatibilityExecutionResult.compatible();
         }
@@ -98,7 +101,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
             fileBefore = new ProtobufFile(existing.content());
             ProtobufCompatibilityCheckerLibrary checker = new ProtobufCompatibilityCheckerLibrary(fileAfter, fileBefore);
             if (!checker.validate()) {
-                return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not forward compatible.");
+                return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not forward compatible.");
             }
         }
         return CompatibilityExecutionResult.compatible();
@@ -110,7 +113,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
         if (checker.validate()) {
             return CompatibilityExecutionResult.compatible();
         } else {
-            return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not forward compatible.");
+            return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not forward compatible.");
         }
     }
 
@@ -121,7 +124,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
             fileBefore = new ProtobufFile(existing.content());
             ProtobufCompatibilityCheckerLibrary checker = new ProtobufCompatibilityCheckerLibrary(fileBefore, fileAfter);
             if (!checker.validate()) {
-                return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not backward compatible.");
+                return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not backward compatible.");
             }
         }
         return CompatibilityExecutionResult.compatible();
@@ -133,7 +136,7 @@ public class ProtobufCompatibilityChecker implements CompatibilityChecker {
         if (checker.validate()) {
             return CompatibilityExecutionResult.compatible();
         } else {
-            return CompatibilityExecutionResult.incompatible("The new version of the protobuf artifact is not backward compatible.");
+            return SimpleCompatibilityDifference.incompatible("The new version of the protobuf artifact is not backward compatible.");
         }
     }
 }

@@ -1,6 +1,6 @@
 package io.apicurio.registry.storage.impl.gitops.model;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.impl.gitops.ProcessingState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

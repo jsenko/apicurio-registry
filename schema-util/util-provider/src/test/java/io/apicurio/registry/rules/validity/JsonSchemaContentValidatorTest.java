@@ -16,11 +16,10 @@
 
 package io.apicurio.registry.rules.validity;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.RuleViolationException;
 
 import java.util.Collections;
 
@@ -31,45 +30,41 @@ import java.util.Collections;
 public class JsonSchemaContentValidatorTest extends ArtifactUtilProviderTestBase {
 
     @Test
-    public void testValidJsonSchema() throws Exception {
+    public void testValidJsonSchema() {
         ContentHandle content = resourceToContentHandle("jsonschema-valid.json");
         JsonSchemaContentValidator validator = new JsonSchemaContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidJsonSchema() throws Exception {
+    public void testInvalidJsonSchema() {
         ContentHandle content = resourceToContentHandle("jsonschema-invalid.json");
         JsonSchemaContentValidator validator = new JsonSchemaContentValidator();
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
-        });
+        Assertions.assertFalse(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidJsonSchemaVersion() throws Exception {
+    public void testInvalidJsonSchemaVersion() {
         ContentHandle content = resourceToContentHandle("jsonschema-valid-d7.json");
         JsonSchemaContentValidator validator = new JsonSchemaContentValidator();
-        validator.validate(ValidityLevel.FULL, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.FULL, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidJsonSchemaFull() throws Exception {
+    public void testInvalidJsonSchemaFull() {
         ContentHandle content = resourceToContentHandle("bad-json-schema-v1.json");
         JsonSchemaContentValidator validator = new JsonSchemaContentValidator();
-        RuleViolationException error = Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.FULL, content, Collections.emptyMap());
-        });
-        Assertions.assertFalse(error.getCauses().isEmpty());
-        Assertions.assertEquals("expected type: Number, found: Boolean", error.getCauses().iterator().next().getDescription());
-        Assertions.assertEquals("#/items/properties/price/exclusiveMinimum", error.getCauses().iterator().next().getContext());
+        var result = validator.validate(ValidityLevel.FULL, content, Collections.emptyMap());
+        Assertions.assertFalse(result.isValid());
+        Assertions.assertEquals("expected type: Number, found: Boolean", result.getViolations().iterator().next().getDescription());
+        Assertions.assertEquals("#/items/properties/price/exclusiveMinimum", result.getViolations().iterator().next().getContext());
     }
 
     @Test
-    public void testJsonSchemaWithReferences() throws Exception {
+    public void testJsonSchemaWithReferences() {
         ContentHandle city = resourceToContentHandle("city.json");
         ContentHandle citizen = resourceToContentHandle("citizen.json");
         JsonSchemaContentValidator validator = new JsonSchemaContentValidator();
-        validator.validate(ValidityLevel.FULL, citizen, Collections.singletonMap("https://example.com/city.json", city));
+        Assertions.assertTrue(validator.validate(ValidityLevel.FULL, citizen, Collections.singletonMap("https://example.com/city.json", city)).isValid());
     }
 }

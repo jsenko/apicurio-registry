@@ -18,7 +18,7 @@ package io.apicurio.registry.rules.compatibility.jsonschema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.DiffContext;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.Difference;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.SchemaDiffVisitor;

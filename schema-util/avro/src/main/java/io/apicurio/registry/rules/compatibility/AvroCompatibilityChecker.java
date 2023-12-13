@@ -17,8 +17,9 @@
 package io.apicurio.registry.rules.compatibility;
 
 import com.google.common.collect.ImmutableSet;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rules.UnprocessableSchemaException;
+import io.apicurio.registry.schema.compat.CompatibilityDifference;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaCompatibility;

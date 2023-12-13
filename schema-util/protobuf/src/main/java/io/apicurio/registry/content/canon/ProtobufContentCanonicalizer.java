@@ -19,7 +19,8 @@ package io.apicurio.registry.content.canon;
 import com.squareup.wire.schema.internal.parser.ProtoFileElement;
 import com.squareup.wire.schema.internal.parser.ProtoParser;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import io.apicurio.registry.utils.protobuf.schema.FileDescriptorUtils;
 
 import java.util.Map;
@@ -32,7 +33,7 @@ import java.util.Map;
 public class ProtobufContentCanonicalizer implements ContentCanonicalizer {
 
     /**
-     * @see io.apicurio.registry.content.canon.ContentCanonicalizer#canonicalize(io.apicurio.registry.content.ContentHandle, Map)
+     * @see ContentCanonicalizer#canonicalize(ContentHandle, Map)
      */
     @Override
     public ContentHandle canonicalize(ContentHandle content, Map<String, ContentHandle> resolvedReferences) {

@@ -16,26 +16,30 @@
 
 package io.apicurio.registry.utils.impexp;
 
+import io.apicurio.registry.impexp.Entity;
+import io.apicurio.registry.impexp.v2.ArtifactRuleEntity;
+import io.apicurio.registry.impexp.v2.ArtifactVersionEntity;
+import io.apicurio.registry.impexp.v2.ContentEntity;
+import io.apicurio.registry.impexp.v2.GlobalRuleEntity;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipInputStream;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author eric.wittmann@gmail.com
  */
 class EntityReaderTest {
 
-    /**
-     * Test method for {@link io.apicurio.registry.noprofile.rest.v2.impexp.EntityReader#readEntity()}.
-     */
+
     @Test
     void testReadEntity() throws Exception {
-        try (InputStream data = resourceToInputStream("export.zip")) {
+
+        try (InputStream data = resourceToInputStream("export-v2.zip")) {
             ZipInputStream zip = new ZipInputStream(data, StandardCharsets.UTF_8);
-            EntityReader reader = new EntityReader(zip);
+            ZipEntityReader reader = new ZipEntityReader(zip);
             Entity entity = null;
 
             int contentCounter = 0;

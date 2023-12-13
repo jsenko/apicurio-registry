@@ -19,18 +19,18 @@ package io.apicurio.registry.storage.decorator;
 import io.apicurio.common.apps.config.Dynamic;
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.common.apps.config.Info;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.storage.RegistryStorage;
-import io.apicurio.registry.storage.dto.*;
-import io.apicurio.registry.storage.error.*;
-import io.apicurio.registry.storage.impexp.EntityInputStream;
-import io.apicurio.registry.storage.impl.sql.IdGenerator;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.Entity;
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;
+import io.apicurio.registry.storage.IdGenerator;
+import io.apicurio.registry.storage.RegistryStorage;
+import io.apicurio.registry.storage.dto.*;
+import io.apicurio.registry.storage.error.*;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -275,10 +275,17 @@ public class ReadOnlyRegistryStorageDecorator extends RegistryStorageDecoratorRe
 
 
     @Override
-    public void importData(EntityInputStream entities, boolean preserveGlobalId, boolean preserveContentId)
+    public void importEntity(Entity entity)
             throws RegistryStorageException {
         checkReadOnly();
-        delegate.importData(entities, preserveGlobalId, preserveContentId);
+        delegate.importEntity(entity);
+    }
+
+
+    @Override
+    public void postImport() {
+        checkReadOnly();
+        delegate.postImport();
     }
 
 
@@ -396,48 +403,6 @@ public class ReadOnlyRegistryStorageDecorator extends RegistryStorageDecoratorRe
     public void resetCommentId() {
         checkReadOnly();
         delegate.resetCommentId();
-    }
-
-
-    @Override
-    public void importComment(CommentEntity entity) {
-        checkReadOnly();
-        delegate.importComment(entity);
-    }
-
-
-    @Override
-    public void importGroup(GroupEntity entity) {
-        checkReadOnly();
-        delegate.importGroup(entity);
-    }
-
-
-    @Override
-    public void importGlobalRule(GlobalRuleEntity entity) {
-        checkReadOnly();
-        delegate.importGlobalRule(entity);
-    }
-
-
-    @Override
-    public void importContent(ContentEntity entity) {
-        checkReadOnly();
-        delegate.importContent(entity);
-    }
-
-
-    @Override
-    public void importArtifactVersion(ArtifactVersionEntity entity) {
-        checkReadOnly();
-        delegate.importArtifactVersion(entity);
-    }
-
-
-    @Override
-    public void importArtifactRule(ArtifactRuleEntity entity) {
-        checkReadOnly();
-        delegate.importArtifactRule(entity);
     }
 
 

@@ -21,7 +21,7 @@ import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.Rule;
 import io.apicurio.registry.rest.client.models.RuleType;
-import io.apicurio.registry.rules.validity.ValidityLevel;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import io.apicurio.registry.types.ArtifactType;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;

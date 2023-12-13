@@ -17,17 +17,17 @@
 
 package io.apicurio.registry.rules;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.content.canon.ContentCanonicalizer;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.dto.LazyContentList;
 import io.apicurio.registry.storage.dto.RuleConfigurationDto;
 import io.apicurio.registry.storage.dto.StoredArtifactDto;
 import io.apicurio.registry.types.Current;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -60,7 +60,7 @@ public class RulesServiceImpl implements RulesService {
     ArtifactTypeUtilProviderFactory providerFactory;
 
     /**
-     * @see io.apicurio.registry.rules.RulesService#applyRules(java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.content.ContentHandle, io.apicurio.registry.rules.RuleApplicationType, java.util.List, java.util.Map)
+     * @see io.apicurio.registry.rules.RulesService#applyRules(java.lang.String, java.lang.String, java.lang.String, ContentHandle, io.apicurio.registry.rules.RuleApplicationType, java.util.List, java.util.Map)
      */
     @Override
     public void applyRules(String groupId, String artifactId, String artifactType, ContentHandle artifactContent,
@@ -110,7 +110,7 @@ public class RulesServiceImpl implements RulesService {
     }
 
     /**
-     * @see io.apicurio.registry.rules.RulesService#applyRule(java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.content.ContentHandle, io.apicurio.registry.types.RuleType, java.lang.String, io.apicurio.registry.rules.RuleApplicationType, java.util.List, java.util.Map)
+     * @see io.apicurio.registry.rules.RulesService#applyRule(java.lang.String, java.lang.String, java.lang.String, ContentHandle, io.apicurio.registry.types.RuleType, java.lang.String, io.apicurio.registry.rules.RuleApplicationType, java.util.List, java.util.Map)
      */
     @Override
     public void applyRule(String groupId, String artifactId, String artifactType, ContentHandle artifactContent,
@@ -138,7 +138,7 @@ public class RulesServiceImpl implements RulesService {
     }
 
     /**
-     * @see io.apicurio.registry.rules.RulesService#applyRules(java.lang.String, java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.content.ContentHandle, java.util.List, java.util.Map)
+     * @see io.apicurio.registry.rules.RulesService#applyRules(java.lang.String, java.lang.String, java.lang.String, java.lang.String, ContentHandle, java.util.List, java.util.Map)
      */
     @Override
     public void applyRules(String groupId, String artifactId, String artifactVersion, String artifactType,

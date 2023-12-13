@@ -16,6 +16,7 @@
 
 package io.apicurio.registry.content;
 
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.utils.IoUtil;
 
 import java.io.IOException;

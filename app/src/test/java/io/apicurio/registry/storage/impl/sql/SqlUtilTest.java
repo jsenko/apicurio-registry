@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.apicurio.registry.storage.SqlUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +32,7 @@ import org.junit.jupiter.api.Test;
 class SqlUtilTest {
 
     /**
-     * Test method for {@link io.apicurio.registry.storage.impl.sql.SqlUtil#serializeLabels(java.util.List)}.
+     * Test method for {@link SqlUtil#serializeLabels(java.util.List)}.
      */
     @Test
     void testSerializeLabels() {
@@ -48,7 +49,7 @@ class SqlUtilTest {
     }
 
     /**
-     * Test method for {@link io.apicurio.registry.storage.impl.sql.SqlUtil#deserializeLabels(java.lang.String)}.
+     * Test method for {@link SqlUtil#deserializeLabels(java.lang.String)}.
      */
     @Test
     void testDeserializeLabels() {
@@ -63,7 +64,7 @@ class SqlUtilTest {
     }
 
     /**
-     * Test method for {@link io.apicurio.registry.storage.impl.sql.SqlUtil#serializeProperties(java.util.Map)}.
+     * Test method for {@link SqlUtil#serializeProperties(java.util.Map)}.
      */
     @Test
     void testSerializeProperties() {
@@ -77,7 +78,7 @@ class SqlUtilTest {
     }
 
     /**
-     * Test method for {@link io.apicurio.registry.storage.impl.sql.SqlUtil#deserializeProperties(java.lang.String)}.
+     * Test method for {@link SqlUtil#deserializeProperties(java.lang.String)}.
      */
     @Test
     void testDeserializeProperties() {

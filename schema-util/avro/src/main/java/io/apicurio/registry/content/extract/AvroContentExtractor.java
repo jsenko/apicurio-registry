@@ -18,7 +18,9 @@ package io.apicurio.registry.content.extract;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.schema.extractor.ExtractedMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

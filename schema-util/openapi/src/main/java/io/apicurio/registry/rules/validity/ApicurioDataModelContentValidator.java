@@ -16,13 +16,6 @@
 
 package io.apicurio.registry.rules.validity;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.TraverserDirection;
 import io.apicurio.datamodels.models.Document;
@@ -30,30 +23,34 @@ import io.apicurio.datamodels.models.Node;
 import io.apicurio.datamodels.models.Referenceable;
 import io.apicurio.datamodels.models.visitors.AllNodeVisitor;
 import io.apicurio.datamodels.validation.ValidationProblem;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolation;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.rules.integrity.IntegrityLevel;
-import io.apicurio.registry.types.RuleType;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A content validator implementation for the OpenAPI and AsyncAPI content types.
+ *
  * @author eric.wittmann@gmail.com
  */
 public abstract class ApicurioDataModelContentValidator implements ContentValidator {
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         Document document = null;
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try {
                 document = Library.readDocumentFromJSONString(artifactContent.content());
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for " + getDataModelType() + " artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
 
@@ -61,28 +58,30 @@ public abstract class ApicurioDataModelContentValidator implements ContentValida
             List<ValidationProblem> problems = Library.validate(document, null);
             if (!problems.isEmpty()) {
                 Set<RuleViolation> causes = problems.stream().map(problem -> new RuleViolation(problem.message, problem.nodePath.toString())).collect(Collectors.toSet());
-                throw new RuleViolationException(
-                        "The " + getDataModelType() + " artifact is not semantically valid. " + problems.size() + " problems found.",
-                        RuleType.VALIDITY,
-                        level.name(),
-                        causes);
+                return ValidationResult.builder()
+                        .violations(causes)
+                        .build();
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
         Set<String> mappedRefs = references.stream().map(ref -> ref.getName()).collect(Collectors.toSet());
         Set<String> all$refs = getAll$refs(artifactContent);
         Set<RuleViolation> violations = all$refs.stream().filter(ref -> !mappedRefs.contains(ref)).map(missingRef -> {
             return new RuleViolation("Unmapped reference detected.", missingRef);
         }).collect(Collectors.toSet());
         if (!violations.isEmpty()) {
-            throw new RuleViolationException("Unmapped reference(s) detected.", RuleType.INTEGRITY, IntegrityLevel.ALL_REFS_MAPPED.name(), violations);
+            return ValidationResult.builder()
+                    .violations(violations)
+                    .build();
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
     private Set<String> getAll$refs(ContentHandle artifactContent) {
@@ -102,7 +101,7 @@ public abstract class ApicurioDataModelContentValidator implements ContentValida
     protected abstract String getDataModelType();
 
     private static class RefFinder extends AllNodeVisitor {
-        
+
         Set<String> references = new HashSet<>();
 
         /**
@@ -117,7 +116,7 @@ public abstract class ApicurioDataModelContentValidator implements ContentValida
                 }
             }
         }
-        
+
     }
 
 }

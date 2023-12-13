@@ -22,7 +22,7 @@ import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.models.Document;
 import io.apicurio.datamodels.models.Node;
 import io.apicurio.datamodels.refs.LocalReferenceResolver;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.content.refs.JsonPointerExternalReference;
 
 /**

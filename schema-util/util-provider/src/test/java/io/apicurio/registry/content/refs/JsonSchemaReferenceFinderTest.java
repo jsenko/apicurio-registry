@@ -18,10 +18,11 @@ package io.apicurio.registry.content.refs;
 
 import java.util.Set;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.apicurio.registry.content.ContentHandle;
 import io.apicurio.registry.rules.validity.ArtifactUtilProviderTestBase;
 
 /**
@@ -30,7 +31,7 @@ import io.apicurio.registry.rules.validity.ArtifactUtilProviderTestBase;
 public class JsonSchemaReferenceFinderTest extends ArtifactUtilProviderTestBase {
 
     /**
-     * Test method for {@link io.apicurio.registry.content.refs.AsyncApiReferenceFinder#findExternalReferences(io.apicurio.registry.content.ContentHandle)}.
+     * Test method for {@link io.apicurio.registry.content.refs.AsyncApiReferenceFinder#findExternalReferences(ContentHandle)}.
      */
     @Test
     public void testFindExternalReferences() {

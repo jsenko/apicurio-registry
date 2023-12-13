@@ -19,10 +19,10 @@ package io.apicurio.registry.storage.impl.sql.mappers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
+import io.apicurio.registry.storage.SqlUtil;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.ArtifactRuleEntity;
+import io.apicurio.registry.impexp.v2.ArtifactRuleEntity;
 
 /**
  * @author eric.wittmann@gmail.com

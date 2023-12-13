@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.GlobalRuleEntity;
+import io.apicurio.registry.impexp.v2.GlobalRuleEntity;
 
 /**
  * @author eric.wittmann@gmail.com

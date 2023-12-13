@@ -18,6 +18,9 @@ package io.apicurio.registry.rules.compatibility;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
+import io.apicurio.registry.schema.compat.CompatibilityExecutionResult;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;

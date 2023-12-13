@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
-import io.apicurio.registry.utils.impexp.CommentEntity;
+import io.apicurio.registry.impexp.v2.CommentEntity;
 
 /**
  * @author eric.wittmann@gmail.com

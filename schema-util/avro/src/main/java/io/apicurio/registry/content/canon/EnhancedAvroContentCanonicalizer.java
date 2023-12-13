@@ -16,6 +16,7 @@
 
 package io.apicurio.registry.content.canon;
 
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 
@@ -24,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 
 /**
  * An Avro implementation of a content Canonicalizer that handles avro references.

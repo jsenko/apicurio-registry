@@ -22,7 +22,8 @@ import io.apicurio.datamodels.Library;
 import io.apicurio.datamodels.TraverserDirection;
 import io.apicurio.datamodels.models.Document;
 import io.apicurio.datamodels.refs.IReferenceResolver;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 
 /**
  * @author eric.wittmann@gmail.com
@@ -39,7 +40,7 @@ public class ApicurioDataModelsContentDereferencer implements ContentDereference
     }
     
     /**
-     * @see io.apicurio.registry.content.dereference.ContentDereferencer#rewriteReferences(io.apicurio.registry.content.ContentHandle, java.util.Map)
+     * @see ContentDereferencer#rewriteReferences(ContentHandle, java.util.Map)
      */
     @Override
     public ContentHandle rewriteReferences(ContentHandle content, Map<String, String> resolvedReferenceUrls) {

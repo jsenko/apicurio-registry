@@ -22,11 +22,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.content.refs.ExternalReference;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
 import io.apicurio.registry.content.refs.JsonPointerExternalReference;
 import io.apicurio.registry.content.refs.JsonSchemaReferenceFinder;
-import io.apicurio.registry.content.refs.ReferenceFinder;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 import io.apicurio.registry.rules.validity.ArtifactUtilProviderTestBase;
 
 /**

@@ -21,24 +21,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.common.apps.core.System;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.exception.UnreachableCodeException;
+import io.apicurio.registry.impexp.Entity;
+import io.apicurio.registry.impexp.ImportSink;
+import io.apicurio.registry.impexp.v2.*;
 import io.apicurio.registry.model.*;
 import io.apicurio.registry.storage.*;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.*;
-import io.apicurio.registry.storage.impexp.EntityInputStream;
 import io.apicurio.registry.storage.impl.sql.jdb.Handle;
 import io.apicurio.registry.storage.impl.sql.jdb.Query;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.storage.impl.sql.mappers.*;
-import io.apicurio.registry.storage.importing.DataImporter;
-import io.apicurio.registry.storage.importing.SqlDataImporter;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.util.DtoUtil;
 import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.impexp.*;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -54,14 +53,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static io.apicurio.registry.storage.RegistryStorage.ArtifactRetrievalBehavior.DEFAULT;
-import static io.apicurio.registry.storage.impl.sql.RegistryStorageContentUtils.notEmpty;
+import static io.apicurio.registry.storage.RegistryStorageContentUtils.notEmpty;
+import static io.apicurio.registry.storage.SqlUtil.convert;
+import static io.apicurio.registry.storage.SqlUtil.normalizeGroupId;
 import static io.apicurio.registry.storage.impl.sql.SemverBranchingMode.*;
-import static io.apicurio.registry.storage.impl.sql.SqlUtil.convert;
-import static io.apicurio.registry.storage.impl.sql.SqlUtil.normalizeGroupId;
 import static io.apicurio.registry.utils.StringUtil.limitStr;
 import static java.util.stream.Collectors.toList;
 
@@ -2147,7 +2145,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
      * NOTE: Does not export the manifest file TODO
      */
     @Override
-    public void exportData(Function<Entity, Void> handler) throws RegistryStorageException {
+    public void export(ImportSink sink) throws RegistryStorageException {
         // Export a simple manifest file
         /////////////////////////////////
         ManifestEntity manifest = new ManifestEntity();
@@ -2155,9 +2153,9 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
             manifest.exportedBy = securityIdentity.getPrincipal().getName();
         }
         manifest.systemName = system.getName();
-        manifest.systemDescription = system.getDescription();
+        manifest.exportedOn = Instant.now();
         manifest.systemVersion = system.getVersion();
-        handler.apply(manifest);
+        sink.importEntity(manifest);
 
         // Export all content
         /////////////////////////////////
@@ -2168,7 +2166,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
@@ -2182,7 +2180,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
@@ -2196,7 +2194,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
@@ -2210,7 +2208,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
@@ -2224,7 +2222,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
@@ -2238,18 +2236,18 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .stream();
             // Process and then close the stream.
             try (stream) {
-                stream.forEach(handler::apply);
+                stream.forEach(sink::importEntity);
             }
             return null;
         });
+
+        sink.postImport();
     }
 
 
     @Override
-    public void importData(EntityInputStream entities, boolean preserveGlobalId, boolean preserveContentId) {
-        DataImporter dataImporter = new SqlDataImporter(log, utils, this, preserveGlobalId, preserveContentId);
-        dataImporter.importData(entities, () -> {
-        });
+    public void postExport() {
+        // NOOP
     }
 
 
@@ -2785,7 +2783,52 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
 
 
     @Override
-    public void importArtifactRule(ArtifactRuleEntity entity) {
+    public void importEntity(Entity entity) {
+        switch (entity.getEntityType()) {
+            case ARTIFACT_RULE_V2:
+                importArtifactRule((ArtifactRuleEntity) entity);
+                return;
+            case ARTIFACT_VERSION_V2:
+                importArtifactVersion((ArtifactVersionEntity) entity);
+                return;
+            case ARTIFACT_BRANCH_V2:
+                importArtifactBranch((ArtifactBranchEntity) entity);
+                return;
+            case COMMENT_V2:
+                importComment((CommentEntity) entity);
+                return;
+            case CONTENT_V2:
+                importContent((ContentEntity) entity);
+                return;
+            case GLOBAL_RULE_V2:
+                importGlobalRule((GlobalRuleEntity) entity);
+                return;
+            case GROUP_V2:
+                importGroup((GroupEntity) entity);
+                return;
+            case MANIFEST_V2:
+                // NOOP
+                return;
+            default:
+                throw new IllegalArgumentException("Unsupported entity type: " + entity.getEntityType());
+        }
+    }
+
+
+    @Override
+    public void postImport() {
+        // Make sure the contentId sequence is set high enough
+        resetContentId();
+
+        // Make sure the globalId sequence is set high enough
+        resetGlobalId();
+
+        // Make sure the commentId sequence is set high enough
+        resetCommentId();
+    }
+
+
+    private void importArtifactRule(ArtifactRuleEntity entity) {
 
         handles.withHandleNoException(handle -> {
             if (isArtifactExists(entity.groupId, entity.artifactId)) {
@@ -2804,8 +2847,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     }
 
 
-    @Override
-    public void importArtifactVersion(ArtifactVersionEntity entity) {
+    private void importArtifactVersion(ArtifactVersionEntity entity) {
         handles.withHandleNoException(handle -> {
 
             if (!isArtifactExists(entity.groupId, entity.artifactId)) {
@@ -2867,8 +2909,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     }
 
 
-    @Override
-    public void importContent(ContentEntity entity) {
+    private void importContent(ContentEntity entity) {
 
         handles.withHandleNoException(handle -> {
 
@@ -2878,7 +2919,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                         .bind(0, entity.contentId)
                         .bind(1, entity.canonicalHash)
                         .bind(2, entity.contentHash)
-                        .bind(3, entity.contentBytes)
+                        .bind(3, entity.content.bytes())
                         .bind(4, entity.serializedReferences)
                         .execute();
 
@@ -2891,8 +2932,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     }
 
 
-    @Override
-    public void importGlobalRule(GlobalRuleEntity entity) {
+    private void importGlobalRule(GlobalRuleEntity entity) {
         handles.withHandleNoException(handle -> {
             handle.createUpdate(sqlStatements.importGlobalRule()) // TODO Duplicated SQL query
                     .bind(0, entity.ruleType.name())
@@ -2903,8 +2943,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     }
 
 
-    @Override
-    public void importGroup(GroupEntity entity) {
+    private void importGroup(GroupEntity entity) {
         if (!isGroupExists(entity.groupId)) {
             handles.withHandleNoException(handle -> {
                 handle.createUpdate(sqlStatements.importGroup())
@@ -2925,8 +2964,7 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
     }
 
 
-    @Override
-    public void importComment(CommentEntity entity) {
+    private void importComment(CommentEntity entity) {
         handles.withHandleNoException(handle -> {
             handle.createUpdate(sqlStatements.insertComment())
                     .bind(0, entity.commentId)
@@ -3231,6 +3269,31 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     .mapTo(Long.class)
                     .findOne()
                     .isPresent();
+        });
+    }
+
+
+    public void importArtifactBranch(ArtifactBranchEntity entity) {
+        var gav = entity.toGAV();
+        var branchId = entity.toBranchId();
+        if (doesArtifactBranchContainVersion(gav, entity.toBranchId())) {
+            throw new BranchVersionAlreadyExistsException(gav, branchId);
+        }
+        handles.withHandleNoException(handle -> {
+            try {
+                handle.createUpdate(sqlStatements.importArtifactBranch())
+                        .bind(0, gav.getRawGroupId())
+                        .bind(1, gav.getRawArtifactId())
+                        .bind(2, branchId.getRawBranchId())
+                        .bind(3, entity.branchOrder)
+                        .bind(4, gav.getRawVersionId())
+                        .execute();
+            } catch (Exception ex) {
+                if (sqlStatements.isForeignKeyViolation(ex)) {
+                    throw new VersionNotFoundException(gav, ex);
+                }
+                throw ex;
+            }
         });
     }
 

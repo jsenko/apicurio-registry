@@ -16,13 +16,13 @@
 
 package io.apicurio.registry.limits;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecorator;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecoratorBase;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecoratorOrderConstants;
 import io.apicurio.registry.storage.dto.ArtifactMetaDataDto;
-import io.apicurio.registry.storage.dto.ArtifactReferenceDto;
 import io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto;
 import io.apicurio.registry.storage.error.ArtifactAlreadyExistsException;
 import io.apicurio.registry.storage.error.ArtifactNotFoundException;
@@ -72,7 +72,7 @@ public class RegistryStorageLimitsEnforcer extends RegistryStorageDecoratorBase 
     }
 
     /**
-     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#createArtifact (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#createArtifact (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.bytes.ContentHandle, java.util.List)
      */
     @Override
     public ArtifactMetaDataDto createArtifact(String groupId, String artifactId,
@@ -86,7 +86,7 @@ public class RegistryStorageLimitsEnforcer extends RegistryStorageDecoratorBase 
     }
 
     /**
-     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#createArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.content.ContentHandle, io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto, java.util.List)
+     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#createArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.bytes.ContentHandle, io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto, java.util.List)
      */
     @Override
     public ArtifactMetaDataDto createArtifactWithMetadata(String groupId, String artifactId,
@@ -101,7 +101,7 @@ public class RegistryStorageLimitsEnforcer extends RegistryStorageDecoratorBase 
     }
 
     /**
-     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#updateArtifact (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.content.ContentHandle)
+     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#updateArtifact (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.bytes.ContentHandle)
      */
     @Override
     public ArtifactMetaDataDto updateArtifact(String groupId, String artifactId,
@@ -115,7 +115,7 @@ public class RegistryStorageLimitsEnforcer extends RegistryStorageDecoratorBase 
     }
 
     /**
-     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#updateArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.content.ContentHandle, io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto)
+     * @see io.apicurio.registry.storage.decorator.RegistryStorageDecorator#updateArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.types.ArtifactType, io.apicurio.registry.bytes.ContentHandle, io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto)
      */
     @Override
     public ArtifactMetaDataDto updateArtifactWithMetadata(String groupId, String artifactId,

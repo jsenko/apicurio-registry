@@ -22,7 +22,7 @@ import io.apicurio.common.apps.config.Info;
 import io.apicurio.registry.AbstractResourceTestBase;
 import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.RegistryClient;
-import io.apicurio.registry.rules.validity.ValidityLevel;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import io.apicurio.registry.utils.tests.ApicurioTestTags;
 import io.apicurio.registry.utils.tests.AuthTestProfileWithHeaderRoles;
 import io.apicurio.registry.utils.tests.JWKSMockServer;

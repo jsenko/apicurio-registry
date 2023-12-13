@@ -19,7 +19,7 @@ package io.apicurio.registry.rules;
 import java.util.List;
 import java.util.Map;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
 import io.apicurio.registry.types.RuleType;
 

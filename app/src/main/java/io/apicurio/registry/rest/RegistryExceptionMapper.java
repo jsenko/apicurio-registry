@@ -16,8 +16,8 @@
 
 package io.apicurio.registry.rest;
 
-import io.apicurio.registry.ccompat.rest.error.*;
 import io.apicurio.registry.ccompat.rest.error.ConflictException;
+import io.apicurio.registry.ccompat.rest.error.*;
 import io.apicurio.registry.rest.v2.beans.Error;
 import io.apicurio.registry.rules.RuleViolationException;
 import io.apicurio.registry.services.http.ErrorHttpResponse;

@@ -1074,6 +1074,13 @@ public abstract class CommonSqlStatements implements SqlStatements {
 
 
     @Override
+    public String importArtifactBranch() {
+        return "INSERT INTO artifact_version_branches (groupId, artifactId, branch, branchOrder, version) " +
+                "VALUES(?, ?, ?, ?, ?)";
+    }
+
+
+    @Override
     public String selectArtifactBranchLeaf() {
         return "SELECT avb.groupId, avb.artifactId, avb.version FROM artifact_version_branches avb " +
                 "WHERE avb.groupId = ? AND avb.artifactId = ? AND avb.branch = ? " +

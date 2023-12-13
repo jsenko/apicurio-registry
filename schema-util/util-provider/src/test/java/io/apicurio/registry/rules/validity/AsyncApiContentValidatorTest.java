@@ -16,9 +16,8 @@
 
 package io.apicurio.registry.rules.validity;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.RuleViolationException;
-
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,42 +30,37 @@ import java.util.Collections;
 public class AsyncApiContentValidatorTest extends ArtifactUtilProviderTestBase {
 
     @Test
-    public void testValidSyntax() throws Exception {
+    public void testValidSyntax() {
         ContentHandle content = resourceToContentHandle("asyncapi-valid-syntax.json");
         AsyncApiContentValidator validator = new AsyncApiContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testValidSyntax_AsyncApi25() throws Exception {
+    public void testValidSyntax_AsyncApi25() {
         ContentHandle content = resourceToContentHandle("asyncapi-valid-syntax-asyncapi25.json");
         AsyncApiContentValidator validator = new AsyncApiContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testValidSemantics() throws Exception {
+    public void testValidSemantics() {
         ContentHandle content = resourceToContentHandle("asyncapi-valid-semantics.json");
         AsyncApiContentValidator validator = new AsyncApiContentValidator();
-        validator.validate(ValidityLevel.FULL, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.FULL, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidSyntax() throws Exception {
+    public void testInvalidSyntax() {
         ContentHandle content = resourceToContentHandle("asyncapi-invalid-syntax.json");
         AsyncApiContentValidator validator = new AsyncApiContentValidator();
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
-        });
+        Assertions.assertFalse(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidSemantics() throws Exception {
+    public void testInvalidSemantics() {
         ContentHandle content = resourceToContentHandle("asyncapi-invalid-semantics.json");
         AsyncApiContentValidator validator = new AsyncApiContentValidator();
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.FULL, content, Collections.emptyMap());
-        });
+        Assertions.assertFalse(validator.validate(ValidityLevel.FULL, content, Collections.emptyMap()).isValid());
     }
-
 }

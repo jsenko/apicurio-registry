@@ -16,6 +16,8 @@
 
 package io.apicurio.registry.content.refs;
 
+import io.apicurio.registry.schema.refs.ExternalReference;
+
 /**
  * @author eric.wittmann@gmail.com
  */

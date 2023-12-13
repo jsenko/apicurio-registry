@@ -16,7 +16,8 @@
 
 package io.apicurio.registry.content.dereference;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 import org.apache.avro.Schema;
 
 
@@ -38,7 +39,7 @@ public class AvroDereferencer implements ContentDereferencer {
     }
     
     /**
-     * @see io.apicurio.registry.content.dereference.ContentDereferencer#rewriteReferences(io.apicurio.registry.content.ContentHandle, java.util.Map)
+     * @see ContentDereferencer#rewriteReferences(ContentHandle, java.util.Map)
      */
     @Override
     public ContentHandle rewriteReferences(ContentHandle content, Map<String, String> resolvedReferenceUrls) {

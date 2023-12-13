@@ -17,18 +17,11 @@
 package io.apicurio.registry.rbac;
 
 import io.apicurio.registry.AbstractResourceTestBase;
-import io.apicurio.registry.rest.client.models.ArtifactContent;
-import io.apicurio.registry.rest.client.models.ArtifactReference;
-import io.apicurio.registry.rest.client.models.Comment;
-import io.apicurio.registry.rest.client.models.RoleMapping;
-import io.apicurio.registry.rest.client.models.RoleType;
-import io.apicurio.registry.rest.client.models.Rule;
-import io.apicurio.registry.rest.client.models.RuleType;
-import io.apicurio.registry.rest.client.models.UpdateConfigurationProperty;
-import io.apicurio.registry.rest.client.models.UpdateRole;
-import io.apicurio.registry.rules.compatibility.CompatibilityLevel;
+import io.apicurio.registry.rest.client.models.*;
 import io.apicurio.registry.rules.integrity.IntegrityLevel;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import io.apicurio.registry.types.ArtifactType;
+import io.apicurio.registry.utils.migration.Migrate;
 import io.apicurio.registry.utils.tests.ApicurioTestTags;
 import io.apicurio.registry.utils.tests.ApplicationRbacEnabledProfile;
 import io.apicurio.registry.utils.tests.TestUtils;
@@ -40,7 +33,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +48,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.restassured.RestAssured.given;
+import static java.lang.System.err;
+import static java.util.Objects.requireNonNull;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.Matchers.*;
@@ -448,9 +447,9 @@ public class AdminResourceTest extends AbstractResourceTestBase {
         while (entry != null) {
             String name = entry.getName();
 
-            if (name.endsWith(".Content.json")) {
+            if (name.contains("content/")) {
                 contentCounter.incrementAndGet();
-            } else if (name.endsWith(".ArtifactVersion.json")) {
+            } else if (name.contains("/versions/")) {
                 versionCounter.incrementAndGet();
             }
 
@@ -477,10 +476,11 @@ public class AdminResourceTest extends AbstractResourceTestBase {
             ArtifactContent content = new ArtifactContent();
             content.setContent(artifactContent.replaceAll("Empty API", title));
             content.setReferences(refs);
-            clientV2.groups().byGroupId(group).artifacts().post(content, config -> {
+            var meta = clientV2.groups().byGroupId(group).artifacts().post(content, config -> {
                 config.headers.add("X-Registry-ArtifactId", artifactId);
                 config.headers.add("X-Registry-ArtifactType", ArtifactType.OPENAPI);
             }).get(3, TimeUnit.SECONDS);
+            err.println(meta);
         }
 
         // Export data (browser flow).
@@ -513,9 +513,9 @@ public class AdminResourceTest extends AbstractResourceTestBase {
         while (entry != null) {
             String name = entry.getName();
 
-            if (name.endsWith(".Content.json")) {
+            if (name.contains("content/")) {
                 contentCounter.incrementAndGet();
-            } else if (name.endsWith(".ArtifactVersion.json")) {
+            } else if (name.contains("/versions/")) {
                 versionCounter.incrementAndGet();
             }
 
@@ -542,15 +542,27 @@ public class AdminResourceTest extends AbstractResourceTestBase {
         }).get(3, TimeUnit.SECONDS);
         int artifactsBefore = result.getCount();
 
-        try (InputStream data = resourceToInputStream("../rest/v2/export.zip")) {
-            given()
-                    .when()
-                    .contentType("application/zip")
-                    .body(data)
-                    .post("/registry/v2/admin/import")
-                    .then()
-                    .statusCode(204)
-                    .body(anything());
+        // Migrate
+        try {
+            var inputFile = Path.of(requireNonNull(getClass().getResource("../rest/v2/export.zip")).toExternalForm().replaceFirst("file:", ""));
+            err.println("Input file: " + inputFile);
+            var outputFile = Files.createTempDirectory(getClass().getCanonicalName() + "-").resolve("export-v2.zip");
+            err.println("Output file: " + outputFile);
+            Migrate.migrate(inputFile, outputFile);
+
+            try (InputStream data = new FileInputStream(outputFile.toFile())) {
+                given()
+                        .when()
+                        .contentType("application/zip")
+                        .body(data)
+                        .post("/registry/v2/admin/import")
+                        .then()
+                        .statusCode(204)
+                        .body(anything());
+            }
+
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
 
         // Verify global rules were imported

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 
 /**
  * @author Fabian Martinez
@@ -45,5 +45,4 @@ public class ArtifactUtilProviderTestBase {
     protected final ContentHandle resourceToContentHandle(String resourceName) {
         return ContentHandle.create(resourceToString(resourceName));
     }
-
 }

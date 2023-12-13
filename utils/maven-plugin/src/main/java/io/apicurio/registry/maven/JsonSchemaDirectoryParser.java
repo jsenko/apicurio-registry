@@ -17,7 +17,7 @@
 package io.apicurio.registry.maven;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactReference;
 import io.apicurio.registry.rules.compatibility.jsonschema.JsonUtil;

@@ -26,6 +26,11 @@
 
         <dependency>
             <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-storage-spi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.apicurio</groupId>
             <artifactId>apicurio-registry-utils-kafka</artifactId>
         </dependency>
 
@@ -209,6 +214,11 @@
         </dependency>
 
         <!-- Test Only -->
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-utils-migration</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>

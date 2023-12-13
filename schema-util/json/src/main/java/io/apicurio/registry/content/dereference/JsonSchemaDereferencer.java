@@ -32,8 +32,9 @@ import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rules.compatibility.jsonschema.JsonUtil;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 
 /**
  * @author carnalca@redhat.com
@@ -64,7 +65,7 @@ public class JsonSchemaDereferencer implements ContentDereferencer {
     }
     
     /**
-     * @see io.apicurio.registry.content.dereference.ContentDereferencer#rewriteReferences(io.apicurio.registry.content.ContentHandle, java.util.Map)
+     * @see ContentDereferencer#rewriteReferences(ContentHandle, java.util.Map)
      */
     @Override
     public ContentHandle rewriteReferences(ContentHandle content, Map<String, String> resolvedReferenceUrls) {

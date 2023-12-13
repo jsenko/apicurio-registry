@@ -16,7 +16,8 @@
 
 package io.apicurio.registry.content.canon;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import org.apache.xml.security.Init;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -49,7 +50,7 @@ public class XmlContentCanonicalizer implements ContentCanonicalizer {
     }
 
     /**
-     * @see ContentCanonicalizer#canonicalize(io.apicurio.registry.content.ContentHandle, Map)
+     * @see ContentCanonicalizer#canonicalize(ContentHandle, Map)
      */
     @Override public ContentHandle canonicalize(ContentHandle content,
             Map<String, ContentHandle> resolvedReferences) {

@@ -17,22 +17,22 @@
 package io.apicurio.registry.storage.decorator;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.storage.RegistryStorage;
-import io.apicurio.registry.storage.dto.*;
-import io.apicurio.registry.storage.error.*;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.ImportSink;
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;
+import io.apicurio.registry.storage.RegistryStorage;
+import io.apicurio.registry.storage.dto.*;
+import io.apicurio.registry.storage.error.*;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.Entity;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Forwards all read-only method calls to the delegate.
@@ -241,10 +241,15 @@ public abstract class RegistryStorageDecoratorReadOnlyBase implements RegistrySt
 
 
     @Override
-    public void exportData(Function<Entity, Void> handler) throws RegistryStorageException {
-        delegate.exportData(handler);
+    public void export(ImportSink sink) throws RegistryStorageException {
+        delegate.export(sink);
     }
 
+
+    @Override
+    public void postExport() {
+        delegate.postExport();
+    }
 
     @Override
     public long countArtifacts() throws RegistryStorageException {

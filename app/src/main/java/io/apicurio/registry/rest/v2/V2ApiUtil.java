@@ -17,6 +17,7 @@
 
 package io.apicurio.registry.rest.v2;
 
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.rest.v2.beans.*;
 import io.apicurio.registry.storage.dto.*;
 

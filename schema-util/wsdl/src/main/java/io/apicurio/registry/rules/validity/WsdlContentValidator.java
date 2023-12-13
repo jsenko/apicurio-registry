@@ -16,16 +16,17 @@
 
 package io.apicurio.registry.rules.validity;
 
-import java.io.InputStream;
-import java.util.Map;
-
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.DocumentBuilderAccessor;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+import io.apicurio.registry.util.WSDLReaderAccessor;
 import org.w3c.dom.Document;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.util.DocumentBuilderAccessor;
-import io.apicurio.registry.util.WSDLReaderAccessor;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author cfoskin@redhat.com
@@ -39,10 +40,10 @@ public class WsdlContentValidator extends XmlContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try (InputStream stream = artifactContent.stream()) {
                 Document wsdlDoc = DocumentBuilderAccessor.getDocumentBuilder().parse(stream);
@@ -50,9 +51,10 @@ public class WsdlContentValidator extends XmlContentValidator {
                     // validate that its a valid schema
                     WSDLReaderAccessor.getWSDLReader().readWSDL(null, wsdlDoc);
                 }
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for WSDL Schema artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 }

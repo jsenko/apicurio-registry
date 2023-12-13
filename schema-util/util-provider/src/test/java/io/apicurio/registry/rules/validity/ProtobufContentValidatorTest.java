@@ -16,12 +16,11 @@
 
 package io.apicurio.registry.rules.validity;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,31 +33,29 @@ import java.util.List;
 public class ProtobufContentValidatorTest extends ArtifactUtilProviderTestBase {
 
     @Test
-    public void testValidProtobufSchema() throws Exception {
+    public void testValidProtobufSchema() {
         ContentHandle content = resourceToContentHandle("protobuf-valid.proto");
         ProtobufContentValidator validator = new ProtobufContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidProtobufSchema() throws Exception {
+    public void testInvalidProtobufSchema() {
         ContentHandle content = resourceToContentHandle("protobuf-invalid.proto");
         ProtobufContentValidator validator = new ProtobufContentValidator();
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
-        });
+        Assertions.assertFalse(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testValidateProtobufWithImports() throws Exception {
+    public void testValidateProtobufWithImports() {
         ContentHandle mode = resourceToContentHandle("mode.proto");
         ContentHandle tableInfo = resourceToContentHandle("table_info.proto");
         ProtobufContentValidator validator = new ProtobufContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, tableInfo, Collections.singletonMap("mode.proto", mode));
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, tableInfo, Collections.singletonMap("mode.proto", mode)).isValid());
     }
 
     @Test
-    public void testValidateReferences() throws Exception {
+    public void testValidateReferences() {
         ContentHandle content = resourceToContentHandle("protobuf-valid-with-refs.proto");
         ProtobufContentValidator validator = new ProtobufContentValidator();
 
@@ -79,37 +76,30 @@ public class ProtobufContentValidatorTest extends ArtifactUtilProviderTestBase {
         }
 
         // Don't map either of the required references - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            validator.validateReferences(content, references);
-        });
+        List<ArtifactReference> references = new ArrayList<>();
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
 
         // Only map one of the two required refs - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            references.add(ArtifactReference.builder()
-                    .groupId("default")
-                    .artifactId("message2.proto")
-                    .version("1.0")
-                    .name("message2.proto").build());
-            validator.validateReferences(content, references);
-        });
+        references = new ArrayList<>();
+        references.add(ArtifactReference.builder()
+                .groupId("default")
+                .artifactId("message2.proto")
+                .version("1.0")
+                .name("message2.proto").build());
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
 
         // Only map one of the two required refs - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            references.add(ArtifactReference.builder()
-                    .groupId("default")
-                    .artifactId("message2.proto")
-                    .version("1.0")
-                    .name("message2.proto").build());
-            references.add(ArtifactReference.builder()
-                    .groupId("default")
-                    .artifactId("message4.proto")
-                    .version("4.0")
-                    .name("message4.proto").build());
-            validator.validateReferences(content, references);
-        });
+        references = new ArrayList<>();
+        references.add(ArtifactReference.builder()
+                .groupId("default")
+                .artifactId("message2.proto")
+                .version("1.0")
+                .name("message2.proto").build());
+        references.add(ArtifactReference.builder()
+                .groupId("default")
+                .artifactId("message4.proto")
+                .version("4.0")
+                .name("message4.proto").build());
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
     }
-
 }

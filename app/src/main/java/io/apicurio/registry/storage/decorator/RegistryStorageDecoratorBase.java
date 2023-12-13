@@ -17,17 +17,17 @@
 package io.apicurio.registry.storage.decorator;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.storage.dto.*;
-import io.apicurio.registry.storage.error.*;
-import io.apicurio.registry.storage.impexp.EntityInputStream;
-import io.apicurio.registry.storage.impl.sql.IdGenerator;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.Entity;
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;
+import io.apicurio.registry.storage.IdGenerator;
+import io.apicurio.registry.storage.dto.*;
+import io.apicurio.registry.storage.error.*;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.*;
 
 import java.util.Date;
 import java.util.List;
@@ -217,8 +217,14 @@ public class RegistryStorageDecoratorBase extends RegistryStorageDecoratorReadOn
 
 
     @Override
-    public void importData(EntityInputStream entities, boolean preserveGlobalId, boolean preserveContentId) throws RegistryStorageException {
-        delegate.importData(entities, preserveGlobalId, preserveContentId);
+    public void importEntity(Entity entity) throws RegistryStorageException {
+        delegate.importEntity(entity);
+    }
+
+
+    @Override
+    public void postImport() {
+        delegate.postImport();
     }
 
 
@@ -316,42 +322,6 @@ public class RegistryStorageDecoratorBase extends RegistryStorageDecoratorReadOn
     @Override
     public void resetCommentId() {
         delegate.resetCommentId();
-    }
-
-
-    @Override
-    public void importComment(CommentEntity entity) {
-        delegate.importComment(entity);
-    }
-
-
-    @Override
-    public void importGroup(GroupEntity entity) {
-        delegate.importGroup(entity);
-    }
-
-
-    @Override
-    public void importGlobalRule(GlobalRuleEntity entity) {
-        delegate.importGlobalRule(entity);
-    }
-
-
-    @Override
-    public void importContent(ContentEntity entity) {
-        delegate.importContent(entity);
-    }
-
-
-    @Override
-    public void importArtifactVersion(ArtifactVersionEntity entity) {
-        delegate.importArtifactVersion(entity);
-    }
-
-
-    @Override
-    public void importArtifactRule(ArtifactRuleEntity entity) {
-        delegate.importArtifactRule(entity);
     }
 
 

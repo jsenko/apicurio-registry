@@ -17,23 +17,22 @@
 package io.apicurio.registry.rules.validity;
 
 
-import java.util.Collections;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.rules.compatibility.jsonschema.JsonUtil;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import org.everit.json.schema.SchemaException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolation;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.rules.compatibility.jsonschema.JsonUtil;
-import io.apicurio.registry.types.RuleType;
-
+import java.util.List;
 import java.util.Map;
 
 /**
  * A content validator implementation for the JsonSchema content type.
+ *
  * @author eric.wittmann@gmail.com
  */
 public class JsonSchemaContentValidator implements ContentValidator {
@@ -47,15 +46,15 @@ public class JsonSchemaContentValidator implements ContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY) {
             try {
                 objectMapper.readTree(artifactContent.bytes());
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for JSON Schema artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         } else if (level == ValidityLevel.FULL) {
             try {
@@ -66,22 +65,20 @@ public class JsonSchemaContentValidator implements ContentValidator {
                 if (description != null && description.contains(":")) {
                     description = description.substring(description.indexOf(":") + 1).trim();
                 }
-                RuleViolation violation = new RuleViolation(description, context);
-                throw new RuleViolationException("Syntax or semantic violation for JSON Schema artifact.", RuleType.VALIDITY, level.name(),
-                        Collections.singleton(violation));
-            } catch (Exception e) {
-                RuleViolation violation = new RuleViolation("JSON schema not valid: " + e.getMessage(), "");
-                throw new RuleViolationException("Syntax or semantic violation for JSON Schema artifact.", RuleType.VALIDITY, level.name(),
-                        Collections.singleton(violation));
+                return ValidationResult.of(new RuleViolation(description, context));
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
-    
+
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
-        // TODO Implement this for JSON Schema!
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
+        // TODO Implement this, or throw new UnsupportedOperationException();
+        return ValidationResult.SUCCESS_EMPTY;
     }
 }

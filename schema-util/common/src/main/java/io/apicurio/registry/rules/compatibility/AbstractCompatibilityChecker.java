@@ -17,7 +17,11 @@
 package io.apicurio.registry.rules.compatibility;
 
 import com.google.common.collect.ImmutableSet;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
+import io.apicurio.registry.schema.compat.CompatibilityDifference;
+import io.apicurio.registry.schema.compat.CompatibilityExecutionResult;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 
 import java.util.HashSet;
 import java.util.List;

@@ -16,13 +16,12 @@
 
 package io.apicurio.registry.rules.compatibility.jsonschema;
 
-import java.util.Collections;
-
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rules.compatibility.JsonSchemaCompatibilityChecker;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import org.junit.jupiter.api.Test;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.compatibility.CompatibilityLevel;
-import io.apicurio.registry.rules.compatibility.JsonSchemaCompatibilityChecker;
+import java.util.Collections;
 
 public class JsonSchemaCompatibilityCheckerTest {
 	

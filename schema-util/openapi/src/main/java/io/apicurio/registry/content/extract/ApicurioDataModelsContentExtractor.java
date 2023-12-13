@@ -21,7 +21,9 @@ import io.apicurio.datamodels.TraverserDirection;
 import io.apicurio.datamodels.models.Document;
 import io.apicurio.datamodels.models.Info;
 import io.apicurio.datamodels.models.visitors.CombinedVisitorAdapter;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.schema.extractor.ExtractedMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

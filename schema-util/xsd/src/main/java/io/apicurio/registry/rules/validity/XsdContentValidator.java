@@ -16,16 +16,17 @@
 
 package io.apicurio.registry.rules.validity;
 
-import java.io.InputStream;
-import java.util.Map;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+import io.apicurio.registry.util.SchemaFactoryAccessor;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.util.SchemaFactoryAccessor;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author cfoskin@redhat.com
@@ -37,21 +38,23 @@ public class XsdContentValidator extends XmlContentValidator {
      */
     public XsdContentValidator() {
     }
+
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
-        super.validate(level, artifactContent, resolvedReferences);
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
+        var result = super.validate(level, artifactContent, resolvedReferences);
 
         if (level == ValidityLevel.FULL) {
             try (InputStream semanticStream = artifactContent.stream()) {
                 // validate that its a valid schema
                 Source source = new StreamSource(semanticStream);
                 SchemaFactoryAccessor.getSchemaFactory().newSchema(source);
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for XSD Schema artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                result = result.merge(ValidationResult.of(new RuleViolation(ex)));
             }
         }
+        return result;
     }
 }

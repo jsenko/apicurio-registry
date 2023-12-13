@@ -23,13 +23,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.apicurio.registry.content.ContentHandle;
 
 /**
  * A JSON Schema implementation of a reference finder.
@@ -41,7 +42,7 @@ public class JsonSchemaReferenceFinder implements ReferenceFinder {
     private static final Logger log = LoggerFactory.getLogger(JsonSchemaReferenceFinder.class);
 
     /**
-     * @see io.apicurio.registry.content.refs.ReferenceFinder#findExternalReferences(io.apicurio.registry.content.ContentHandle)
+     * @see ReferenceFinder#findExternalReferences(ContentHandle)
      */
     @Override
     public Set<ExternalReference> findExternalReferences(ContentHandle content) {

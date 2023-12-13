@@ -17,7 +17,7 @@
 package io.apicurio.registry.storage.impl.gitops;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.util.GitopsTestProfile;
 import io.apicurio.registry.types.Current;

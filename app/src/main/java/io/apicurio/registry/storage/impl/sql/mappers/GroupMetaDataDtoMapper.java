@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import io.apicurio.registry.storage.dto.GroupMetaDataDto;
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
+import io.apicurio.registry.storage.SqlUtil;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 
 /**

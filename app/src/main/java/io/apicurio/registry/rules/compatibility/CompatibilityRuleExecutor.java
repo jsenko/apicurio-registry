@@ -17,22 +17,18 @@
 package io.apicurio.registry.rules.compatibility;
 
 import io.apicurio.common.apps.logging.Logged;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rules.RuleContext;
 import io.apicurio.registry.rules.RuleExecutor;
-import io.apicurio.registry.rules.RuleViolation;
 import io.apicurio.registry.rules.RuleViolationException;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.compat.*;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 import static java.util.Collections.emptyList;
 

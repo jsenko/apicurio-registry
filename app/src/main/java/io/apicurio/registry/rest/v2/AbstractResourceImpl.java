@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Context;
@@ -32,15 +33,14 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 
 import io.apicurio.common.apps.config.Info;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.content.dereference.ContentDereferencer;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 import io.apicurio.registry.content.refs.JsonPointerExternalReference;
 import io.apicurio.registry.rest.v2.beans.HandleReferencesType;
 import io.apicurio.registry.storage.RegistryStorage;
-import io.apicurio.registry.storage.dto.ArtifactReferenceDto;
 import io.apicurio.registry.types.Current;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
 import io.apicurio.registry.utils.StringUtil;
 
 /**

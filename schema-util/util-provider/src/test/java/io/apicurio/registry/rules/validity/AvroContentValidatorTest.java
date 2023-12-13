@@ -16,10 +16,9 @@
 
 package io.apicurio.registry.rules.validity;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolationException;
-
+import io.apicurio.registry.schema.validity.ValidityLevel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,23 +33,21 @@ import java.util.List;
 public class AvroContentValidatorTest extends ArtifactUtilProviderTestBase {
 
     @Test
-    public void testValidAvroSchema() throws Exception {
+    public void testValidAvroSchema() {
         ContentHandle content = resourceToContentHandle("avro-valid.json");
         AvroContentValidator validator = new AvroContentValidator();
-        validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
+        Assertions.assertTrue(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testInvalidAvroSchema() throws Exception {
+    public void testInvalidAvroSchema() {
         ContentHandle content = resourceToContentHandle("avro-invalid.json");
         AvroContentValidator validator = new AvroContentValidator();
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap());
-        });
+        Assertions.assertFalse(validator.validate(ValidityLevel.SYNTAX_ONLY, content, Collections.emptyMap()).isValid());
     }
 
     @Test
-    public void testValidateReferences() throws Exception {
+    public void testValidateReferences() {
         ContentHandle content = resourceToContentHandle("avro-valid-with-refs.json");
         AvroContentValidator validator = new AvroContentValidator();
 
@@ -71,37 +68,30 @@ public class AvroContentValidatorTest extends ArtifactUtilProviderTestBase {
         }
 
         // Don't map either of the required references - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            validator.validateReferences(content, references);
-        });
+        List<ArtifactReference> references = new ArrayList<>();
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
 
         // Only map one of the two required refs - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            references.add(ArtifactReference.builder()
-                    .groupId("com.example.search")
-                    .artifactId("SearchResultType")
-                    .version("1.0")
-                    .name("com.example.search.SearchResultType").build());
-            validator.validateReferences(content, references);
-        });
+        references = new ArrayList<>();
+        references.add(ArtifactReference.builder()
+                .groupId("com.example.search")
+                .artifactId("SearchResultType")
+                .version("1.0")
+                .name("com.example.search.SearchResultType").build());
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
 
         // Only map one of the two required refs - failure.
-        Assertions.assertThrows(RuleViolationException.class, () -> {
-            List<ArtifactReference> references = new ArrayList<>();
-            references.add(ArtifactReference.builder()
-                    .groupId("com.example.search")
-                    .artifactId("SearchResultType")
-                    .version("1.0")
-                    .name("com.example.search.SearchResultType").build());
-            references.add(ArtifactReference.builder()
-                    .groupId("default")
-                    .artifactId("WrongType")
-                    .version("2.3")
-                    .name("com.example.invalid.WrongType").build());
-            validator.validateReferences(content, references);
-        });
+        references = new ArrayList<>();
+        references.add(ArtifactReference.builder()
+                .groupId("com.example.search")
+                .artifactId("SearchResultType")
+                .version("1.0")
+                .name("com.example.search.SearchResultType").build());
+        references.add(ArtifactReference.builder()
+                .groupId("default")
+                .artifactId("WrongType")
+                .version("2.3")
+                .name("com.example.invalid.WrongType").build());
+        Assertions.assertFalse(validator.validateReferences(content, references).isValid());
     }
-
 }

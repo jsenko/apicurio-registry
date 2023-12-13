@@ -17,14 +17,14 @@
 package io.apicurio.registry.noprofile.content;
 
 import io.apicurio.registry.AbstractResourceTestBase;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.content.extract.ContentExtractor;
-import io.apicurio.registry.content.extract.ExtractedMetaData;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.schema.extractor.ExtractedMetaData;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 import io.apicurio.registry.types.ArtifactType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;

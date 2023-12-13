@@ -18,43 +18,32 @@ package io.apicurio.registry.storage.impl.kafkasql;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.common.apps.logging.Logged;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.Entity;
+import io.apicurio.registry.impexp.v2.*;
 import io.apicurio.registry.metrics.StorageMetricsApply;
 import io.apicurio.registry.metrics.health.liveness.PersistenceExceptionLivenessApply;
 import io.apicurio.registry.metrics.health.readiness.PersistenceTimeoutReadinessApply;
-import io.apicurio.registry.model.BranchId;
-import io.apicurio.registry.model.GA;
-import io.apicurio.registry.model.GAV;
-import io.apicurio.registry.model.VersionId;
-import io.apicurio.registry.storage.ArtifactStateExt;
-import io.apicurio.registry.storage.StorageEvent;
-import io.apicurio.registry.storage.StorageEventType;
+import io.apicurio.registry.model.*;
+import io.apicurio.registry.storage.*;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecoratorReadOnlyBase;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.*;
-import io.apicurio.registry.storage.impexp.EntityInputStream;
 import io.apicurio.registry.storage.impl.kafkasql.keys.BootstrapKey;
 import io.apicurio.registry.storage.impl.kafkasql.keys.MessageKey;
 import io.apicurio.registry.storage.impl.kafkasql.sql.KafkaSqlSink;
 import io.apicurio.registry.storage.impl.kafkasql.values.ActionType;
 import io.apicurio.registry.storage.impl.kafkasql.values.MessageValue;
-import io.apicurio.registry.storage.impl.sql.IdGenerator;
-import io.apicurio.registry.storage.impl.sql.RegistryStorageContentUtils;
 import io.apicurio.registry.storage.impl.sql.SqlRegistryStorage;
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
-import io.apicurio.registry.storage.importing.DataImporter;
-import io.apicurio.registry.storage.importing.SqlDataImporter;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.utils.ConcurrentUtil;
-import io.apicurio.registry.utils.impexp.*;
 import io.apicurio.registry.utils.kafka.KafkaUtil;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -670,23 +659,50 @@ public class KafkaSqlRegistryStorage extends RegistryStorageDecoratorReadOnlyBas
 
 
     @Override
-    @Transactional
-    public void importData(EntityInputStream entities, boolean preserveGlobalId, boolean preserveContentId) {
-        DataImporter dataImporter = new SqlDataImporter(log, utils, this, preserveGlobalId, preserveContentId);
-        dataImporter.importData(entities, () -> {
-            // Because importing just pushes a bunch of Kafka messages, we may need to
-            // wait for a few seconds before we send the reset messages.  Due to partitioning,
-            // we can't guarantee ordering of these next two messages, and we NEED them to
-            // be consumed after all the import messages.
-            // TODO We can wait until the last message is read (a specific one),
-            // or create a new message type for this purpose (a sync message).
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                // Noop
-            }
-        });
+    public void importEntity(Entity entity) {
+        switch (entity.getEntityType()) {
+            case ARTIFACT_RULE_V2:
+                importArtifactRule((ArtifactRuleEntity) entity);
+                return;
+            case ARTIFACT_VERSION_V2:
+                importArtifactVersion((ArtifactVersionEntity) entity);
+                return;
+            case COMMENT_V2:
+                importComment((CommentEntity) entity);
+                return;
+            case CONTENT_V2:
+                importContent((ContentEntity) entity);
+                return;
+            case GLOBAL_RULE_V2:
+                importGlobalRule((GlobalRuleEntity) entity);
+                return;
+            case GROUP_V2:
+                importGroup((GroupEntity) entity);
+                return;
+            case MANIFEST_V2:
+                // NOOP
+                return;
+            default:
+                throw new IllegalArgumentException("Unsupported entity type: " + entity.getEntityType());
+        }
     }
+
+
+    @Override
+    public void postImport() {
+        // Because importing just pushes a bunch of Kafka messages, we may need to
+        // wait for a few seconds before we send the reset messages.  Due to partitioning,
+        // we can't guarantee ordering of these next two messages, and we NEED them to
+        // be consumed after all the import messages.
+        // TODO We can wait until the last message is read (a specific one),
+        // or create a new message type for this purpose (a sync message).
+        try {
+            Thread.sleep(2000);
+        }catch (InterruptedException ex) {
+            // NOOP
+        }
+    }
+
 
     @Override
     public List<Long> getEnabledArtifactContentIds(String groupId, String artifactId) {
@@ -798,22 +814,19 @@ public class KafkaSqlRegistryStorage extends RegistryStorageDecoratorReadOnlyBas
     }
 
 
-    @Override
-    public void importArtifactRule(ArtifactRuleEntity entity) {
+    private void importArtifactRule(ArtifactRuleEntity entity) {
         RuleConfigurationDto config = new RuleConfigurationDto(entity.configuration);
         submitter.submitArtifactRule(entity.groupId, entity.artifactId, entity.type, ActionType.IMPORT, config);
     }
 
 
-    @Override
-    public void importComment(CommentEntity entity) {
+    private void importComment(CommentEntity entity) {
         submitter.submitComment(entity.commentId, ActionType.IMPORT, entity.globalId,
                 entity.createdBy, new Date(entity.createdOn), entity.value);
     }
 
 
-    @Override
-    public void importArtifactVersion(ArtifactVersionEntity entity) {
+    private void importArtifactVersion(ArtifactVersionEntity entity) {
         EditableArtifactMetaDataDto metaData = EditableArtifactMetaDataDto.builder()
                 .name(entity.name)
                 .description(entity.description)
@@ -826,21 +839,18 @@ public class KafkaSqlRegistryStorage extends RegistryStorageDecoratorReadOnlyBas
     }
 
 
-    @Override
-    public void importContent(ContentEntity entity) {
-        submitter.submitContent(entity.contentId, entity.contentHash, ActionType.IMPORT, entity.canonicalHash, ContentHandle.create(entity.contentBytes), entity.serializedReferences);
+    private void importContent(ContentEntity entity) {
+        submitter.submitContent(entity.contentId, entity.contentHash, ActionType.IMPORT, entity.canonicalHash, entity.content, entity.serializedReferences);
     }
 
 
-    @Override
-    public void importGlobalRule(GlobalRuleEntity entity) {
+    private void importGlobalRule(GlobalRuleEntity entity) {
         RuleConfigurationDto config = new RuleConfigurationDto(entity.configuration);
         submitter.submitGlobalRule(entity.ruleType, ActionType.IMPORT, config);
     }
 
 
-    @Override
-    public void importGroup(GroupEntity entity) {
+    private void importGroup(GroupEntity entity) {
         GroupMetaDataDto group = new GroupMetaDataDto();
         group.setArtifactsType(entity.artifactsType);
         group.setCreatedBy(entity.createdBy);

@@ -16,7 +16,7 @@
 
 package io.apicurio.registry.limits;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.dto.EditableArtifactMetaDataDto;
 import io.apicurio.registry.storage.metrics.StorageMetricsStore;
 import jakarta.enterprise.context.ApplicationScoped;

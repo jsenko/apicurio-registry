@@ -20,18 +20,19 @@ import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.common.apps.config.DynamicConfigStorage;
 import io.apicurio.common.apps.config.Info;
 import io.apicurio.common.apps.logging.Logged;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.ImportSink;
 import io.apicurio.registry.metrics.StorageMetricsApply;
+import io.apicurio.registry.model.ArtifactReferenceDto;
+import io.apicurio.registry.model.BranchId;
+import io.apicurio.registry.model.GA;
+import io.apicurio.registry.model.GAV;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.RegistryStorageException;
 import io.apicurio.registry.storage.impl.gitops.sql.BlueSqlStorage;
 import io.apicurio.registry.storage.impl.gitops.sql.GreenSqlStorage;
-import io.apicurio.registry.model.BranchId;
-import io.apicurio.registry.model.GA;
-import io.apicurio.registry.model.GAV;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.Entity;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -366,8 +367,14 @@ public class GitOpsRegistryStorage extends AbstractReadOnlyRegistryStorage {
 
 
     @Override
-    public void exportData(Function<Entity, Void> handler) {
-        proxyAction(storage -> storage.exportData(handler));
+    public void export(ImportSink sink) {
+        proxyAction(storage -> storage.export(sink));
+    }
+
+
+    @Override
+    public void postExport() {
+        proxyAction(storage -> storage.postExport());
     }
 
 

@@ -23,7 +23,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 
 /**
  * A common JSON content canonicalizer.  This will remove any extra formatting such as whitespace
@@ -37,7 +38,7 @@ public class JsonContentCanonicalizer implements ContentCanonicalizer {
     private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
     /**
-     * @see ContentCanonicalizer#canonicalize(io.apicurio.registry.content.ContentHandle, Map)
+     * @see ContentCanonicalizer#canonicalize(ContentHandle, Map)
      */
     @Override
     public ContentHandle canonicalize(ContentHandle content, Map<String, ContentHandle> resolvedReferences) {

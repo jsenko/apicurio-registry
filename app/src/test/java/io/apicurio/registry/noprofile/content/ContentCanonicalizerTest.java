@@ -17,11 +17,11 @@
 package io.apicurio.registry.noprofile.content;
 
 import io.apicurio.registry.AbstractRegistryTestBase;
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.content.canon.ContentCanonicalizer;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import io.apicurio.registry.types.ArtifactType;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
-import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
+import io.apicurio.registry.schema.ArtifactTypeUtilProviderFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

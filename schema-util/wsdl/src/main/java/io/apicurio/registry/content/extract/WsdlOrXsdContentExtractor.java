@@ -16,8 +16,10 @@
 
 package io.apicurio.registry.content.extract;
 
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.util.DocumentBuilderAccessor;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.schema.extractor.ExtractedMetaData;
+import io.apicurio.registry.schema.DocumentBuilderAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

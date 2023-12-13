@@ -27,7 +27,7 @@ import io.apicurio.registry.ccompat.dto.CompatibilityLevelParamDto;
 import io.apicurio.registry.ccompat.rest.v7.ConfigResource;
 import io.apicurio.registry.metrics.health.liveness.ResponseErrorLivenessCheck;
 import io.apicurio.registry.metrics.health.readiness.ResponseTimeoutReadinessCheck;
-import io.apicurio.registry.rules.compatibility.CompatibilityLevel;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import io.apicurio.registry.storage.dto.RuleConfigurationDto;
 import io.apicurio.registry.storage.error.RuleNotFoundException;
 import io.apicurio.registry.types.RuleType;

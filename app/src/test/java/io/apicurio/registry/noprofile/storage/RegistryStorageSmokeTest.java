@@ -17,7 +17,7 @@
 package io.apicurio.registry.noprofile.storage;
 
 import io.apicurio.registry.AbstractResourceTestBase;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.RegistryStorage;
 import io.apicurio.registry.storage.dto.*;
 import io.apicurio.registry.storage.error.ArtifactNotFoundException;

@@ -19,7 +19,7 @@ package io.apicurio.registry.maven.refs;
 import java.nio.file.Path;
 import java.util.Set;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 import io.apicurio.registry.types.ArtifactType;
 

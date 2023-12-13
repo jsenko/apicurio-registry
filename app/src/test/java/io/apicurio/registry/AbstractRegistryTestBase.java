@@ -17,7 +17,7 @@
 package io.apicurio.registry;
 
 import com.microsoft.kiota.ApiException;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.utils.tests.ParallelizableTest;
 import io.apicurio.registry.utils.tests.TestUtils;
 

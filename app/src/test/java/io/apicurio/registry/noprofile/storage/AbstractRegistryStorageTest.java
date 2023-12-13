@@ -18,7 +18,8 @@ package io.apicurio.registry.noprofile.storage;
 
 import io.apicurio.common.apps.config.DynamicConfigPropertyDto;
 import io.apicurio.registry.AbstractResourceTestBase;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.EntityType;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;
@@ -29,7 +30,6 @@ import io.apicurio.registry.storage.error.*;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.RuleType;
-import io.apicurio.registry.utils.impexp.EntityType;
 import io.apicurio.registry.utils.tests.TestUtils;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
@@ -997,12 +997,11 @@ public abstract class AbstractRegistryStorageTest extends AbstractResourceTestBa
     private int countStorageEntities() {
         // We don't need thread safety, but it's simpler to use this when effectively final counter is needed
         final AtomicInteger count = new AtomicInteger(0);
-        storage().exportData(e -> {
-            if (e.getEntityType() != EntityType.Manifest) {
-                log.debug("Counting from export: {}", e);
+        storage().export(entity -> {
+            if (entity.getEntityType() != EntityType.MANIFEST_V2) {
+                log.debug("Counting from export: {}", entity);
                 count.incrementAndGet();
             }
-            return null;
         });
         int res = count.get();
         // Count data that is not exported

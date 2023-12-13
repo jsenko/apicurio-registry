@@ -22,7 +22,7 @@ import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.models.Error;
 import io.apicurio.registry.rest.v2.beans.*;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.DiffType;
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
+import io.apicurio.registry.storage.SqlUtil;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.ReferenceType;
@@ -1296,7 +1296,7 @@ public class GroupsResourceTest extends AbstractResourceTestBase {
                 .then()
                 .statusCode(409)
                 .body("error_code", equalTo(409))
-                .body("message", startsWith("Syntax or semantic violation for JSON Schema artifact."));
+                .body("message", startsWith("VALIDITY rule violated. Causes: JsonParseException: Unexpected character"));
     }
 
     @Test

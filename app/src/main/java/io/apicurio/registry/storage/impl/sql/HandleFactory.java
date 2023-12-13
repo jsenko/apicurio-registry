@@ -14,7 +14,7 @@ public interface HandleFactory {
      * <p>
      * Rollback is performed when an exception is thrown to the outside of this method call.
      * <p>
-     * WARNING: This method must not be executed within an existing transaction.
+     * WARNING: This method must not be executed within an existing JTA transaction.
      */
     <R, X extends Exception> R withHandle(HandleCallback<R, X> callback) throws X;
 

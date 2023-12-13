@@ -11,15 +11,15 @@ import io.apicurio.registry.storage.impl.gitops.model.v0.Registry;
 import io.apicurio.registry.storage.impl.gitops.model.v0.Rule;
 import io.apicurio.registry.storage.impl.gitops.model.v0.Setting;
 import io.apicurio.registry.storage.impl.gitops.model.v0.Version;
-import io.apicurio.registry.storage.impl.sql.RegistryStorageContentUtils;
+import io.apicurio.registry.storage.RegistryStorageContentUtils;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.RuleType;
 import io.apicurio.registry.util.ContentTypeUtil;
-import io.apicurio.registry.utils.impexp.ArtifactRuleEntity;
-import io.apicurio.registry.utils.impexp.ArtifactVersionEntity;
-import io.apicurio.registry.utils.impexp.ContentEntity;
-import io.apicurio.registry.utils.impexp.GlobalRuleEntity;
-import io.apicurio.registry.utils.impexp.GroupEntity;
+import io.apicurio.registry.impexp.v2.ArtifactRuleEntity;
+import io.apicurio.registry.impexp.v2.ArtifactVersionEntity;
+import io.apicurio.registry.impexp.v2.ContentEntity;
+import io.apicurio.registry.impexp.v2.GlobalRuleEntity;
+import io.apicurio.registry.impexp.v2.GroupEntity;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -252,7 +252,7 @@ public class GitManager {
                     e.ruleType = RuleType.fromValue(globalRule.getType());
                     e.configuration = globalRule.getConfig();
                     log.debug("Importing {}", e);
-                    state.getStorage().importGlobalRule(e);
+                    state.getStorage().importEntity(e);
                 } catch (Exception ex) {
                     state.recordError("Could not import global rule %s: %s", globalRule.getType(), ex.getMessage());
                 }
@@ -284,7 +284,7 @@ public class GitManager {
                         e.contentId = content.getId();
 
                         log.debug("Importing {}", e);
-                        state.getStorage().importArtifactVersion(e);
+                        state.getStorage().importEntity(e);
 
                     } else {
                         state.recordError("Could not import content for artifact version %s.",
@@ -316,7 +316,7 @@ public class GitManager {
                     e.type = RuleType.fromValue(rule.getType());
                     e.configuration = rule.getConfig();
                     log.debug("Importing {}", e);
-                    state.getStorage().importArtifactRule(e);
+                    state.getStorage().importEntity(e);
                 } catch (Exception ex) {
                     state.recordError("Could not import rule %s for artifact '%s': %s",
                             rule.getType(), artifact.getGroupId() + ":" + artifact.getId(), ex.getMessage());
@@ -350,7 +350,7 @@ public class GitManager {
                 var e = new GroupEntity();
                 e.groupId = group.getId();
                 log.debug("Importing {}", e);
-                state.getStorage().importGroup(e);
+                state.getStorage().importEntity(e);
                 groupFile.setProcessed(true);
                 return group;
             } catch (Exception ex) {
@@ -378,12 +378,12 @@ public class GitManager {
                                 var e = new ContentEntity();
                                 e.contentId = content.getId();
                                 e.contentHash = content.getContentHash();
-                                e.contentBytes = data.bytes();
+                                e.content = data;
                                 content.setArtifactType(utils.determineArtifactType(data, content.getArtifactType()));
                                 e.canonicalHash = utils.getCanonicalContentHash(data, content.getArtifactType(), null, null);
                                 e.artifactType = content.getArtifactType();
                                 log.debug("Importing {}", e);
-                                state.getStorage().importContent(e);
+                                state.getStorage().importEntity(e);
                                 contentFile.setProcessed(true);
                                 dataFile.setProcessed(true);
                                 return content;

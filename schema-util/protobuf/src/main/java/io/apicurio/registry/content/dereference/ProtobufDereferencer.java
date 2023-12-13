@@ -18,7 +18,8 @@ package io.apicurio.registry.content.dereference;
 
 import com.google.protobuf.Descriptors;
 import com.squareup.wire.schema.internal.parser.ProtoFileElement;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 import io.apicurio.registry.utils.protobuf.schema.FileDescriptorUtils;
 import io.apicurio.registry.utils.protobuf.schema.ProtobufFile;
 
@@ -50,7 +51,7 @@ public class ProtobufDereferencer implements ContentDereferencer {
     }
     
     /**
-     * @see io.apicurio.registry.content.dereference.ContentDereferencer#rewriteReferences(io.apicurio.registry.content.ContentHandle, java.util.Map)
+     * @see ContentDereferencer#rewriteReferences(ContentHandle, java.util.Map)
      */
     @Override
     public ContentHandle rewriteReferences(ContentHandle content, Map<String, String> resolvedReferenceUrls) {

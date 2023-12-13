@@ -86,7 +86,7 @@ public class ReadOnlyRegistryStorageTest {
                 entry("deleteGlobalRules0", new State(true, RegistryStorage::deleteGlobalRules)),
                 entry("deleteGroup1", new State(true, s -> s.deleteGroup(null))),
                 entry("deleteRoleMapping1", new State(true, s -> s.deleteRoleMapping(null))),
-                entry("exportData1", new State(false, s -> s.exportData(null))),
+                entry("export1", new State(false, s -> s.export(null))),
                 entry("getArtifact2", new State(false, s -> s.getArtifact(null, null))),
                 entry("getArtifact3", new State(false, s -> s.getArtifact(null, null, null))),
                 entry("getArtifactByContentHash1", new State(false, s -> s.getArtifactByContentHash(null))),
@@ -124,13 +124,7 @@ public class ReadOnlyRegistryStorageTest {
                 entry("getRoleMapping1", new State(false, s -> s.getRoleMapping(null))),
                 entry("getRoleMappings0", new State(false, RegistryStorage::getRoleMappings)),
                 entry("getStaleConfigProperties1", new State(false, s -> s.getStaleConfigProperties(null))),
-                entry("importArtifactRule1", new State(true, s -> s.importArtifactRule(null))),
-                entry("importArtifactVersion1", new State(true, s -> s.importArtifactVersion(null))),
-                entry("importComment1", new State(true, s -> s.importComment(null))),
-                entry("importContent1", new State(true, s -> s.importContent(null))),
-                entry("importData3", new State(true, s -> s.importData(null, false, false))),
-                entry("importGlobalRule1", new State(true, s -> s.importGlobalRule(null))),
-                entry("importGroup1", new State(true, s -> s.importGroup(null))),
+                entry("importEntity1", new State(true, s -> s.importEntity(null))),
                 entry("initialize0", new State(false, RegistryStorage::initialize)),
                 entry("isAlive0", new State(false, RegistryStorage::isAlive)),
                 entry("isArtifactExists2", new State(false, s -> s.isArtifactExists(null, null))),
@@ -145,6 +139,8 @@ public class ReadOnlyRegistryStorageTest {
                 entry("nextCommentId0", new State(true, RegistryStorage::nextCommentId)),
                 entry("nextContentId0", new State(true, RegistryStorage::nextContentId)),
                 entry("nextGlobalId0", new State(true, RegistryStorage::nextGlobalId)),
+                entry("postExport0", new State(false, RegistryStorage::postExport)),
+                entry("postImport0", new State(true, RegistryStorage::postImport)),
                 entry("resetCommentId0", new State(true, RegistryStorage::resetCommentId)),
                 entry("resetContentId0", new State(true, RegistryStorage::resetContentId)),
                 entry("resetGlobalId0", new State(true, RegistryStorage::resetGlobalId)),
@@ -171,7 +167,8 @@ public class ReadOnlyRegistryStorageTest {
                 entry("updateContentCanonicalHash3", new State(true, s -> s.updateContentCanonicalHash(null, 0, null))),
                 entry("updateGlobalRule2", new State(true, s -> s.updateGlobalRule(null, null))),
                 entry("updateGroupMetaData1", new State(true, s -> s.updateGroupMetaData(null))),
-                entry("updateRoleMapping2", new State(true, s -> s.updateRoleMapping(null, null)))
+                entry("updateRoleMapping2", new State(true, s -> s.updateRoleMapping(null, null))),
+                entry("withTransaction1", new State(false, s -> s.withTransaction(() -> null)))
         );
 
         CURRENT_METHODS = Arrays.stream(RegistryStorage.class.getMethods())

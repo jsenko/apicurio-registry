@@ -16,8 +16,11 @@
 
 package io.apicurio.registry.rules.compatibility;
 
-import io.apicurio.registry.rules.RuleViolation;
+import io.apicurio.registry.schema.compat.CompatibilityDifference;
+import io.apicurio.registry.schema.compat.CompatibilityExecutionResult;
+import io.apicurio.registry.schema.compat.RuleViolation;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -42,5 +45,26 @@ public class SimpleCompatibilityDifference implements CompatibilityDifference {
     @Override
     public RuleViolation asRuleViolation() {
         return ruleViolation;
+    }
+
+
+    /**
+     * Creates an instance of {@link CompatibilityExecutionResult} that represents "incompatible" results.  This
+     * variant takes an Exception and converts that into a set of differences.  Ideally this would never be used,
+     * but some artifact types do not have the level of granularity to report individual differences.
+     */
+    public static CompatibilityExecutionResult incompatible(Exception e) {
+        CompatibilityDifference diff = new SimpleCompatibilityDifference(e.getMessage());
+        return new CompatibilityExecutionResult(Collections.singleton(diff));
+    }
+
+
+    /**
+     * Creates an instance of {@link CompatibilityExecutionResult} that represents "incompatible" results.  This
+     * variant takes a message.
+     */
+    public static CompatibilityExecutionResult incompatible(String message) {
+        CompatibilityDifference diff = new SimpleCompatibilityDifference(message);
+        return new CompatibilityExecutionResult(Collections.singleton(diff));
     }
 }

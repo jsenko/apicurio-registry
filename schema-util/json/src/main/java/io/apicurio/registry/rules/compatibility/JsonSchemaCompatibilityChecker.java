@@ -16,9 +16,10 @@
 
 package io.apicurio.registry.rules.compatibility;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rules.compatibility.jsonschema.JsonSchemaDiffLibrary;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.Difference;
+import io.apicurio.registry.schema.compat.CompatibilityDifference;
 
 import java.util.Map;
 import java.util.Set;

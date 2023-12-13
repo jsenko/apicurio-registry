@@ -22,7 +22,8 @@ import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.SchemaPrinter;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.SchemaPrinter.Options;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 
 import java.util.Map;
 
@@ -38,7 +39,7 @@ public class GraphQLContentCanonicalizer implements ContentCanonicalizer {
     private static final SchemaPrinter printer = new SchemaPrinter(Options.defaultOptions().includeDirectives(false));
     
     /**
-     * @see ContentCanonicalizer#canonicalize(io.apicurio.registry.content.ContentHandle, Map)
+     * @see ContentCanonicalizer#canonicalize(ContentHandle, Map)
      */
     @Override
     public ContentHandle canonicalize(ContentHandle content, Map<String, ContentHandle> resolvedReferences) {

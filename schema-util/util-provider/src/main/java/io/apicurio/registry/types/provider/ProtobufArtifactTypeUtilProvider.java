@@ -16,17 +16,17 @@
 
 package io.apicurio.registry.types.provider;
 
-import io.apicurio.registry.content.canon.ContentCanonicalizer;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import io.apicurio.registry.content.canon.ProtobufContentCanonicalizer;
-import io.apicurio.registry.content.dereference.ContentDereferencer;
+import io.apicurio.registry.schema.deref.ContentDereferencer;
 import io.apicurio.registry.content.dereference.ProtobufDereferencer;
-import io.apicurio.registry.content.extract.ContentExtractor;
-import io.apicurio.registry.content.extract.NoopContentExtractor;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.types.provider.noop.NoopContentExtractor;
 import io.apicurio.registry.content.refs.ProtobufReferenceFinder;
-import io.apicurio.registry.content.refs.ReferenceFinder;
-import io.apicurio.registry.rules.compatibility.CompatibilityChecker;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
 import io.apicurio.registry.rules.compatibility.ProtobufCompatibilityChecker;
-import io.apicurio.registry.rules.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ContentValidator;
 import io.apicurio.registry.rules.validity.ProtobufContentValidator;
 import io.apicurio.registry.types.ArtifactType;
 

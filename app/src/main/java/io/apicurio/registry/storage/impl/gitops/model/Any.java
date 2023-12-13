@@ -2,7 +2,7 @@ package io.apicurio.registry.storage.impl.gitops.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.impl.gitops.ProcessingState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

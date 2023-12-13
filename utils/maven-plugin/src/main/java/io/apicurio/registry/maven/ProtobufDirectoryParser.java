@@ -2,7 +2,7 @@ package io.apicurio.registry.maven;
 
 import com.google.protobuf.Descriptors;
 import com.squareup.wire.schema.internal.parser.ProtoFileElement;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactReference;
 import io.apicurio.registry.utils.protobuf.schema.FileDescriptorUtils;

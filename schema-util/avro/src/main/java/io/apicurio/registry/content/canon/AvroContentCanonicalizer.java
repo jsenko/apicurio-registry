@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
 import org.apache.avro.Schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,8 +30,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import io.apicurio.registry.content.ContentHandle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AvroContentCanonicalizer implements ContentCanonicalizer {
     };
 
     /**
-     * @see ContentCanonicalizer#canonicalize(io.apicurio.registry.content.ContentHandle, Map)
+     * @see ContentCanonicalizer#canonicalize(ContentHandle, Map)
      */
     @Override
     public ContentHandle canonicalize(ContentHandle content, Map<String, ContentHandle> resolvedReferences) {

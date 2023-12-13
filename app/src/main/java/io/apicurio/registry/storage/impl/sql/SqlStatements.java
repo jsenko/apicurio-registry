@@ -613,6 +613,8 @@ public interface SqlStatements {
 
     String insertArtifactBranch();
 
+    String importArtifactBranch();
+
     String selectArtifactBranchLeaf();
 
     String selectArtifactBranchLeafNotDisabled();

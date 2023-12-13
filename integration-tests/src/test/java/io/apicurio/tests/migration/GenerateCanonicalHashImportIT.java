@@ -22,9 +22,9 @@ import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.impexp.ArtifactVersionEntity;
-import io.apicurio.registry.utils.impexp.ContentEntity;
-import io.apicurio.registry.utils.impexp.EntityWriter;
+import io.apicurio.registry.utils.impexp.v2.ArtifactVersionEntity;
+import io.apicurio.registry.utils.impexp.v2.ContentEntity;
+import io.apicurio.registry.utils.impexp.ZipEntityWriter;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.serdes.apicurio.JsonSchemaMsgFactory;
 import io.apicurio.tests.utils.Constants;
@@ -94,7 +94,7 @@ public class GenerateCanonicalHashImportIT extends ApicurioRegistryBaseIT {
     public InputStream generateExportedZip(Map<String, String> artifacts) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ZipOutputStream zip = new ZipOutputStream(outputStream, StandardCharsets.UTF_8);
-            EntityWriter writer = new EntityWriter(zip);
+            ZipEntityWriter writer = new ZipEntityWriter(zip);
 
             Map<String, Long> contentIndex = new HashMap<>();
 

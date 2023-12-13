@@ -19,15 +19,16 @@ package io.apicurio.registry.noprofile.compatibility;
 import com.microsoft.kiota.ApiException;
 import io.apicurio.registry.AbstractResourceTestBase;
 import io.apicurio.registry.JsonSchemas;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.model.GroupId;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.Rule;
 import io.apicurio.registry.rest.client.models.RuleType;
 import io.apicurio.registry.rules.*;
-import io.apicurio.registry.rules.compatibility.CompatibilityLevel;
+import io.apicurio.registry.schema.compat.CompatibilityLevel;
 import io.apicurio.registry.rules.compatibility.CompatibilityRuleExecutor;
 import io.apicurio.registry.rules.compatibility.jsonschema.diff.DiffType;
+import io.apicurio.registry.schema.compat.RuleViolation;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.quarkus.test.junit.QuarkusTest;
@@ -199,7 +200,7 @@ public class CompatibilityRuleApplicationTest extends AbstractResourceTestBase {
             compatibility.execute(context);
         });
 
-        Set<RuleViolation> ruleViolationCauses = ruleViolationException.getCauses();
+        Set<RuleViolation> ruleViolationCauses = ruleViolationException.getViolations();
         RuleViolation ageViolationCause = findCauseByContext(ruleViolationCauses, "/properties/age/type");
         RuleViolation zipCodeViolationCause = findCauseByContext(ruleViolationCauses, "/properties/zipcode");
 

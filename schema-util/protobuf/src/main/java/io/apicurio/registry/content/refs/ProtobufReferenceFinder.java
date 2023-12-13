@@ -21,12 +21,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.apicurio.registry.schema.refs.ExternalReference;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squareup.wire.schema.internal.parser.ProtoFileElement;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.utils.protobuf.schema.ProtobufFile;
 
 /**
@@ -38,7 +40,7 @@ public class ProtobufReferenceFinder implements ReferenceFinder {
     private static final Logger log = LoggerFactory.getLogger(ProtobufReferenceFinder.class);
 
     /**
-     * @see io.apicurio.registry.content.refs.ReferenceFinder#findExternalReferences(io.apicurio.registry.content.ContentHandle)
+     * @see ReferenceFinder#findExternalReferences(ContentHandle)
      */
     @Override
     public Set<ExternalReference> findExternalReferences(ContentHandle content) {

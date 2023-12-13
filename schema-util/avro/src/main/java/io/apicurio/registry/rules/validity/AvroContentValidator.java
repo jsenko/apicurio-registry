@@ -16,25 +16,24 @@
 
 package io.apicurio.registry.rules.validity;
 
-import java.util.Collections;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.rest.v2.beans.ArtifactReference;
+import io.apicurio.registry.schema.compat.RuleViolation;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.validity.ValidationResult;
+import io.apicurio.registry.schema.validity.ValidityLevel;
+import org.apache.avro.Schema;
+
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avro.Schema;
-
-import io.apicurio.registry.content.ContentHandle;
-import io.apicurio.registry.rest.v2.beans.ArtifactReference;
-import io.apicurio.registry.rules.RuleViolation;
-import io.apicurio.registry.rules.RuleViolationException;
-import io.apicurio.registry.rules.integrity.IntegrityLevel;
-import io.apicurio.registry.types.RuleType;
-
 /**
  * A content validator implementation for the Avro content type.
+ *
  * @author eric.wittmann@gmail.com
  */
 public class AvroContentValidator implements ContentValidator {
-    
+
     private static final String DUMMY_AVRO_RECORD = "{\n"
             + "     \"type\": \"record\",\n"
             + "     \"namespace\": \"NAMESPACE\",\n"
@@ -52,10 +51,10 @@ public class AvroContentValidator implements ContentValidator {
     }
 
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validate(ValidityLevel, ContentHandle, Map)
+     * @see ContentValidator#validate(ValidityLevel, ContentHandle, Map)
      */
     @Override
-    public void validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) throws RuleViolationException {
+    public ValidationResult validate(ValidityLevel level, ContentHandle artifactContent, Map<String, ContentHandle> resolvedReferences) {
         if (level == ValidityLevel.SYNTAX_ONLY || level == ValidityLevel.FULL) {
             try {
                 Schema.Parser parser = new Schema.Parser();
@@ -63,17 +62,18 @@ public class AvroContentValidator implements ContentValidator {
                     parser.parse(schema.content());
                 }
                 parser.parse(artifactContent.content());
-            } catch (Exception e) {
-                throw new RuleViolationException("Syntax violation for Avro artifact.", RuleType.VALIDITY, level.name(), e);
+            } catch (Exception ex) {
+                return ValidationResult.of(new RuleViolation(ex));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
-    
+
     /**
-     * @see io.apicurio.registry.rules.validity.ContentValidator#validateReferences(io.apicurio.registry.content.ContentHandle, java.util.List)
+     * @see ContentValidator#validateReferences(ContentHandle, java.util.List)
      */
     @Override
-    public void validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) throws RuleViolationException {
+    public ValidationResult validateReferences(ContentHandle artifactContent, List<ArtifactReference> references) {
         try {
             Schema.Parser parser = new Schema.Parser();
             references.forEach(ref -> {
@@ -81,7 +81,7 @@ public class AvroContentValidator implements ContentValidator {
                 if (refName != null && refName.contains(".")) {
                     int idx = refName.lastIndexOf('.');
                     String ns = refName.substring(0, idx);
-                    String name = refName.substring(idx+1);
+                    String name = refName.substring(idx + 1);
                     parser.parse(DUMMY_AVRO_RECORD.replace("NAMESPACE", ns).replace("NAME", name));
                 }
             });
@@ -90,11 +90,10 @@ public class AvroContentValidator implements ContentValidator {
             // This is terrible, but I don't know how else to detect if the reason for the parse failure
             // is because of a missing defined type or some OTHER parse exception.
             if (e.getMessage().contains("is not a defined name")) {
-                RuleViolation violation = new RuleViolation("Missing reference detected.", e.getMessage());
-                throw new RuleViolationException("Missing reference detected in Avro artifact.", RuleType.INTEGRITY, 
-                        IntegrityLevel.ALL_REFS_MAPPED.name(), Collections.singleton(violation));
+                return ValidationResult.of(new RuleViolation("Missing reference detected.", e.getMessage()));
             }
         }
+        return ValidationResult.SUCCESS_EMPTY;
     }
 
 }

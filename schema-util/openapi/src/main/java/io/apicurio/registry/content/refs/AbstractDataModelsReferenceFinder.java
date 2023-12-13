@@ -29,7 +29,9 @@ import io.apicurio.datamodels.models.Node;
 import io.apicurio.datamodels.models.Referenceable;
 import io.apicurio.datamodels.models.asyncapi.AsyncApiMessage;
 import io.apicurio.datamodels.models.visitors.AllNodeVisitor;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 
 /**
  * Implementation of a reference finder that uses Apicurio Data Models and so supports any specification 
@@ -41,7 +43,7 @@ import io.apicurio.registry.content.ContentHandle;
 public abstract class AbstractDataModelsReferenceFinder implements ReferenceFinder {
 
     /**
-     * @see io.apicurio.registry.content.refs.ReferenceFinder#findExternalReferences(io.apicurio.registry.content.ContentHandle)
+     * @see ReferenceFinder#findExternalReferences(ContentHandle)
      */
     @Override
     public Set<ExternalReference> findExternalReferences(ContentHandle content) {

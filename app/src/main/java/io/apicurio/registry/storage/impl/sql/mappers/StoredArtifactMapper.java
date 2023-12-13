@@ -16,9 +16,9 @@
 
 package io.apicurio.registry.storage.impl.sql.mappers;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.storage.dto.StoredArtifactDto;
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
+import io.apicurio.registry.storage.SqlUtil;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 
 import java.sql.ResultSet;

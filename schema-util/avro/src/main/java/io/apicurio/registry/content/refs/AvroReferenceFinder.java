@@ -21,14 +21,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.schema.refs.ExternalReference;
+import io.apicurio.registry.schema.refs.ReferenceFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import io.apicurio.registry.content.ContentHandle;
 
 /**
  * An Apache Avro implementation of a reference finder.
@@ -42,7 +43,7 @@ public class AvroReferenceFinder implements ReferenceFinder {
     private static final Set<String> PRIMITIVE_TYPES = Set.of("null", "boolean", "int", "long", "float", "double",  "bytes", "string");
 
     /**
-     * @see io.apicurio.registry.content.refs.ReferenceFinder#findExternalReferences(io.apicurio.registry.content.ContentHandle)
+     * @see ReferenceFinder#findExternalReferences(ContentHandle)
      */
     @Override
     public Set<ExternalReference> findExternalReferences(ContentHandle content) {

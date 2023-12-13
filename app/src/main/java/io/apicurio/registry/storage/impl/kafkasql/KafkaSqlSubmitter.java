@@ -17,7 +17,7 @@
 package io.apicurio.registry.storage.impl.kafkasql;
 
 import io.apicurio.common.apps.logging.Logged;
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.model.GA;
 import io.apicurio.registry.model.GAV;

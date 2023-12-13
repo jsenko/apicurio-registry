@@ -16,10 +16,11 @@
 
 package io.apicurio.registry.types.provider;
 
-import io.apicurio.registry.content.canon.ContentCanonicalizer;
-import io.apicurio.registry.content.extract.ContentExtractor;
-import io.apicurio.registry.rules.compatibility.CompatibilityChecker;
-import io.apicurio.registry.rules.validity.ContentValidator;
+import io.apicurio.registry.schema.canon.ContentCanonicalizer;
+import io.apicurio.registry.schema.extractor.ContentExtractor;
+import io.apicurio.registry.schema.compat.CompatibilityChecker;
+import io.apicurio.registry.schema.validity.ContentValidator;
+import io.apicurio.registry.schema.ArtifactTypeUtilProvider;
 
 /**
  * @author Ales Justin

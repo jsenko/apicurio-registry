@@ -16,10 +16,10 @@
 
 package io.apicurio.registry.storage.impl.sql.mappers;
 
-import io.apicurio.registry.storage.impl.sql.SqlUtil;
+import io.apicurio.registry.storage.SqlUtil;
 import io.apicurio.registry.storage.impl.sql.jdb.RowMapper;
 import io.apicurio.registry.types.ArtifactState;
-import io.apicurio.registry.utils.impexp.ArtifactVersionEntity;
+import io.apicurio.registry.impexp.v2.ArtifactVersionEntity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

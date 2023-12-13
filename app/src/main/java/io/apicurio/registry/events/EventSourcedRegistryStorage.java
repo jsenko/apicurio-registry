@@ -15,11 +15,12 @@
  */
 package io.apicurio.registry.events;
 
-import io.apicurio.registry.content.ContentHandle;
+import io.apicurio.registry.bytes.ContentHandle;
 import io.apicurio.registry.events.dto.ArtifactId;
 import io.apicurio.registry.events.dto.ArtifactRuleChange;
 import io.apicurio.registry.events.dto.ArtifactStateChange;
 import io.apicurio.registry.events.dto.RegistryEventType;
+import io.apicurio.registry.model.ArtifactReferenceDto;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecorator;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecoratorBase;
 import io.apicurio.registry.storage.decorator.RegistryStorageDecoratorOrderConstants;
@@ -113,7 +114,7 @@ public class EventSourcedRegistryStorage extends RegistryStorageDecoratorBase im
     }
 
     /**
-     * @see io.apicurio.registry.storage.RegistryStorage#createArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.content.ContentHandle, io.apicurio.registry.delegate.dto.EditableArtifactMetaDataDto)
+     * @see io.apicurio.registry.storage.RegistryStorage#createArtifactWithMetadata (java.lang.String, java.lang.String, java.lang.String, java.lang.String, io.apicurio.registry.bytes.ContentHandle, io.apicurio.registry.delegate.dto.EditableArtifactMetaDataDto)
      */
     @Override
     public ArtifactMetaDataDto createArtifactWithMetadata(String groupId, String artifactId, String version,
