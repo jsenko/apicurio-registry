@@ -250,13 +250,7 @@ public class AdminResourceImpl implements AdminResource {
     @Audited
     @Authorized(style = AuthorizedStyle.None, level = AuthorizedLevel.Admin)
     public void importData(Boolean xRegistryPreserveGlobalId, Boolean xRegistryPreserveContentId, InputStream data) {
-        if (xRegistryPreserveGlobalId == null) {
-            xRegistryPreserveGlobalId = false;
-        }
-        if (xRegistryPreserveContentId == null) {
-            xRegistryPreserveContentId = false;
-        }
-        var importer = new ZipImporter(utils, storage, xRegistryPreserveGlobalId, xRegistryPreserveContentId);
+        var importer = new ZipImporter(utils, storage, isNullOrTrue(xRegistryPreserveGlobalId), isNullOrTrue(xRegistryPreserveContentId));
         importer.importData(data);
     }
 

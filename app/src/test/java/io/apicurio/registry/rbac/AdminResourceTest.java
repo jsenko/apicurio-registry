@@ -478,6 +478,7 @@ public class AdminResourceTest extends AbstractResourceTestBase {
             content.setReferences(refs);
             var meta = clientV2.groups().byGroupId(group).artifacts().post(content, config -> {
                 config.headers.add("X-Registry-ArtifactId", artifactId);
+                config.headers.add("X-Registry-Version", "1");
                 config.headers.add("X-Registry-ArtifactType", ArtifactType.OPENAPI);
             }).get(3, TimeUnit.SECONDS);
             err.println(meta);
@@ -555,7 +556,7 @@ public class AdminResourceTest extends AbstractResourceTestBase {
                         .when()
                         .contentType("application/zip")
                         .body(data)
-                        .post("/registry/v2/admin/import")
+                        .post("/registry/v2/admin/import")// TODO Preserve IDs?
                         .then()
                         .statusCode(204)
                         .body(anything());
