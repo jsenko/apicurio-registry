@@ -16,6 +16,9 @@
 
 package io.apicurio.tests.migration;
 
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.v2.ArtifactVersionEntity;
+import io.apicurio.registry.impexp.v2.ContentEntity;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ArtifactContent;
 import io.apicurio.registry.rest.client.models.ArtifactReference;
@@ -24,35 +27,24 @@ import io.apicurio.registry.rest.client.models.RuleType;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.impexp.v2.ArtifactVersionEntity;
-import io.apicurio.registry.utils.impexp.v2.ContentEntity;
 import io.apicurio.registry.utils.impexp.ZipEntityWriter;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.serdes.apicurio.AvroGenericRecordSchemaFactory;
 import io.apicurio.tests.serdes.apicurio.JsonSchemaMsgFactory;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipOutputStream;
 
-import static io.apicurio.tests.migration.DataMigrationIT.doNotPreserveIdsImportArtifacts;
-import static io.apicurio.tests.migration.DataMigrationIT.migrateGlobalIds;
-import static io.apicurio.tests.migration.DataMigrationIT.migrateReferencesMap;
+import static io.apicurio.tests.migration.DataMigrationIT.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MigrationTestsDataInitializer {
@@ -68,7 +60,7 @@ public class MigrationTestsDataInitializer {
             content.setContent(new String(jsonSchema.getSchemaStream().readAllBytes(), StandardCharsets.UTF_8));
             var amd = source.groups().byGroupId("default").artifacts().post(content, config -> {
                 config.headers.add("X-Registry-ArtifactId", artifactId);
-                }).get(3, TimeUnit.SECONDS);
+            }).get(3, TimeUnit.SECONDS);
             TestUtils.retry(() -> source.ids().globalIds().byGlobalId(amd.getGlobalId()));
             migrateGlobalIds.add(amd.getGlobalId());
         }
@@ -188,9 +180,8 @@ public class MigrationTestsDataInitializer {
 
             for (var entry : artifacts.entrySet()) {
                 String artifactId = entry.getKey();
-                String content = entry.getValue();
-                byte[] contentBytes = IoUtil.toBytes(content);
-                String contentHash = DigestUtils.sha256Hex(contentBytes);
+                var content = ContentHandle.create(entry.getValue());
+                String contentHash = content.getSha256Hash();
 
                 String artifactType = ArtifactType.JSON;
 
@@ -199,14 +190,10 @@ public class MigrationTestsDataInitializer {
                     contentEntity.contentId = contentIdSeq.getAndIncrement();
                     contentEntity.contentHash = contentHash;
                     contentEntity.canonicalHash = null;
-                    contentEntity.contentBytes = contentBytes;
+                    contentEntity.content = content;
                     contentEntity.artifactType = artifactType;
 
-                    try {
-                        writer.writeEntity(contentEntity);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    writer.importEntity(contentEntity);
 
                     return contentEntity.contentId;
                 });
@@ -220,15 +207,14 @@ public class MigrationTestsDataInitializer {
                 versionEntity.description = null;
                 versionEntity.globalId = migrateGlobalIdseq.getAndIncrement();
                 versionEntity.groupId = null;
-                versionEntity.isLatest = true;
                 versionEntity.labels = null;
                 versionEntity.name = null;
                 versionEntity.properties = null;
                 versionEntity.state = ArtifactState.ENABLED;
                 versionEntity.version = "1";
-                versionEntity.versionId = 1;
+                versionEntity.versionOrder = 1;
 
-                writer.writeEntity(versionEntity);
+                writer.importEntity(versionEntity);
             }
 
             zip.flush();

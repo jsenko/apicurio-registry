@@ -18,18 +18,18 @@ package io.apicurio.tests.migration;
 
 import com.microsoft.kiota.authentication.AnonymousAuthenticationProvider;
 import com.microsoft.kiota.http.OkHttpRequestAdapter;
+import io.apicurio.registry.bytes.ContentHandle;
+import io.apicurio.registry.impexp.v2.ArtifactVersionEntity;
+import io.apicurio.registry.impexp.v2.ContentEntity;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.utils.IoUtil;
-import io.apicurio.registry.utils.impexp.v2.ArtifactVersionEntity;
-import io.apicurio.registry.utils.impexp.v2.ContentEntity;
 import io.apicurio.registry.utils.impexp.ZipEntityWriter;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.serdes.apicurio.JsonSchemaMsgFactory;
 import io.apicurio.tests.utils.Constants;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -103,9 +103,8 @@ public class GenerateCanonicalHashImportIT extends ApicurioRegistryBaseIT {
 
             for (var entry : artifacts.entrySet()) {
                 String artifactId = entry.getKey();
-                String content = entry.getValue();
-                byte[] contentBytes = IoUtil.toBytes(content);
-                String contentHash = DigestUtils.sha256Hex(contentBytes);
+                var content = ContentHandle.create(entry.getValue());
+                String contentHash = content.getSha256Hash();
 
                 String artifactType = ArtifactType.JSON;
 
@@ -114,14 +113,10 @@ public class GenerateCanonicalHashImportIT extends ApicurioRegistryBaseIT {
                     contentEntity.contentId = contentIdSeq.getAndIncrement();
                     contentEntity.contentHash = contentHash;
                     contentEntity.canonicalHash = null;
-                    contentEntity.contentBytes = contentBytes;
+                    contentEntity.content = content;
                     contentEntity.artifactType = artifactType;
 
-                    try {
-                        writer.writeEntity(contentEntity);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    writer.importEntity(contentEntity);
 
                     return contentEntity.contentId;
                 });
@@ -135,15 +130,14 @@ public class GenerateCanonicalHashImportIT extends ApicurioRegistryBaseIT {
                 versionEntity.description = null;
                 versionEntity.globalId = globalIdSeq.getAndIncrement();
                 versionEntity.groupId = null;
-                versionEntity.isLatest = true;
                 versionEntity.labels = null;
                 versionEntity.name = null;
                 versionEntity.properties = null;
                 versionEntity.state = ArtifactState.ENABLED;
                 versionEntity.version = "1";
-                versionEntity.versionId = 1;
+                versionEntity.versionOrder = 1;
 
-                writer.writeEntity(versionEntity);
+                writer.importEntity(versionEntity);
             }
 
             zip.flush();
