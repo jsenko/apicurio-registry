@@ -2627,12 +2627,12 @@ public abstract class AbstractSqlRegistryStorage implements RegistryStorage {
                     orderByQuery.append(" ORDER BY g.groupId");
                     break;
                 case createdOn:
-                    orderByQuery.append(" ORDER BY g." + orderBy.name());
+                    orderByQuery.append(" ORDER BY g.").append(orderBy.name());
                     break;
                 default:
                     break;
             }
-            orderByQuery.append(orderDirection.name());
+            orderByQuery.append(" ").append(orderDirection.name());
 
             // Add limit and offset to artifact query
             limitOffset.append(" LIMIT ? OFFSET ?");

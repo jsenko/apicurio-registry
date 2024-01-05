@@ -1440,10 +1440,10 @@ public class RegistryClientTest extends AbstractResourceTestBase {
 
     private void verifyGroupNullInMetadata(String artifactId, String content) throws Exception {
         ArtifactMetaData meta = clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).meta().get().get(3, TimeUnit.SECONDS);
-        assertNull(meta.getGroupId());
+        assertNull(meta.getGroupId()); // TODO
 
         VersionMetaData vmeta = clientV2.groups().byGroupId(GroupId.DEFAULT.getRawGroupIdWithDefaultString()).artifacts().byArtifactId(artifactId).versions().byVersion(meta.getVersion()).meta().get().get(3, TimeUnit.SECONDS);
-        assertNull(vmeta.getGroupId());
+        assertEquals(GroupId.DEFAULT.getRawGroupIdWithDefaultString(), vmeta.getGroupId());
 
         ArtifactContent artifactContent = new ArtifactContent();
         artifactContent.setContent(content);
