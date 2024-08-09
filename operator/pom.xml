@@ -26,14 +26,14 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <awaitility.version>4.2.1</awaitility.version>
+    <awaitility.version>4.2.2</awaitility.version>
     <kubernetes-client-java-gen.version>6.13.1</kubernetes-client-java-gen.version>
     <assertj.core.version>3.26.3</assertj.core.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <!-- ATTENTION! The Quarkus version needs to be aligned with the Quarkus Operator SDK -->
     <!-- TODO: possibly stabilize on something shared with the rest of the repo -->
     <quarkus.version>3.4.2</quarkus.version>
-    <quarkus.operator.sdk.version>6.3.3</quarkus.operator.sdk.version>
+    <quarkus.operator.sdk.version>6.7.2</quarkus.operator.sdk.version>
     <quarkus.container-image.group>apicurio</quarkus.container-image.group>
   </properties>
 
