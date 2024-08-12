@@ -33,7 +33,7 @@ jobs:
   operator-build-test:
     name: Build and Test Operator
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'Apicurio' && !contains(github.event.*.labels.*.name, 'DO NOT MERGE')
+    if: github.repository_owner == 'jsenko' && !contains(github.event.*.labels.*.name, 'DO NOT MERGE')
     steps:
 
       - name: Checkout ${{ github.ref }}
@@ -51,7 +51,7 @@ jobs:
         with:
           minikube version: v1.33.1
           kubernetes version: v1.25.0
-          github token: ${{ secrets.GITHUB_TOKEN }}
+          github token: ${{ secrets.ACCESS_TOKEN }}
           start args: '--force'
 
       - name: Show Config
@@ -128,7 +128,7 @@ jobs:
           git init
           git config --global user.name "apicurio-ci"
           git config --global user.email "apicurio.ci@gmail.com"
-          git remote add origin "https://apicurio-ci:${{ secrets.ACCESS_TOKEN }}@github.com/Apicurio/apicurio-registry.git"
+          git remote add origin "https://jsenko:${{ secrets.ACCESS_TOKEN }}@github.com/jsenko/apicurio-registry.git"
           git fetch
           git checkout ${{ github.ref_name }}
           git branch --set-upstream-to=origin/${{ github.ref_name }}
