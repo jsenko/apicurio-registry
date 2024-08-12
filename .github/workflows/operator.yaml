@@ -4,6 +4,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/operator.yaml'
       - 'operator/api/**'
       - 'operator/deploy/**'
       - 'operator/dist-template/**'
@@ -16,6 +17,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/operator.yaml'
       - 'operator/api/**'
       - 'operator/deploy/**'
       - 'operator/dist-template/**'
