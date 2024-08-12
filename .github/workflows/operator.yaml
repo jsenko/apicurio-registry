@@ -36,6 +36,10 @@ jobs:
     if: github.repository_owner == 'jsenko' && !contains(github.event.*.labels.*.name, 'DO NOT MERGE')
     steps:
 
+      - name: Configure env. variables
+        run: |
+          echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> "$GITHUB_ENV"
+
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
 
@@ -71,6 +75,10 @@ jobs:
     needs: operator-build-test
     if: github.event_name == 'push'
     steps:
+
+      - name: Configure env. variables
+        run: |
+          echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> "$GITHUB_ENV"
 
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
@@ -120,6 +128,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: operator-publish
     steps:
+
+      - name: Configure env. variables
+        run: |
+          echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> "$GITHUB_ENV"
 
       - name: Checkout ${{ github.ref_name }}
         run: |
