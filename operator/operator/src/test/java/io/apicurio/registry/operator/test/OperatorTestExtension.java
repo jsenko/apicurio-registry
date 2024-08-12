@@ -39,6 +39,7 @@ public class OperatorTestExtension {
     @Getter
     private String namespace;
 
+    @Getter
     private KubernetesClient client;
 
     private final AtomicInteger nextLocalPort = new AtomicInteger(55001);
