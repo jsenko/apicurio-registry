@@ -81,9 +81,11 @@ class SmokeIT {
                 assertThat(res.statusCode()).isEqualTo(200);
             } catch (Exception ex) {
                 log.error(">>>>>>>>>>>>>>>>> Error", ex);
-                ext.getClient().apps().deployments().inNamespace(ext.getNamespace()).list().getItems().forEach(r -> {
-                    log.warn(">>>> Deployment: {}, Status: {}", r.getMetadata().getName(), r.getStatus());
-                });
+                ext.getClient().apps().deployments().inNamespace(ext.getNamespace()).list().getItems()
+                        .forEach(r -> {
+                            log.warn(">>>> Deployment: {}, Status: {}", r.getMetadata().getName(),
+                                    r.getStatus());
+                        });
                 ext.getClient().pods().inNamespace(ext.getNamespace()).list().getItems().forEach(r -> {
                     log.warn(">>>> Pod: {}, Status: {}", r.getMetadata().getName(), r.getStatus());
                 });
