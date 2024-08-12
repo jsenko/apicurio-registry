@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import static io.apicurio.registry.operator.resource.ResourceFactory.APP_CONTAINER_NAME;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Order.DEFAULT;
 
 @QuarkusTest
+@Order(DEFAULT)
 class EnvIT {
 
     private static final Logger log = LoggerFactory.getLogger(EnvIT.class);

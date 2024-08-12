@@ -60,6 +60,9 @@ jobs:
           github token: ${{ secrets.ACCESS_TOKEN }}
           start args: '--force'
 
+      - name: Start minikube tunnel
+        run: minikube tunnel &> /dev/null &
+
       - name: Show Config
         run: |
           cd operator
@@ -167,7 +170,7 @@ jobs:
         run: |
           cd registry
           git add operator/install/install.yaml || true
-          if ! git diff --cached --exit-code > /dev/null; then
+          if ! git diff --cached --exit-code &> /dev/null; then
             echo "Install file has changed!";
             git commit -m "ci: update operator install file"
             git push origin ${{ github.ref_name }}
