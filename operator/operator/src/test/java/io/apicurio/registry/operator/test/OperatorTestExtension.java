@@ -89,7 +89,7 @@ public class OperatorTestExtension {
             }
         });
         client.namespaces().withName(namespace).delete();
-        client.namespaces().withName(namespace).waitUntilCondition(Objects::isNull, WAIT_SECS, SECONDS);
+        client.namespaces().withName(namespace).waitUntilCondition(Objects::isNull, LONG_WAIT_SECS, SECONDS);
     }
 
     public <T extends HasMetadata> T create(T resource) {

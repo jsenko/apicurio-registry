@@ -68,7 +68,7 @@ jobs:
       - name: Build and Test on Minikube
         run: |
           cd operator
-          make build
+          make BUILD_OPTS="--no-transfer-progress" build
 
 
   operator-publish:
@@ -100,7 +100,7 @@ jobs:
       - name: Build
         run: |
           cd operator
-          make SKIP_TESTS=true build
+          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
 
       - name: Login to Quay.io Registry
         if: github.event_name == 'push'
@@ -156,7 +156,7 @@ jobs:
       - name: Build
         run: |
           cd registry/operator
-          make SKIP_TESTS=true build
+          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
 
       - name: Update Install File
         run: |
