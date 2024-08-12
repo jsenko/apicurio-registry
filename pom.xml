@@ -104,6 +104,10 @@
     <module>schema-util/xsd</module>
     <module>schema-util/util-provider</module>
 
+    <!-- Operator -->
+    <module>operator</module>
+    <module>operator/api</module>
+    <module>operator/operator</module>
   </modules>
 
   <scm>
@@ -127,6 +131,8 @@
     <maven.compiler.target>17</maven.compiler.target>
 
     <tar.long.file.mode>posix</tar.long.file.mode>
+
+    <projectRoot>${project.basedir}</projectRoot>
 
     <!-- UI Build Tools -->
     <node.version>16.17.0</node.version>
@@ -1040,12 +1046,13 @@
               <include>**/src/test/java/**/*.java</include>
             </includes>
             <eclipse>
-              <file>ide-config/eclipse-format.xml</file>
+              <file>${projectRoot}/ide-config/eclipse-format.xml</file>
             </eclipse>
             <importOrder>
-              <file>ide-config/eclipse.importorder</file>
+              <file>${projectRoot}/ide-config/eclipse.importorder</file>
             </importOrder>
             <removeUnusedImports/>
+            <toggleOffOn/>
           </java>
           <pom>
             <includes>
