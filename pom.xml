@@ -1051,7 +1051,9 @@
             <importOrder>
               <file>${projectRoot}/ide-config/eclipse.importorder</file>
             </importOrder>
-            <removeUnusedImports/>
+            <removeUnusedImports>
+              <engine>google-java-format</engine>
+            </removeUnusedImports>
             <toggleOffOn/>
           </java>
           <pom>
