@@ -49,55 +49,52 @@ jobs:
           echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-operator-catalog-$UUID:1d" >> $GITHUB_ENV
           echo "ADDITIONAL_CATALOG_IMAGE=" >> $GITHUB_ENV
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
-      - name: Checkout ${{ github.ref }}
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: temurin
-          cache: maven
-
-      - name: Enable port-forwarding
-        run: |
-          sudo apt-get -y install socat
-
-      - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.11.0
-        with:
-          minikube version: v1.33.1
-          kubernetes version: v1.25.0
-          github token: ${{ secrets.ACCESS_TOKEN }}
-          start args: '--force'
-
-      - name: Show config
-        run: |
-          cd operator
-          make config-show
-
-      - name: Build and test on Minikube # TODO tests
-        run: |
-          cd operator
-          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
-
-      - name: Build and publish temporary operator image
-        run: |
-          cd operator
-          make image-build image-push
-
-      - name: Build and publish temporary operator bundle
-        run: |
-          cd operator
-          make bundle          
-
-      - name: Build and publish temporary operator catalog
-        run: |
-          cd operator
-          make catalog 
+#      - name: Checkout ${{ github.ref }}
+#        uses: actions/checkout@v4
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: temurin
+#          cache: maven
+#
+#      - name: Enable port-forwarding
+#        run: |
+#          sudo apt-get -y install socat
+#
+#      - name: Setup Minikube
+#        uses: manusa/actions-setup-minikube@v2.11.0
+#        with:
+#          minikube version: v1.33.1
+#          kubernetes version: v1.25.0
+#          github token: ${{ secrets.ACCESS_TOKEN }}
+#          start args: '--force'
+#
+#      - name: Show config
+#        run: |
+#          cd operator
+#          make config-show
+#
+#      - name: Build and test on Minikube # TODO tests
+#        run: |
+#          cd operator
+#          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
+#
+#      - name: Build and publish temporary operator image
+#        run: |
+#          cd operator
+#          make image-build image-push
+#
+#      - name: Build and publish temporary operator bundle
+#        run: |
+#          cd operator
+#          make bundle
+#
+#      - name: Build and publish temporary operator catalog
+#        run: |
+#          cd operator
+#          make catalog
 
   operator-publish:
     name: Publish Operator
@@ -110,44 +107,44 @@ jobs:
         run: |
           echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> "$GITHUB_ENV"
 
-      - name: Checkout ${{ github.ref }}
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: temurin
-          cache: maven
-
-      - name: Show config
-        run: |
-          cd operator
-          make config-show
-
-      - name: Build
-        run: |
-          cd operator
-          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
-
-      - name: Login to quay.io registry
-        run: |
-          docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
-
-      - name: Build and publish operator image
-        run: |
-          cd operator
-          make image-build image-push
-
-      - name: Build and publish operator bundle # TODO: Push to DockerHub Registry
-        run: |
-          cd operator
-          make bundle          
-
-      - name: Build and publish operator catalog # TODO: Push to DockerHub Registry
-        run: |
-          cd operator
-          make catalog          
+#      - name: Checkout ${{ github.ref }}
+#        uses: actions/checkout@v4
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: temurin
+#          cache: maven
+#
+#      - name: Show config
+#        run: |
+#          cd operator
+#          make config-show
+#
+#      - name: Build
+#        run: |
+#          cd operator
+#          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
+#
+#      - name: Login to quay.io registry
+#        run: |
+#          docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
+#
+#      - name: Build and publish operator image
+#        run: |
+#          cd operator
+#          make image-build image-push
+#
+#      - name: Build and publish operator bundle # TODO: Push to DockerHub Registry
+#        run: |
+#          cd operator
+#          make bundle
+#
+#      - name: Build and publish operator catalog # TODO: Push to DockerHub Registry
+#        run: |
+#          cd operator
+#          make catalog
   
 
   operator-update-install-file:
@@ -175,7 +172,7 @@ jobs:
 
       - name: Show config
         run: |
-          cd operator
+          cd registry/operator
           make config-show
 
       - name: Build
