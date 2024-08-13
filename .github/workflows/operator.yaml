@@ -38,9 +38,12 @@ jobs:
     if: github.repository_owner == 'jsenko' && !contains(github.event.*.labels.*.name, 'DO NOT MERGE')
     steps:
 
-      - name: Configure env. variables
+      - name: Configure env. variables 1
         run: |
           echo "UUID=$(uuidgen)" >> $GITHUB_ENV
+
+      - name: Configure env. variables 2
+        run: |
           echo "IMAGE=ttl.sh/apicurio-registry-operator-$UUID:1h" >> $GITHUB_ENV
           echo "BUNDLE_IMAGE=ttl.sh/apicurio-registry-operator-bundle-$UUID:1h" >> $GITHUB_ENV
           echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-operator-catalog-$UUID:1h" >> $GITHUB_ENV
@@ -70,27 +73,27 @@ jobs:
           github token: ${{ secrets.ACCESS_TOKEN }}
           start args: '--force'
 
-      - name: Show Config
+      - name: Show config
         run: |
           cd operator
           make config-show
 
-      - name: Build and Test on Minikube
+      - name: Build and test on Minikube
         run: |
           cd operator
           make BUILD_OPTS="--no-transfer-progress" build
 
-      - name: Build and Publish Temporary Operator Image
+      - name: Build and publish temporary operator image
         run: |
           cd operator
           make image-build image-push
 
-      - name: Build and Publish Temporary Operator Bundle
+      - name: Build and publish temporary operator bundle
         run: |
           cd operator
           make bundle          
 
-      - name: Build and Publish Temporary Operator Catalog
+      - name: Build and publish temporary operator catalog
         run: |
           cd operator
           make catalog 
@@ -116,7 +119,7 @@ jobs:
           distribution: temurin
           cache: maven
 
-      - name: Show Config
+      - name: Show config
         run: |
           cd operator
           make config-show
@@ -126,21 +129,21 @@ jobs:
           cd operator
           make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
 
-      - name: Login to Quay.io Registry
+      - name: Login to quay.io registry
         run: |
           docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
 
-      - name: Build and Publish Operator Image
+      - name: Build and publish operator image
         run: |
           cd operator
           make image-build image-push
 
-      - name: Build and Publish Operator Bundle # TODO: Push to DockerHub Registry
+      - name: Build and publish operator bundle # TODO: Push to DockerHub Registry
         run: |
           cd operator
           make bundle          
 
-      - name: Build and Publish Operator Catalog # TODO: Push to DockerHub Registry
+      - name: Build and publish operator catalog # TODO: Push to DockerHub Registry
         run: |
           cd operator
           make catalog          
@@ -169,7 +172,7 @@ jobs:
           git branch --set-upstream-to=origin/${{ github.ref_name }}
           git pull
 
-      - name: Show Config
+      - name: Show config
         run: |
           cd operator
           make config-show
@@ -179,12 +182,12 @@ jobs:
           cd registry/operator
           make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
 
-      - name: Update Install File
+      - name: Update install file
         run: |
           cd registry/operator
           make INSTALL_FILE=install/install.yaml dist-install-file
 
-      - name: Commit and Push Install File
+      - name: Commit and push install file
         run: |
           cd registry
           git add operator/install/install.yaml || true
