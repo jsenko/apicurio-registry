@@ -39,6 +39,7 @@ public class OperatorTestExtension {
     @Getter
     private String namespace;
 
+    @Getter
     private KubernetesClient client;
 
     private final AtomicInteger nextLocalPort = new AtomicInteger(55001);
@@ -89,7 +90,7 @@ public class OperatorTestExtension {
             }
         });
         client.namespaces().withName(namespace).delete();
-        client.namespaces().withName(namespace).waitUntilCondition(Objects::isNull, WAIT_SECS, SECONDS);
+        client.namespaces().withName(namespace).waitUntilCondition(Objects::isNull, LONG_WAIT_SECS, SECONDS);
     }
 
     public <T extends HasMetadata> T create(T resource) {
