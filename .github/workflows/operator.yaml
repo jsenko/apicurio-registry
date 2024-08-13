@@ -40,10 +40,13 @@ jobs:
 
       - name: Configure env. variables
         run: |
-          echo "UUID=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+          echo "UUID=$(uuidgen)" >> $GITHUB_ENV
           echo "IMAGE=ttl.sh/apicurio-registry-operator-$UUID:1h" >> $GITHUB_ENV
           echo "BUNDLE_IMAGE=ttl.sh/apicurio-registry-operator-bundle-$UUID:1h" >> $GITHUB_ENV
           echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-operator-catalog-$UUID:1h" >> $GITHUB_ENV
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
