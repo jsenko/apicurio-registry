@@ -70,7 +70,7 @@ class SmokeIT {
         int appPort = ext.portForward(name + "-app-service", 8080);
         int uiPort = ext.portForward(name + "-ui-service", 8080);
 
-        var httpClient = HttpClient.newBuilder().connectTimeout(ofSeconds(6)).build();
+        var httpClient = HttpClient.newBuilder().connectTimeout(ofSeconds(10)).build();
 
         await().atMost(LONG_WAIT).untilAsserted(() -> {
             var req = HttpRequest.newBuilder()

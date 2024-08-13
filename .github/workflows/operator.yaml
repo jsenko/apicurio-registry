@@ -40,7 +40,10 @@ jobs:
 
       - name: Configure env. variables
         run: |
-          echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> "$GITHUB_ENV"
+          echo "UUID=$(cat /proc/sys/kernel/random/uuid)" >> $GITHUB_ENV
+          echo "IMAGE=ttl.sh/apicurio-registry-operator-$UUID:1h" >> $GITHUB_ENV
+          echo "BUNDLE_IMAGE=ttl.sh/apicurio-registry-operator-bundle-$UUID:1h" >> $GITHUB_ENV
+          echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-operator-catalog-$UUID:1h" >> $GITHUB_ENV
 
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
@@ -74,6 +77,20 @@ jobs:
           cd operator
           make BUILD_OPTS="--no-transfer-progress" build
 
+      - name: Build and Publish Temporary Operator Image
+        run: |
+          cd operator
+          make image-build image-push
+
+      - name: Build and Publish Temporary Operator Bundle
+        run: |
+          cd operator
+          make bundle          
+
+      - name: Build and Publish Temporary Operator Catalog
+        run: |
+          cd operator
+          make catalog 
 
   operator-publish:
     name: Publish Operator

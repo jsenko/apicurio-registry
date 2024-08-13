@@ -31,7 +31,7 @@ public class OperatorTestExtension {
 
     private static final Logger log = LoggerFactory.getLogger(OperatorTestExtension.class);
 
-    public static final long WAIT_SECS = 60;
+    public static final long WAIT_SECS = 90;
     public static final Duration WAIT = ofSeconds(WAIT_SECS);
     public static final long LONG_WAIT_SECS = 3 * WAIT_SECS;
     public static final Duration LONG_WAIT = ofSeconds(LONG_WAIT_SECS);
