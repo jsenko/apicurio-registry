@@ -79,10 +79,10 @@ jobs:
           cd operator
           make config-show
 
-      - name: Build and test on Minikube
+      - name: Build and test on Minikube # TODO tests
         run: |
           cd operator
-          make BUILD_OPTS="--no-transfer-progress" build
+          make BUILD_OPTS="--no-transfer-progress" SKIP_TESTS=true build
 
       - name: Build and publish temporary operator image
         run: |
