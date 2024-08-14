@@ -12,11 +12,14 @@ import io.apicurio.registry.operator.resource.postgresql.PostgresqlServiceResour
 import io.apicurio.registry.operator.resource.ui.UIDeploymentResource;
 import io.apicurio.registry.operator.resource.ui.UIIngressResource;
 import io.apicurio.registry.operator.resource.ui.UIServiceResource;
+import io.apicurio.registry.operator.state.impl.status.StatusConditionCache;
+import io.apicurio.registry.operator.utils.Cell;
 import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.api.reconciler.dependent.Dependent;
 import jakarta.inject.Inject;
 
 import static io.apicurio.registry.operator.resource.ResourceKey.*;
+import static io.apicurio.registry.operator.utils.ResourceUtils.duplicate;
 
 // spotless:off
 @ControllerConfiguration(
@@ -64,8 +67,8 @@ import static io.apicurio.registry.operator.resource.ResourceKey.*;
         }
 )
 // spotless:on
-public class ApicurioRegistryOperatorReconciler
-        implements Reconciler<ApicurioRegistry3>, Cleaner<ApicurioRegistry3> {
+public class ApicurioRegistryOperatorReconciler implements Reconciler<ApicurioRegistry3>,
+        ErrorStatusHandler<ApicurioRegistry3>, Cleaner<ApicurioRegistry3> {
 
     @Inject
     GlobalContext globalContext;
@@ -75,10 +78,10 @@ public class ApicurioRegistryOperatorReconciler
 
         return globalContext.reconcileReturn(REGISTRY_KEY, primary, context, (crContext, p) -> {
             UpdateControl<ApicurioRegistry3> uc;
-            if (crContext.isUpdatePrimary()) {
+            if (crContext.wasPrimaryUpdated()) {
                 // This should only happen rarely:
                 uc = UpdateControl.updateResourceAndPatchStatus(p);
-            } else if (crContext.isUpdateStatus()) {
+            } else if (crContext.wasStatusUpdated()) {
                 uc = UpdateControl.patchStatus(p);
             } else {
                 uc = UpdateControl.noUpdate();
@@ -88,6 +91,31 @@ public class ApicurioRegistryOperatorReconciler
             }
             return uc;
         });
+    }
+
+    @Override
+    public ErrorStatusUpdateControl<ApicurioRegistry3> updateErrorStatus(ApicurioRegistry3 primary,
+            Context<ApicurioRegistry3> context, Exception ex) {
+        final Cell<OperatorException> wrapped = Cell.of(null);
+        if (ex instanceof OperatorException) {
+            wrapped.setValue((OperatorException) ex);
+        } else {
+            wrapped.setValue(new OperatorException(ex));
+        }
+        return globalContext.withCRContextReturn(primary, context, (crContext -> {
+            var statusCache = crContext.requireState(StatusConditionCache.class);
+            statusCache.updateStatusCondition(crContext, wrapped.getValue().intoStatusConditionEntry());
+            if (statusCache.isChanged()) {
+                var p = duplicate(primary, ApicurioRegistry3.class);
+                p.getStatus().setConditions(statusCache.getConditions(crContext, false).getItem1());
+                // We're assuming that the JOSDK will reschedule automatically.
+                statusCache.afterReconciliation();
+                return ErrorStatusUpdateControl.patchStatus(p); // TODO: Patch status vs update status?
+            } else {
+                statusCache.afterReconciliation();
+                return ErrorStatusUpdateControl.noStatusUpdate();
+            }
+        }));
     }
 
     @Override

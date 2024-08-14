@@ -38,7 +38,7 @@ public class UIPodTemplateSpecAction extends AbstractBasicAction {
         crContext.withDesiredResource(UI_DEPLOYMENT_KEY, d -> {
             var base = d.getSpec().getTemplate();
             var spec = crContext.getPrimary().getSpec().getUi().getPodTemplate().edit().build();
-            process(spec, base, UI_CONTAINER_NAME);
+            process(crContext, UI_CONTAINER_NAME, spec, base);
             d.getSpec().setTemplate(spec);
         });
     }

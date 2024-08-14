@@ -2,6 +2,7 @@ package io.apicurio.registry.operator.api.v3.v1;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.fabric8.kubernetes.api.model.Condition;
 import io.javaoperatorsdk.operator.api.ObservedGenerationAwareStatus;
 import io.sundr.builder.annotations.Buildable;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,7 @@ import java.util.List;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Buildable(editableEnabled = false, builderPackage = "io.fabric8.kubernetes.api.builder")
-@JsonPropertyOrder({ "info", "conditions" })
+@JsonPropertyOrder({ "observedGeneration", "app", "ui", "conditions" })
 @JsonInclude(NON_NULL)
 @Getter
 @Setter
@@ -27,5 +28,12 @@ public class ApicurioRegistry3Status extends ObservedGenerationAwareStatus {
 
     private UIStatus ui;
 
-    private List<StatusConditions> conditions = new ArrayList<>();
+    private List<Condition> conditions = new ArrayList<>();
+
+    // TODO: How to handle observedGeneration in conditions?
+    @Override
+    public void setObservedGeneration(Long generation) {
+        super.setObservedGeneration(generation);
+        conditions.forEach(c -> c.setObservedGeneration(generation));
+    }
 }

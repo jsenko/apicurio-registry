@@ -1,5 +1,6 @@
 package io.apicurio.registry.operator.context;
 
+import io.apicurio.registry.exception.RuntimeAssertionFailedException;
 import io.apicurio.registry.operator.OperatorException;
 import io.apicurio.registry.operator.action.Action;
 import io.apicurio.registry.operator.api.v3.v1.ApicurioRegistry3;
@@ -49,14 +50,26 @@ public class CRContext {
     @Getter
     private Context<ApicurioRegistry3> context;
 
-    @Getter
-    private boolean updatePrimary;
+    // @Getter
+    // private boolean updatePrimary;
 
-    @Getter
-    private boolean updateStatus;
+    // @Getter
+    // private boolean updateStatus;
 
     @Getter
     private Duration reschedule;
+
+    public boolean wasStatusUpdated() {
+        var original = primary.getStatus();
+        var desired = getDesiredResource(REGISTRY_KEY).getStatus();
+        return !original.equals(desired); // TODO: Check if this is good enough
+    }
+
+    public boolean wasPrimaryUpdated() {
+        var original = primary.getSpec();
+        var desired = getDesiredResource(REGISTRY_KEY).getSpec();
+        return !original.equals(desired); // TODO: Check if this is good enough
+    }
 
     /**
      * Initialize a new (this) CR context. This includes:
@@ -178,15 +191,19 @@ public class CRContext {
      */
     public <R> void withDesiredResource(ResourceKey<R> key, Consumer<R> action) {
         action.accept(getDesiredResource(key));
-        if (REGISTRY_KEY.equals(key)) {
-            updatePrimary = true;
-        }
+        // if (REGISTRY_KEY.equals(key)) {
+        // updatePrimary = true;
+        // }
     }
 
     /**
      * Request to reschedule the reconciliation loop with the given timeout.
      */
-    public void rescheduleSeconds(int seconds) {
+    public void rescheduleSeconds(long seconds) {
+        if (seconds <= 0) {
+            throw new RuntimeAssertionFailedException(
+                    "Request to reschedule (in seconds) cannot be less than zero.");
+        }
         var d = Duration.ofSeconds(seconds);
         if (reschedule == null || reschedule.compareTo(d) > 0) {
             reschedule = d;
@@ -202,8 +219,8 @@ public class CRContext {
 
     void reset() {
         primary = null;
-        updatePrimary = false;
-        updateStatus = false;
+        // updatePrimary = false;
+        // updateStatus = false;
         desired.clear();
         reschedule = null;
     }

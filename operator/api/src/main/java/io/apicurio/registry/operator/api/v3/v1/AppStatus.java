@@ -16,6 +16,4 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @EqualsAndHashCode
 @ToString
 public class AppStatus {
-
-    private String host;
 }

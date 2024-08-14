@@ -45,7 +45,7 @@ public class GlobalContext {
                 .collect(Collectors.toList()); // TODO: Cache?
     }
 
-    private <T> T withCRContextReturn(ApicurioRegistry3 primary, Context<ApicurioRegistry3> context,
+    public <T> T withCRContextReturn(ApicurioRegistry3 primary, Context<ApicurioRegistry3> context,
             Function<CRContext, T> run) {
         var crContext = crContextMap.computeIfAbsent(ResourceID.fromResource(primary), k -> new CRContext());
         try {

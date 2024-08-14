@@ -240,7 +240,7 @@ install-kind: ## Install kind v0.23.0
 
 
 .PHONY: build
-build: ## TODO
+build: format ## TODO
 	mvn clean install $(BUILD_OPTS)
 
 

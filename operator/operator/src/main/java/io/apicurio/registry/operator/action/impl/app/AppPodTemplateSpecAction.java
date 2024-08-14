@@ -38,7 +38,7 @@ public class AppPodTemplateSpecAction extends AbstractBasicAction {
         crContext.withDesiredResource(APP_DEPLOYMENT_KEY, d -> {
             var base = d.getSpec().getTemplate();
             var spec = crContext.getPrimary().getSpec().getApp().getPodTemplate().edit().build();
-            process(spec, base, APP_CONTAINER_NAME);
+            process(crContext, APP_CONTAINER_NAME, spec, base);
             d.getSpec().setTemplate(spec);
         });
     }
