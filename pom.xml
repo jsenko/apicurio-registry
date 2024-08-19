@@ -80,10 +80,18 @@
     <module>utils/protobuf-schema-utilities</module>
     <module>utils/tests</module>
     <module>schema-resolver</module>
+
     <module>serdes/serde-common</module>
     <module>serdes/avro-serde</module>
     <module>serdes/protobuf-serde</module>
     <module>serdes/jsonschema-serde</module>
+
+    <module>serdes2/generic-serdes</module>
+    <module>serdes2/avro-serdes</module>
+    <module>serdes2/json-serdes</module>
+    <module>serdes2/kafka-serdes-platform</module>
+    <module>serdes2/nats-serdes-platform</module>
+
     <module>distro</module>
     <module>docs</module>
     <module>java-sdk</module>
@@ -745,8 +753,18 @@
 
     </dependencies>
   </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-schema-resolver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-serde-common</artifactId>
+        </dependency>
+    </dependencies>
 
-  <build>
+    <build>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -1049,6 +1067,7 @@
               <file>${projectRoot}/ide-config/eclipse.importorder</file>
             </importOrder>
             <removeUnusedImports/>
+            <toggleOffOn />
           </java>
           <pom>
             <includes>

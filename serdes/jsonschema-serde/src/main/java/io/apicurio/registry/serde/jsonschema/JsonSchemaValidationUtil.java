@@ -19,7 +19,7 @@ public class JsonSchemaValidationUtil {
      * @param mapper the object mapper to be used to read the data.
      * @throws IOException In case of validation errors, a IO exception is thrown.
      */
-    protected static void validateDataWithSchema(ParsedSchema<JsonSchema> schema, byte[] data,
+    public static void validateDataWithSchema(ParsedSchema<JsonSchema> schema, byte[] data,
             ObjectMapper mapper) throws IOException {
         final Set<ValidationMessage> validationMessages = schema.getParsedSchema()
                 .validate(mapper.readTree(data));
