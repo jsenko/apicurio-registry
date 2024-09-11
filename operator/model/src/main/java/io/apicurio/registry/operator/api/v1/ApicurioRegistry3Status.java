@@ -1,6 +1,7 @@
 package io.apicurio.registry.operator.api.v1;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -16,7 +17,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({ "conditions", "info" })
 @JsonDeserialize(using = JsonDeserializer.None.class)
 @Getter
