@@ -135,24 +135,24 @@
     <node.version>16.17.0</node.version>
 
     <!-- Quarkus Version -->
-    <quarkus.version>3.11.1</quarkus.version>
+    <quarkus.version>3.14.3</quarkus.version>
 
     <!-- Jandex -->
-    <jandex.version>3.1.8</jandex.version>
+    <jandex.version>3.2.2</jandex.version>
 
     <!-- Schema types -->
     <avro.version>1.12.0</avro.version>
     <json-schema-validator.version>1.5.1</json-schema-validator.version>
-    <wire-schema.version>4.9.9</wire-schema.version>
+    <wire-schema.version>5.1.0</wire-schema.version>
     <okhttp.version>4.12.0</okhttp.version>
-    <wire-compiler.version>4.9.9</wire-compiler.version>
+    <wire-compiler.version>5.1.0</wire-compiler.version>
     <okio-jvm.version>3.9.0</okio-jvm.version>
     <okio.version>3.9.0</okio.version>
     <okio-fake-file-system.version>3.9.0</okio-fake-file-system.version>
     <icu4j.version>75.1</icu4j.version>
-    <protobuf.version>3.19.6</protobuf.version>
+    <protobuf.version>4.28.1</protobuf.version>
     <xmlsec.version>4.0.2</xmlsec.version>
-    <protobuf.googleapi.types.version>2.43.0</protobuf.googleapi.types.version>
+    <protobuf.googleapi.types.version>2.44.0</protobuf.googleapi.types.version>
     <wsdl4j.version>1.6.3</wsdl4j.version>
     <google.truth.extension.version>1.4.4</google.truth.extension.version>
 
@@ -160,7 +160,7 @@
     <picocli.version>4.6.3</picocli.version>
 
     <!-- Confluent API / client -->
-    <confluent.version>7.6.2</confluent.version>
+    <confluent.version>7.7.0</confluent.version>
 
     <!-- Default Quarkus configuration profile -->
     <quarkus.profile>dev</quarkus.profile>
@@ -185,7 +185,7 @@
     <!-- TODO unification -->
     <org.json.version>20240303</org.json.version>
     <jackson-datatype-json-org.version>2.17.2</jackson-datatype-json-org.version>
-    <jackson-dataformat-yaml.version>2.15.2</jackson-dataformat-yaml.version>
+    <jackson-dataformat-yaml.version>2.17.2</jackson-dataformat-yaml.version>
 
     <!-- Dependency versions -->
     <lombok.version>1.18.34</lombok.version>
@@ -204,7 +204,7 @@
     <semver4j.version>5.3.0</semver4j.version>
 
     <!-- Kafka Connect -->
-    <connect.version>3.7.0</connect.version>
+    <connect.version>7.7.0-ce</connect.version>
 
     <!-- Specifications -->
     <annotation-api.version>1.3.5</annotation-api.version>
@@ -231,7 +231,7 @@
     <version.spotless>2.43.0</version.spotless>
 
     <!-- Plugin Deps -->
-    <version.puppycrawl>8.45.1</version.puppycrawl>
+    <version.puppycrawl>10.18.1</version.puppycrawl>
 
     <!-- Protocol Buffers -->
     <proto-plugin.version>0.6.1</proto-plugin.version>
@@ -239,7 +239,7 @@
 
     <!-- Test containers version, should be aligned with version used in Quarkus -->
     <test-containers.version>1.19.7</test-containers.version>
-    <keycloak.testcontainers.version>1.9.0</keycloak.testcontainers.version>
+    <keycloak.testcontainers.version>2.1.1</keycloak.testcontainers.version>
     <keycloak-admin-client.version>21.1.2</keycloak-admin-client.version>
     <embedded-postgres.version>2.0.7</embedded-postgres.version>
     <strimzi.version>0.105.0</strimzi.version>
