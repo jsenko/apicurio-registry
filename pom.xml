@@ -141,7 +141,7 @@
     <node.version>16.17.0</node.version>
 
     <!-- Quarkus Version -->
-    <quarkus.version>3.11.1</quarkus.version>
+    <quarkus.version>3.15.0</quarkus.version>
 
     <!-- Jandex -->
     <jandex.version>3.1.8</jandex.version>
@@ -254,7 +254,7 @@
 
     <!-- Test containers version, should be aligned with version used in Quarkus -->
     <test-containers.version>1.20.1</test-containers.version>
-    <keycloak.testcontainers.version>1.9.0</keycloak.testcontainers.version>
+    <keycloak.testcontainers.version>2.1.1</keycloak.testcontainers.version>
     <keycloak-admin-client.version>21.1.2</keycloak-admin-client.version>
     <embedded-postgres.version>2.0.7</embedded-postgres.version>
     <strimzi.version>0.105.0</strimzi.version>
