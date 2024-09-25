@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
+import static io.apicurio.registry.operator.Mapper.toYAML;
 import static io.apicurio.registry.operator.resource.ResourceFactory.COMPONENT_UI;
 import static io.apicurio.registry.operator.resource.ResourceKey.*;
 
@@ -57,6 +58,8 @@ public class UIDeploymentResource extends CRUDKubernetesDependentResource<Deploy
         });
 
         d.getSpec().getTemplate().getSpec().getContainers().get(0).setEnv(uiEnv);
+
+        log.debug("Desired {} is {}", UI_DEPLOYMENT_KEY.getId(), toYAML(d));
 
         return d;
     }

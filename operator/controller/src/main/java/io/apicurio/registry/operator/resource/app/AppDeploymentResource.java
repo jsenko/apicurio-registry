@@ -6,10 +6,13 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.CRUDKubernetesDependentResource;
 import io.javaoperatorsdk.operator.processing.dependent.kubernetes.KubernetesDependent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.apicurio.registry.operator.Mapper.toYAML;
 import static io.apicurio.registry.operator.resource.ResourceFactory.COMPONENT_APP;
 import static io.apicurio.registry.operator.resource.ResourceKey.APP_DEPLOYMENT_KEY;
 import static io.apicurio.registry.operator.resource.ResourceKey.POSTGRESQL_SERVICE_KEY;
@@ -17,6 +20,8 @@ import static io.apicurio.registry.operator.resource.ResourceKey.POSTGRESQL_SERV
 @KubernetesDependent(labelSelector = "app.kubernetes.io/name=apicurio-registry,app.kubernetes.io/component="
         + COMPONENT_APP, resourceDiscriminator = AppDeploymentDiscriminator.class)
 public class AppDeploymentResource extends CRUDKubernetesDependentResource<Deployment, ApicurioRegistry3> {
+
+    private static final Logger log = LoggerFactory.getLogger(AppDeploymentResource.class);
 
     public AppDeploymentResource() {
         super(Deployment.class);
@@ -53,10 +58,13 @@ public class AppDeploymentResource extends CRUDKubernetesDependentResource<Deplo
                             "jdbc:postgresql://%s.%s.svc.cluster.local:5432/apicurio-registry"
                                     .formatted(s.getMetadata().getName(), s.getMetadata().getNamespace())
                     ).build()));
-                    // spotless:on
+            // spotless:on
         });
 
         d.getSpec().getTemplate().getSpec().getContainers().get(0).setEnv(appEnv);
+
+        log.debug("Desired {} is {}", APP_DEPLOYMENT_KEY.getId(), toYAML(d));
+
         return d;
     }
 }

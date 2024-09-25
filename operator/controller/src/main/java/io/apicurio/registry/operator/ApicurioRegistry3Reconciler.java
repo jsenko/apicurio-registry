@@ -93,10 +93,10 @@ public class ApicurioRegistry3Reconciler implements Reconciler<ApicurioRegistry3
         return context
                 .getSecondaryResource(APP_DEPLOYMENT_KEY.getKlass(), APP_DEPLOYMENT_KEY.getDiscriminator())
                 .map(deployment -> {
-                    log.info("Updating Apicurio Registry status");
                     primary.setStatus(statusUpdater.next(deployment));
 
                     if (clusterInfo.getCanonicalHost().isUnknown()) {
+                        log.debug("Updating Apicurio Registry status: {}", primary.getStatus());
                         return UpdateControl.patchStatus(primary).rescheduleAfter(Duration.ofSeconds(10));
                     } else {
                         if (primary.getStatus().getInfo() == null) {
@@ -104,6 +104,7 @@ public class ApicurioRegistry3Reconciler implements Reconciler<ApicurioRegistry3
                         }
                         primary.getStatus().getInfo().setAppHost(hostUtil.getHost(COMPONENT_APP, primary));
                         primary.getStatus().getInfo().setUiHost(hostUtil.getHost(COMPONENT_UI, primary));
+                        log.debug("Updating Apicurio Registry status: {}", primary.getStatus());
                         return UpdateControl.patchStatus(primary);
                     }
 

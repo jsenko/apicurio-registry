@@ -18,6 +18,7 @@ import io.fabric8.generator.annotation.Required;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
@@ -26,6 +27,7 @@ import java.time.Instant;
 @JsonDeserialize(using = None.class)
 @Getter
 @Setter
+@ToString
 public class Conditions implements KubernetesResource {
 
     /**

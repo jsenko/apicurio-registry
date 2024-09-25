@@ -14,6 +14,7 @@ import io.apicurio.registry.operator.api.v1.status.Info;
 import io.javaoperatorsdk.operator.api.ObservedGenerationAwareStatus;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 @JsonDeserialize(using = JsonDeserializer.None.class)
 @Getter
 @Setter
+@ToString
 public class ApicurioRegistry3Status extends ObservedGenerationAwareStatus {
 
     /**
