@@ -21,7 +21,7 @@
     "@types/react-dom": "18.3.0",
     "@typescript-eslint/eslint-plugin": "7.13.1",
     "@typescript-eslint/parser": "7.13.1",
-    "@vitejs/plugin-react-swc": "3.7.0",
+    "@vitejs/plugin-react-swc": "3.7.1",
     "eslint": "8.57.0",
     "eslint-plugin-react-hooks": "4.6.2",
     "eslint-plugin-react-refresh": "0.4.7",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@apicurio/common-ui-components": "2.0.4",
     "@apicurio/apicurio-registry-sdk": "file:../../typescript-sdk",
-    "@apicurio/data-models": "1.1.27",
+    "@apicurio/data-models": "2.1.0",
     "@microsoft/kiota-abstractions": "1.0.0-preview.66",
     "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.65",
     "@microsoft/kiota-serialization-form": "1.0.0-preview.54",
