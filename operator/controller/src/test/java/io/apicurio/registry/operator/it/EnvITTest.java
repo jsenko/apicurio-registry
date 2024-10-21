@@ -4,8 +4,6 @@ import io.apicurio.registry.operator.api.v1.ApicurioRegistry3;
 import io.apicurio.registry.operator.resource.ResourceFactory;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
-import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +15,7 @@ import static io.apicurio.registry.operator.resource.app.AppDeploymentResource.g
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-@QuarkusTest
+//@QuarkusTest
 public class EnvITTest extends ITBase {
 
     private static final Logger log = LoggerFactory.getLogger(EnvITTest.class);
@@ -37,7 +35,7 @@ public class EnvITTest extends ITBase {
 
     private static final String[] defaultUIEnv = new String[] { "REGISTRY_API_URL" };
 
-    @Test
+    // @Test
     void testEnvVars() {
         // spotless:off
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",

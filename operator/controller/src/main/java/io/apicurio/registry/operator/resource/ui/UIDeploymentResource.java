@@ -48,13 +48,16 @@ public class UIDeploymentResource extends CRUDKubernetesDependentResource<Deploy
         var sOpt = context.getSecondaryResource(APP_SERVICE_KEY.getKlass(),
                 APP_SERVICE_KEY.getDiscriminator());
         sOpt.ifPresent(s -> {
+            // var ingressDisabled = isBlank(primary.getSpec().getApp().getHost());
+            // if (!ingressDisabled) {
             var iOpt = context.getSecondaryResource(APP_INGRESS_KEY.getKlass(),
                     APP_INGRESS_KEY.getDiscriminator());
             iOpt.ifPresent(i -> withIngressRule(s, i, rule -> {
                 // spotless:off
-                addEnvVar(envVars, new EnvVarBuilder().withName("REGISTRY_API_URL").withValue("http://%s/apis/registry/v3".formatted(rule.getHost())).build());
-                // spotless:on
+                    addEnvVar(envVars, new EnvVarBuilder().withName("REGISTRY_API_URL").withValue("http://%s/apis/registry/v3".formatted(rule.getHost())).build());
+                    // spotless:on
             }));
+            // }
         });
 
         var container = getContainer(d, UI_CONTAINER_NAME);
