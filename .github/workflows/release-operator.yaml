@@ -1,0 +1,167 @@
+name: Release Operator
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag name'
+        required: true
+  release:
+    types: [released, prereleased]
+
+
+env:
+  # The values are extracted from the github.event context,
+  # which is only available when the workflow gets triggered by a release event.
+  RELEASE_VERSION: ${{ github.event.release.name }}
+  BRANCH: ${{ github.event.release.target_commitish }}
+
+
+jobs:
+  release-operator:
+    if: github.repository_owner == 'jsenko' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, '3.'))
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      RELEASE_TYPE: release
+    steps:
+
+      - name: Fetch Release Details
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          touch release.json && curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${{ github.event.inputs.tag }} > release.json
+          echo "RELEASE_VERSION=$(cat release.json | jq -r '.name')" >> $GITHUB_ENV
+          echo "BRANCH=$(cat release.json | jq -r '.target_commitish')" >> $GITHUB_ENV
+
+      - name: Download Source Code
+        run: |
+          git config --global user.name "apicurio-ci"
+          git config --global user.email "apicurio.ci@gmail.com"
+          git clone https://jsenko:${{ secrets.ACCESS_TOKEN }}@github.com/jsenko/apicurio-registry.git registry
+          git checkout $RELEASE_VERSION 
+
+      # We have faced issues in the past where a github release was created from a wrong commit
+      # This step will ensure that the release was created from the right commit  
+      - name: Verify Project Version
+        working-directory: registry
+        run: |
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          if [[ $PROJECT_VERSION != $RELEASE_VERSION ]]
+          then
+              echo "ERROR: Project Version '${PROJECT_VERSION}' does not match with Released Version '${RELEASE_VERSION}'"
+              exit 1	  
+          fi
+
+      # TODO: Operand images must exist
+      - name: Configure env. variables
+        run: |
+          echo "IMAGE_REGISTRY=quay.io/jsenkorh" >> $GITHUB_ENV # TODO
+          echo "OPERAND_IMAGE_TAG=$RELEASE_VERSION" >> $GITHUB_ENV          
+          echo "ADDITIONAL_CATALOG_IMAGE=" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$(make get-version)" >> "$GITHUB_ENV"
+          # echo "GH_TOKEN=${{ secrets.ACCESS_TOKEN }}" >> "$GITHUB_ENV"
+          echo "RELEASE_BRANCH=release-$RELEASE_VERSION" >> "$GITHUB_ENV"
+
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+
+
+      - name: Build the operator
+        working-directory: registry/operator
+        run: |
+          make SKIP_TESTS=true build
+
+      - name: Login to Quay.io Registry
+        run: docker login -u "${{ secrets.QUAY_USERNAME }}" -p "${{ secrets.QUAY_PASSWORD }}" quay.io
+
+      - name: Build and push operator image
+        working-directory: registry/operator
+        run: |
+          make image-build image-push
+
+      - name: Build operator bundle
+        working-directory: registry/operator
+        run: |
+          make bundle-build
+
+      # We need to do this in the initial release step, and also later for the snapshot
+#      - name: Update install file
+#        working-directory: registry/operator
+#        run: |
+#          make INSTALL_FILE=install/install.yaml dist-install-file
+#          cp install/install.yaml "install/install-$RELEASE_VERSION.yaml"
+#          git add install/*
+#          git commit -m "ci(operator): update operator install file"
+
+
+      - name: Checkout the Community Operators repository
+        run: |
+          mkdir community-operators
+          cd community-operators
+          git init
+          git remote add origin https://github.com/k8s-operatorhub/community-operators.git          
+          git remote add source "https://jsenko:${{ secrets.ACCESS_TOKEN }}@github.com/jsenko/community-operators.git"
+          git fetch
+          git checkout --track origin/main
+          git push -f source main
+
+      - name: Create the Community Operators PR
+        working-directory: community-operators
+        run: |
+          git checkout -b "$RELEASE_BRANCH"
+          TITLE="Release Apicurio Registry Operator $PACKAGE_VERSION"
+          BODY=$(curl -s https://raw.githubusercontent.com/k8s-operatorhub/community-operators/main/docs/pull_request_template.md)
+          mkdir operators/apicurio-registry-3 # TODO: Remove after the first release
+          echo -e "---\nupdateGraph: replaces-mode\nreviewers:\n  - apicurio-ci\n  - jsenko\n  - EricWittmann" > operators/apicurio-registry-3/ci.yaml # TODO: Remove after the first release
+          cp -r "../registry/operator/target/bundle/apicurio-registry-3/$PACKAGE_VERSION" operators/apicurio-registry-3
+          git add .
+          git commit -s -m "$TITLE"
+          git push -f source "$RELEASE_BRANCH"
+          # gh repo set-default k8s-operatorhub/community-operators
+          gh repo set-default jsenko/community-operators
+          # GitHub user ID must be used, the "-u" workaround did not work:
+          gh pr create --title "$TITLE" --body "$BODY" --base main --head "jsenko:$RELEASE_BRANCH" 
+
+      - name: Checkout the Openshift Community Operators repository
+        run: |
+          mkdir openshift-community-operators
+          cd openshift-community-operators
+          git init
+          git config user.name "Jakub Senko"
+          git config user.email m@jsenko.net          
+          git remote add origin https://github.com/redhat-openshift-ecosystem/community-operators-prod.git
+          git remote add source "https://jsenko:${{ secrets.JSENKO_ACCESS_TOKEN }}@github.com/jsenko/community-operators-prod.git"
+          git fetch
+          git checkout --track origin/main
+          git push -f source main
+
+      - name: Create the Openshift Community Operators PR
+        working-directory: openshift-community-operators
+        run: |
+          git checkout -b "$RELEASE_BRANCH"
+          TITLE="Release Apicurio Registry Operator $PACKAGE_VERSION"
+          BODY=$(curl -s https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/docs/pull_request_template.md)
+          mkdir operators/apicurio-registry-3 # TODO: Remove after the first release
+          echo -e "---\nupdateGraph: replaces-mode\nreviewers:\n  - apicurio-ci\n  - jsenko\n  - EricWittmann" > operators/apicurio-registry-3/ci.yaml # TODO: Remove after the first release
+          cp -r "../registry/operator/target/bundle/apicurio-registry-3/$PACKAGE_VERSION" operators/apicurio-registry-3
+          git add .
+          git commit -s -m "$TITLE"
+          git push -f source "$RELEASE_BRANCH"
+          # gh repo set-default redhat-openshift-ecosystem/community-operators-prod
+          gh repo set-default jsenko/community-operators-prod
+          # GitHub user ID must be used, the "-u" workaround did not work:
+          gh pr create --title "$TITLE" --body "$BODY" --base main --head "jsenko:$RELEASE_BRANCH"
+
+      - name: Record release config
+        working-directory: registry/operator
+        run: |
+          git reset --hard
+          git checkout $BRANCH
+          make release-update-makefile
+          git add Makefile
+          git commit -m "ci(operator): record release config"
+          git push $BRANCH

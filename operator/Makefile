@@ -25,6 +25,7 @@ IMAGE_TAG ?= $(LC_VERSION)
 IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 ADDITIONAL_IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(ADDITIONAL_IMAGE_TAG)
 
+OPERAND_IMAGE_TAG ?= latest-snapshot
 REGISTRY_APP_IMAGE ?= quay.io/apicurio/apicurio-registry:latest-snapshot
 REGISTRY_UI_IMAGE ?= quay.io/apicurio/apicurio-registry-ui:latest-snapshot
 STUDIO_UI_IMAGE ?= quay.io/apicurio/apicurio-studio-ui:latest-snapshot
@@ -35,9 +36,9 @@ NAMESPACE ?= default
 
 PACKAGE_NAME ?= apicurio-registry-3
 PACKAGE ?= $(PACKAGE_NAME).v$(LC_VERSION)
-# TODO Replaces:
-# PREVIOUS_PACKAGE_VERSION =
-# REPLACES = $(PACKAGE_NAME).v$(PREVIOUS_PACKAGE_VERSION)
+# TODO Replaces
+PREVIOUS_PACKAGE_VERSION ?=
+REPLACES ?= $(PACKAGE_NAME).v$(PREVIOUS_PACKAGE_VERSION)
 
 CHANNELS ?= 3.x
 DEFAULT_CHANNEL ?= $(CHANNELS)
@@ -513,3 +514,11 @@ catalog-subscription-undeploy: ## TODO
 .PHONY: dev
 dev:
 	mvn quarkus:dev
+
+.PHONY: release-update-makefile
+release-update-makefile:
+	sed -i 's/^\( *PREVIOUS_PACKAGE_VERSION *= *\)\([^ ]*\)\(.*\)$$/\1$(PACKAGE_VERSION)\3/g' Makefile
+
+.PHONY: get-version
+get-version:
+	@echo $(LC_VERSION)
