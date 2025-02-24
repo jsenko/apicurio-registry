@@ -515,10 +515,12 @@ catalog-subscription-undeploy: ## TODO
 dev:
 	mvn quarkus:dev
 
+
 .PHONY: release-update-makefile
 release-update-makefile:
 	sed -i 's/^\( *PREVIOUS_PACKAGE_VERSION *= *\)\([^ ]*\)\(.*\)$$/\1$(PACKAGE_VERSION)\3/g' Makefile
 
-.PHONY: get-version
-get-version:
+
+.PHONY: get-package-version
+get-package-version:
 	@echo $(LC_VERSION)
