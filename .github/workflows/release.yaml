@@ -95,6 +95,10 @@ jobs:
 #        run: |
 #          cd registry
 #          ./mvnw clean package --no-transfer-progress -Pprod -DskipTests=true -DskipCommitIdPlugin=false -Dmaven.wagon.httpconnectionManager.maxTotal=30 -Dmaven.wagon.http.retryHandler.count=5
+      - name: TODO Build just the operator (to make the run faster)
+        working-directory: registry/operator
+        run: |
+          make SKIP_TESTS=true build
 
       - name: Build Registry UI
         working-directory: registry/ui
