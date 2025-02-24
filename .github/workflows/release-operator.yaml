@@ -38,7 +38,8 @@ jobs:
           git config --global user.name "apicurio-ci"
           git config --global user.email "apicurio.ci@gmail.com"
           git clone https://jsenko:${{ secrets.ACCESS_TOKEN }}@github.com/jsenko/apicurio-registry.git registry
-          git checkout $RELEASE_VERSION 
+          cd registry
+          git checkout "$RELEASE_VERSION"
 
       # We have faced issues in the past where a github release was created from a wrong commit
       # This step will ensure that the release was created from the right commit  
