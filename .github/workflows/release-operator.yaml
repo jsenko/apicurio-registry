@@ -18,7 +18,8 @@ env:
 
 jobs:
   release-operator:
-    if: github.repository_owner == 'jsenko' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, '3.'))
+    # TODO vvv
+    if: github.repository_owner == 'jsenko' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, '0.'))
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
@@ -60,7 +61,7 @@ jobs:
           echo "PACKAGE_VERSION=$(make get-version)" >> "$GITHUB_ENV"
           # echo "GH_TOKEN=${{ secrets.ACCESS_TOKEN }}" >> "$GITHUB_ENV"
           echo "RELEASE_BRANCH=release-$RELEASE_VERSION" >> "$GITHUB_ENV"
-
+          cat "$GITHUB_ENV" # TODO
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -68,7 +69,6 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: maven
-
 
       - name: Build the operator
         working-directory: registry/operator
@@ -126,35 +126,35 @@ jobs:
           # GitHub user ID must be used, the "-u" workaround did not work:
           gh pr create --title "$TITLE" --body "$BODY" --base main --head "jsenko:$RELEASE_BRANCH" 
 
-      - name: Checkout the Openshift Community Operators repository
-        run: |
-          mkdir openshift-community-operators
-          cd openshift-community-operators
-          git init
-          git config user.name "Jakub Senko"
-          git config user.email m@jsenko.net          
-          git remote add origin https://github.com/redhat-openshift-ecosystem/community-operators-prod.git
-          git remote add source "https://jsenko:${{ secrets.JSENKO_ACCESS_TOKEN }}@github.com/jsenko/community-operators-prod.git"
-          git fetch
-          git checkout --track origin/main
-          git push -f source main
-
-      - name: Create the Openshift Community Operators PR
-        working-directory: openshift-community-operators
-        run: |
-          git checkout -b "$RELEASE_BRANCH"
-          TITLE="Release Apicurio Registry Operator $PACKAGE_VERSION"
-          BODY=$(curl -s https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/docs/pull_request_template.md)
-          mkdir operators/apicurio-registry-3 # TODO: Remove after the first release
-          echo -e "---\nupdateGraph: replaces-mode\nreviewers:\n  - apicurio-ci\n  - jsenko\n  - EricWittmann" > operators/apicurio-registry-3/ci.yaml # TODO: Remove after the first release
-          cp -r "../registry/operator/target/bundle/apicurio-registry-3/$PACKAGE_VERSION" operators/apicurio-registry-3
-          git add .
-          git commit -s -m "$TITLE"
-          git push -f source "$RELEASE_BRANCH"
-          # gh repo set-default redhat-openshift-ecosystem/community-operators-prod
-          gh repo set-default jsenko/community-operators-prod
-          # GitHub user ID must be used, the "-u" workaround did not work:
-          gh pr create --title "$TITLE" --body "$BODY" --base main --head "jsenko:$RELEASE_BRANCH"
+#      - name: Checkout the Openshift Community Operators repository
+#        run: |
+#          mkdir openshift-community-operators
+#          cd openshift-community-operators
+#          git init
+#          git config user.name "Jakub Senko"
+#          git config user.email m@jsenko.net
+#          git remote add origin https://github.com/redhat-openshift-ecosystem/community-operators-prod.git
+#          git remote add source "https://jsenko:${{ secrets.JSENKO_ACCESS_TOKEN }}@github.com/jsenko/community-operators-prod.git"
+#          git fetch
+#          git checkout --track origin/main
+#          git push -f source main
+#
+#      - name: Create the Openshift Community Operators PR
+#        working-directory: openshift-community-operators
+#        run: |
+#          git checkout -b "$RELEASE_BRANCH"
+#          TITLE="Release Apicurio Registry Operator $PACKAGE_VERSION"
+#          BODY=$(curl -s https://raw.githubusercontent.com/redhat-openshift-ecosystem/community-operators-prod/main/docs/pull_request_template.md)
+#          mkdir operators/apicurio-registry-3 # TODO: Remove after the first release
+#          echo -e "---\nupdateGraph: replaces-mode\nreviewers:\n  - apicurio-ci\n  - jsenko\n  - EricWittmann" > operators/apicurio-registry-3/ci.yaml # TODO: Remove after the first release
+#          cp -r "../registry/operator/target/bundle/apicurio-registry-3/$PACKAGE_VERSION" operators/apicurio-registry-3
+#          git add .
+#          git commit -s -m "$TITLE"
+#          git push -f source "$RELEASE_BRANCH"
+#          # gh repo set-default redhat-openshift-ecosystem/community-operators-prod
+#          gh repo set-default jsenko/community-operators-prod
+#          # GitHub user ID must be used, the "-u" workaround did not work:
+#          gh pr create --title "$TITLE" --body "$BODY" --base main --head "jsenko:$RELEASE_BRANCH"
 
       - name: Record release config
         working-directory: registry/operator
