@@ -165,3 +165,8 @@ jobs:
           git add Makefile
           git commit -m "ci(operator): record release config"
           git push $BRANCH
+
+      - name: Setup tmate session on failure
+        if: failure() # TODO: Debug switch
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10 # Reduce the compute usage in case this goes unused.

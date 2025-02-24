@@ -204,3 +204,8 @@ jobs:
 #          LINK="https://github.com/$REPO/actions/runs/${{ github.run_id }}"
 #          PAYLOAD="{\"workflow\": \"${{ github.workflow }}\", \"status\": \"${{ job.status }}\", \"message\": \"$MESSAGE\", \"link\": \"$LINK\", \"repository\": \"$REPO\"}"
 #          curl -X POST -H "Content-Type: application/json" -d "$PAYLOAD" ${{ secrets.SLACK_ERROR_WEBHOOK }}
+
+      - name: Setup tmate session on failure
+        if: failure() # TODO: Debug switch
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10 # Reduce the compute usage in case this goes unused.
