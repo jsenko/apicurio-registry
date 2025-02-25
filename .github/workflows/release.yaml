@@ -127,8 +127,8 @@ jobs:
       - name: (Operator) Update install file
         working-directory: registry/operator
         run: |
-          make INSTALL_FILE=install/install.yaml dist-install-file
-          cp install/install.yaml "install/install-${{ github.event.inputs.release-version }}.yaml"
+          make dist-install-file
+          cp "$(make VAR=INSTALL_FILE get-variable)" install/install.yaml
           git add install/*
           git commit -m "ci(operator): update operator install file for ${{ github.event.inputs.release-version }}"
 

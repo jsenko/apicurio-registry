@@ -96,16 +96,16 @@ jobs:
           source "$CUSTOM_ENV"
           make image-build image-push
 
-      - name: Wait on operand images
-        working-directory: registry/operator
-        run: |
-          source "$CUSTOM_ENV"
-          export REGISTRY_APP_IMAGE=$(make VAR=REGISTRY_APP_IMAGE get-variable)
-          until docker manifest inspect "$REGISTRY_APP_IMAGE" >& /dev/null; do echo "Waiting on $REGISTRY_APP_IMAGE"; sleep 10; done
-          export REGISTRY_UI_IMAGE=$(make VAR=REGISTRY_UI_IMAGE get-variable)
-          until docker manifest inspect "$REGISTRY_UI_IMAGE" >& /dev/null; do echo "Waiting on $REGISTRY_UI_IMAGE"; sleep 10; done
-          export STUDIO_UI_IMAGE=$(make VAR=STUDIO_UI_IMAGE get-variable)
-          until docker manifest inspect "$STUDIO_UI_IMAGE" >& /dev/null; do echo "Waiting on $STUDIO_UI_IMAGE"; sleep 10; done
+#      - name: Wait on operand images
+#        working-directory: registry/operator
+#        run: |
+#          source "$CUSTOM_ENV"
+#          export REGISTRY_APP_IMAGE=$(make VAR=REGISTRY_APP_IMAGE get-variable)
+#          until docker manifest inspect "$REGISTRY_APP_IMAGE" >& /dev/null; do echo "Waiting on $REGISTRY_APP_IMAGE"; sleep 10; done
+#          export REGISTRY_UI_IMAGE=$(make VAR=REGISTRY_UI_IMAGE get-variable)
+#          until docker manifest inspect "$REGISTRY_UI_IMAGE" >& /dev/null; do echo "Waiting on $REGISTRY_UI_IMAGE"; sleep 10; done
+#          export STUDIO_UI_IMAGE=$(make VAR=STUDIO_UI_IMAGE get-variable)
+#          until docker manifest inspect "$STUDIO_UI_IMAGE" >& /dev/null; do echo "Waiting on $STUDIO_UI_IMAGE"; sleep 10; done
 
       - name: Build operator bundle
         working-directory: registry/operator
@@ -114,6 +114,14 @@ jobs:
           make bundle-build
 
       # TODO: Test bundle & catalog?
+
+      - name: Build dist archive and attach to the release
+        working-directory: registry/operator
+        run: |
+          source "$CUSTOM_ENV"
+          make dist # TODO This also does install file
+          DIST_FILE="target/apicurio-registry-operator-$RELEASE_VERSION.tar.gz"
+          gh release upload "$RELEASE_VERSION" "$DIST_FILE"
 
       - name: Checkout the Community Operators repository
         run: |
