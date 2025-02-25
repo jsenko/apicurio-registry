@@ -9604,9 +9604,9 @@ spec:
         - name: QUARKUS_PROFILE
           value: prod
         - name: REGISTRY_APP_IMAGE
-          value: quay.io/apicurio/apicurio-registry:0.0.5
+          value: quay.io/apicurio/apicurio-registry:latest-snapshot
         - name: REGISTRY_UI_IMAGE
-          value: quay.io/apicurio/apicurio-registry-ui:0.0.5
+          value: quay.io/apicurio/apicurio-registry-ui:latest-snapshot
         - name: STUDIO_UI_IMAGE
           value: quay.io/apicurio/apicurio-studio-ui:1.1.0-Beta3 
         image: quay.io/jsenkorh/apicurio-registry-operator:0.0.5
