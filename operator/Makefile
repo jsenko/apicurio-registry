@@ -25,9 +25,12 @@ IMAGE_TAG ?= $(LC_VERSION)
 IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 ADDITIONAL_IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(ADDITIONAL_IMAGE_TAG)
 
-REGISTRY_APP_IMAGE ?= quay.io/apicurio/apicurio-registry:latest-snapshot
-REGISTRY_UI_IMAGE ?= quay.io/apicurio/apicurio-registry-ui:latest-snapshot
-STUDIO_UI_IMAGE ?= quay.io/apicurio/apicurio-studio-ui:latest-snapshot
+OPERAND_IMAGE_TAG ?= latest-snapshot
+STUDIO_UI_IMAGE_TAG ?= latest-snapshot
+
+REGISTRY_APP_IMAGE ?= quay.io/apicurio/apicurio-registry:$(OPERAND_IMAGE_TAG)
+REGISTRY_UI_IMAGE ?= quay.io/apicurio/apicurio-registry-ui:$(OPERAND_IMAGE_TAG)
+STUDIO_UI_IMAGE ?= quay.io/apicurio/apicurio-studio-ui:$(STUDIO_UI_IMAGE_TAG)
 
 NAMESPACE ?= default
 
@@ -35,9 +38,9 @@ NAMESPACE ?= default
 
 PACKAGE_NAME ?= apicurio-registry-3
 PACKAGE ?= $(PACKAGE_NAME).v$(LC_VERSION)
-# TODO Replaces:
-# PREVIOUS_PACKAGE_VERSION =
-# REPLACES = $(PACKAGE_NAME).v$(PREVIOUS_PACKAGE_VERSION)
+# TODO: Replaces !!!
+PREVIOUS_PACKAGE_VERSION ?=
+REPLACES ?= $(PACKAGE_NAME).v$(PREVIOUS_PACKAGE_VERSION)
 
 CHANNELS ?= 3.x
 DEFAULT_CHANNEL ?= $(CHANNELS)
@@ -513,3 +516,13 @@ catalog-subscription-undeploy: ## TODO
 .PHONY: dev
 dev:
 	mvn quarkus:dev
+
+
+.PHONY: set-variable
+set-variable:
+	sed -i 's|^\( *$(VAR) *\??=\) *\([^ ]*\)\(.*\)$$|\1 $(VAL)\3|g' Makefile
+
+
+.PHONY: get-variable
+get-variable:
+	@echo $($(VAR))
