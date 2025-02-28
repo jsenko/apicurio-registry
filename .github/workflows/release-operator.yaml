@@ -139,7 +139,7 @@ jobs:
 
       # REMOTE TESTS ====
 
-      - uses: .github/workflows/composite/setup-minikube
+      - uses: ./registry/.github/workflows/composite/setup-minikube
 
       - name: Build operator catalog
         working-directory: registry/operator
