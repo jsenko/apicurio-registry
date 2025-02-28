@@ -123,7 +123,7 @@ jobs:
         working-directory: registry/operator
         run: |
           source "$CUSTOM_ENV"
-          make build
+          make bundle
 
       - name: Build operator catalog
         working-directory: registry/operator
