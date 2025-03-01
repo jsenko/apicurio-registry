@@ -2,7 +2,7 @@ name: Setup Minikube
 description: Setup Minikube
 inputs:
   github_token:
-    description: 'GitHub token: ${{ secrets.GITHUB_TOKEN }}'
+    description: 'GitHub token'
     required: true
 runs:
   using: composite
