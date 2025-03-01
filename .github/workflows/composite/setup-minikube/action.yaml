@@ -1,5 +1,9 @@
 name: Setup Minikube
 description: Setup Minikube
+inputs:
+  github_token:
+    description: 'GitHub token: ${{ secrets.GITHUB_TOKEN }}'
+    required: true
 runs:
   using: composite
   steps:
@@ -14,7 +18,7 @@ runs:
       with:
         'minikube version': v1.33.1
         'kubernetes version': v1.25.0
-        'github token': ${{ secrets.GITHUB_TOKEN }}
+        'github token': ${{ inputs.github_token }}
         'start args': '--force'
 
     - name: Enable Minikube features

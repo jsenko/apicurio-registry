@@ -140,8 +140,10 @@ jobs:
       # REMOTE TESTS ====
 
       - uses: ./registry/.github/workflows/composite/setup-minikube
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build operator catalog
+      - name: Run tests
         working-directory: registry/operator
         run: |
           source "$CUSTOM_ENV"
