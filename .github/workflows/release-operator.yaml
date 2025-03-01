@@ -133,7 +133,7 @@ jobs:
 
       - name: Remove me!
         run: |
-          cat target/bundle/apicurio-registry-3/$RELEASE_VERSION/manifests/registry.apicur.io_apicurioregistries3.yaml
+          cat registry/operator/target/bundle/apicurio-registry-3/$RELEASE_VERSION/manifests/registry.apicur.io_apicurioregistries3.yaml || true
           # sed -i 's/^export OPERAND_IMAGE_TAG=.*$/d' "$CUSTOM_ENV"
           echo "export OPERAND_IMAGE_TAG=$RELEASE_VERSION" >> "$CUSTOM_ENV"
 
