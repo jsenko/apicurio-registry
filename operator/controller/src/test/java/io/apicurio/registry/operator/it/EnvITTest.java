@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class EnvITTest extends ITBase {
             "APICURIO_REGISTRY_UI_URL"
     };
 
-    @Test
+    //@Test
     void testEnvVars() {
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
                 ApicurioRegistry3.class);

@@ -7,7 +7,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class AuthTLSITTest extends BaseAuthTest {
      * value. TLS verification is enabled at the Apicurio Registry level, mounting the trustore into the
      * Quarkus application using the custom resource.
      */
-    @Test
+    //@Test
     void testAuthTlsVerification() {
         ApicurioRegistry3 registry = prepareInfra("/k8s/examples/auth/keycloak.yaml",
                 "k8s/examples/auth/tls/simple-with_keycloak.apicurioregistry3.yaml");

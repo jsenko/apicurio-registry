@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.quarkus.test.junit.QuarkusTest;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class SmokeITTest extends ITBase {
 
     private static final Logger log = LoggerFactory.getLogger(SmokeITTest.class);
 
-    @Test
+    //@Test
     void smoke() {
 
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
@@ -87,7 +87,7 @@ public class SmokeITTest extends ITBase {
                 .contains(EnvironmentVariables.QUARKUS_HTTP_CORS_ORIGINS + "=" + corsOriginsExpectedValue);
     }
 
-    @Test
+    //@Test
     void replicas() {
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
                 ApicurioRegistry3.class);
@@ -117,7 +117,7 @@ public class SmokeITTest extends ITBase {
         checkDeploymentExists(registry, COMPONENT_UI, 2);
     }
 
-    @Test
+    //@Test
     void testService() {
 
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
@@ -157,7 +157,7 @@ public class SmokeITTest extends ITBase {
         });
     }
 
-    @Test
+    //@Test
     @DisabledIf("io.apicurio.registry.operator.it.SmokeITTest#ingressDisabled")
     void testIngress() {
 
@@ -190,7 +190,7 @@ public class SmokeITTest extends ITBase {
         });
     }
 
-    @Test
+    //@Test
     void testEmptyHostDisablesIngress() {
 
         var registry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",

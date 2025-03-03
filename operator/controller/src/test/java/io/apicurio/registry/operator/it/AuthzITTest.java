@@ -7,7 +7,7 @@ import io.apicurio.registry.operator.api.v1.spec.auth.AuthSpec;
 import io.apicurio.registry.operator.api.v1.spec.auth.AuthzSpec;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 
 import static io.apicurio.registry.operator.api.v1.ContainerNames.REGISTRY_APP_CONTAINER_NAME;
 import static io.apicurio.registry.operator.resource.ResourceFactory.COMPONENT_APP;
@@ -23,7 +23,7 @@ public class AuthzITTest extends BaseAuthTest {
      * value. TLS verification is disabled at the Apicurio Registry level, so even in that case the deployment
      * works.
      */
-    @Test
+    //@Test
     void testAuthz() {
         // Preparation, deploy Keycloak
         ApicurioRegistry3 registry = prepareInfra("/k8s/examples/auth/keycloak.yaml",

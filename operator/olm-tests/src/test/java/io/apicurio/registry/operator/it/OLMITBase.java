@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static io.apicurio.registry.operator.utils.Mapper.toYAML;
+
 public abstract class OLMITBase {
 
     private static final Logger log = LoggerFactory.getLogger(OLMITBase.class);
@@ -39,7 +41,7 @@ public abstract class OLMITBase {
         cleanup = ConfigProvider.getConfig().getValue(ITBase.CLEANUP, Boolean.class);
 
         if (client.apiextensions().v1().customResourceDefinitions()
-                .withName("catalogsources.operators.coreos.com").get() == null) {
+                    .withName("catalogsources.operators.coreos.com").get() == null) {
             throw new OperatorException("CatalogSource CRD is not available. Please install OLM.");
         }
 
@@ -54,12 +56,14 @@ public abstract class OLMITBase {
         var catalogSourceRaw = Files.readString(testDeployDir.resolve("catalog/catalog-source.yaml"));
         catalogSourceRaw = catalogSourceRaw.replace("${PLACEHOLDER_CATALOG_NAMESPACE}", namespace);
         catalogSourceRaw = catalogSourceRaw.replace("${PLACEHOLDER_CATALOG_IMAGE}", catalogImage);
+        log.warn(">>>>>>>> \n{}\n", toYAML(catalogSourceRaw));
         var catalogSource = client.resource(catalogSourceRaw);
+
         catalogSource.create();
 
         Awaitility.await().ignoreExceptions().until(() -> {
             return client.pods().inNamespace(namespace).list().getItems().stream().filter(
-                    pod -> pod.getMetadata().getName().startsWith("apicurio-registry-operator-catalog"))
+                            pod -> pod.getMetadata().getName().startsWith("apicurio-registry-operator-catalog"))
                     .anyMatch(pod -> pod.getStatus().getConditions().stream()
                             .anyMatch(c -> "Ready".equals(c.getType()) && "True".equals(c.getStatus())));
         });
@@ -68,6 +72,7 @@ public abstract class OLMITBase {
 
         var operatorGroupRaw = Files.readString(testDeployDir.resolve("catalog/operator-group.yaml"));
         operatorGroupRaw = operatorGroupRaw.replace("${PLACEHOLDER_NAMESPACE}", namespace);
+        log.warn(">>>>>>>> \n{}\n", toYAML(operatorGroupRaw));
         var operatorGroup = client.resource(operatorGroupRaw);
         operatorGroup.create();
 
@@ -78,6 +83,7 @@ public abstract class OLMITBase {
         subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_CATALOG_NAMESPACE}", namespace);
         subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_PACKAGE}",
                 "apicurio-registry.v" + projectVersion.toLowerCase());
+        log.warn(">>>>>>>> \n{}\n", toYAML(subscriptionRaw));
         var subscription = client.resource(subscriptionRaw);
         subscription.create();
     }

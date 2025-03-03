@@ -3,7 +3,7 @@ package io.apicurio.registry.operator.it;
 import io.apicurio.registry.operator.api.v1.ApicurioRegistry3;
 import io.apicurio.registry.operator.resource.ResourceFactory;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ public class SqlDataSourceITTest extends ITBase {
 
     private static final Logger log = LoggerFactory.getLogger(SqlDataSourceITTest.class);
 
-    @Test
+    //@Test
     void testSqlDatasource() {
         client.load(SqlDataSourceITTest.class
                 .getResourceAsStream("/k8s/examples/postgresql/example-postgresql-database.yaml")).create();

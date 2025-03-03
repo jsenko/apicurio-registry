@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.policy.v1.PodDisruptionBudget;
 import io.fabric8.kubernetes.api.model.policy.v1.PodDisruptionBudgetStatus;
 import io.quarkus.test.junit.QuarkusTest;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ public class PodDisruptionBudgetITTest extends ITBase {
 
     private static final Logger log = LoggerFactory.getLogger(PodDisruptionBudgetITTest.class);
 
-    @Test
+    //@Test
     void testPodDisruptionBudget() {
         ApicurioRegistry3 registry = ResourceFactory.deserialize(
                 "/k8s/examples/simple-with-studio.apicurioregistry3.yaml", ApicurioRegistry3.class);

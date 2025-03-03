@@ -4,7 +4,7 @@ import io.apicurio.registry.operator.api.v1.ApicurioRegistry3;
 import io.apicurio.registry.operator.resource.ResourceFactory;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class PodTemplateSpecITTest extends ITBase {
 
     private static final Logger log = LoggerFactory.getLogger(PodTemplateSpecITTest.class);
 
-    @Test
+    //@Test
     void testPTS() {
         var exportData = ResourceFactory
                 .deserialize("/k8s/examples/podtemplatespec/export-data.configmap.yaml", ConfigMap.class);

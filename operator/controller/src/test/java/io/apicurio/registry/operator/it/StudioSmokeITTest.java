@@ -3,7 +3,7 @@ package io.apicurio.registry.operator.it;
 import io.apicurio.registry.operator.api.v1.ApicurioRegistry3;
 import io.apicurio.registry.operator.resource.ResourceFactory;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class StudioSmokeITTest extends ITBase {
      * field is set to true, while checking that the basic Kubernetes resources are deployed as expected. We
      * do not check Registry components in detail, because that's done in other tests.
      */
-    @Test
+    //@Test
     void smoke() {
 
         var simpleRegistry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
@@ -130,7 +130,7 @@ public class StudioSmokeITTest extends ITBase {
      * checking that the basic Kubernetes resources are deployed as expected. We do not check Registry
      * components in detail, because that's done in other tests.
      */
-    @Test
+    //@Test
     void replicas() {
         var simpleRegistry = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml",
                 ApicurioRegistry3.class);

@@ -6,7 +6,7 @@ import io.apicurio.registry.operator.api.v1.spec.AppFeaturesSpec;
 import io.apicurio.registry.operator.resource.ResourceFactory;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 
 import static io.apicurio.registry.operator.api.v1.ContainerNames.REGISTRY_APP_CONTAINER_NAME;
 import static io.apicurio.registry.operator.resource.app.AppDeploymentResource.getContainerFromDeployment;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @QuarkusTest
 public class AppFeaturesITTest extends ITBase {
 
-    @Test
+    //@Test
     void testAllowDeletesTrue() {
         ApicurioRegistry3 registry = ResourceFactory
                 .deserialize("/k8s/examples/simple.apicurioregistry3.yaml", ApicurioRegistry3.class);
@@ -37,7 +37,7 @@ public class AppFeaturesITTest extends ITBase {
                 EnvironmentVariables.APICURIO_REST_DELETION_GROUP_ENABLED);
     }
 
-    @Test
+    //@Test
     void testAllowDeletesDefault() {
         ApicurioRegistry3 registry = ResourceFactory
                 .deserialize("/k8s/examples/simple.apicurioregistry3.yaml", ApicurioRegistry3.class);

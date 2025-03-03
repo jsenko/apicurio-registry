@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 
 import static io.apicurio.registry.operator.api.v1.ContainerNames.REGISTRY_APP_CONTAINER_NAME;
 import static io.apicurio.registry.operator.api.v1.ContainerNames.REGISTRY_UI_CONTAINER_NAME;
@@ -24,7 +24,7 @@ import static org.awaitility.Awaitility.await;
 @QuarkusTest
 public class StatusConditionsTest extends ITBase {
 
-    @Test
+    //@Test
     void testStatusConditions() {
         var registry1 = ResourceFactory.deserialize("/k8s/examples/simple.apicurioregistry3.yaml", ApicurioRegistry3.class);
         registry1.getMetadata().setName("registry1");

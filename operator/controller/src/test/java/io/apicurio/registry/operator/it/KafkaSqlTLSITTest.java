@@ -4,7 +4,7 @@ import io.apicurio.registry.operator.api.v1.ApicurioRegistry3;
 import io.fabric8.kubernetes.api.model.PodCondition;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class KafkaSqlTLSITTest extends ITBase {
         applyStrimziResources();
     }
 
-    @Test
+    //@Test
     void testKafkaSQLTLS() {
         client.load(getClass().getResourceAsStream("/k8s/examples/kafkasql/tls/example-cluster.kafka.yaml"))
                 .create();

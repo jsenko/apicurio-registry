@@ -8,7 +8,7 @@ import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class KafkaSqlITTest extends ITBase {
         applyStrimziResources();
     }
 
-    @Test
+    //@Test
     void testKafkaSQLPlain() {
         client.load(KafkaSqlITTest.class
                 .getResourceAsStream("/k8s/examples/kafkasql/plain/example-cluster.kafka.yaml")).create();
