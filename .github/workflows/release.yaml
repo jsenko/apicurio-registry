@@ -103,13 +103,38 @@ jobs:
         run: |
           make SKIP_TESTS=true build
 
-      - name: Build Registry UI
-        working-directory: registry/ui
-        run: |
-          npm install
-          npm run lint
-          npm run build
-          npm run package
+# TODO: Next step fails with:
+#
+# > @apicurio/apicurio-registry-sdk@0.0.16 generate-sources
+# > cross-env KIOTA_VERSION=v1.22.3 kiota generate --serializer none --deserializer none -l typescript -d ../common/src/main/resources/META-INF/openapi.json -c ApicurioRegistryClient -o ./lib/generated-client
+# Downloading Kiota binary from https://github.com/microsoft/kiota/releases/download/v1.22.3/linux-x64.zip
+# node:events:495
+#       throw er; // Unhandled 'error' event
+#       ^
+# Error: socket hang up
+#     at connResetException (node:internal/errors:720:14)
+#     at TLSSocket.socketOnEnd (node:_http_client:525:23)
+#     at TLSSocket.emit (node:events:529:35)
+#     at endReadableNT (node:internal/streams/readable:1400:12)
+#     at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+# Emitted 'error' event on Writable instance at:
+#     at eventHandlers.<computed> (/home/runner/work/apicurio-registry/apicurio-registry/registry/typescript-sdk/node_modules/follow-redirects/index.js:49:24)
+#     at ClientRequest.emit (node:events:517:28)
+#     at TLSSocket.socketOnEnd (node:_http_client:525:9)
+#     at TLSSocket.emit (node:events:529:35)
+#     at endReadableNT (node:internal/streams/readable:1400:12)
+#     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+#   code: 'ECONNRESET'
+# }
+# Node.js v18.20.7
+
+#      - name: Build Registry UI
+#        working-directory: registry/ui
+#        run: |
+#          npm install
+#          npm run lint
+#          npm run build
+#          npm run package
 
       - name: (Operator) Configure env. variables
         run: |
