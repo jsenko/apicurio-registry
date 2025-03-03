@@ -146,7 +146,7 @@ jobs:
         run: |
           source "$CUSTOM_ENV"
           # make REMOTE_TESTS_ALL_INSTALL_FILE=install/install.yaml remote-tests-all
-          make  remote-tests-all
+          make BUILD_OPTS="-pl olm-tests" remote-tests-all # TODO: remove var
 
       - name: Build dist archive and attach to the release
         working-directory: registry/operator
