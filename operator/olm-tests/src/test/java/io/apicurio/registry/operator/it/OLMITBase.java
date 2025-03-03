@@ -81,8 +81,9 @@ public abstract class OLMITBase {
         var subscriptionRaw = Files.readString(testDeployDir.resolve("catalog/subscription.yaml"));
         subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_NAMESPACE}", namespace);
         subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_CATALOG_NAMESPACE}", namespace);
+        subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_PACKAGE_NAME}", "apicurio-registry-3");
         subscriptionRaw = subscriptionRaw.replace("${PLACEHOLDER_PACKAGE}",
-                "apicurio-registry.v" + projectVersion.toLowerCase());
+                "apicurio-registry-3.v" + projectVersion.toLowerCase());
         log.warn(">>>>>>>> \n{}\n", toYAML(subscriptionRaw));
         var subscription = client.resource(subscriptionRaw);
         subscription.create();
