@@ -33,10 +33,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Node.js v18
+      - name: Set up Node.js v20
         uses: actions/setup-node@v1
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Set up json CLI
         run: npm install -g json
@@ -128,13 +128,13 @@ jobs:
 # }
 # Node.js v18.20.7
 
-#      - name: Build Registry UI
-#        working-directory: registry/ui
-#        run: |
-#          npm install
-#          npm run lint
-#          npm run build
-#          npm run package
+      - name: Build Registry UI
+        working-directory: registry/ui
+        run: |
+          npm install
+          npm run lint
+          npm run build
+          npm run package
 
       - name: (Operator) Configure env. variables
         run: |
