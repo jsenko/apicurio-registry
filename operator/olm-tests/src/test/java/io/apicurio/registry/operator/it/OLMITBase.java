@@ -47,7 +47,7 @@ public abstract class OLMITBase {
         var projectRoot = ConfigProvider.getConfig().getValue(PROJECT_ROOT_PROP, String.class);
         var catalogImage = ConfigProvider.getConfig().getValue(CATALOG_IMAGE_PROP, String.class);
 
-        var testDeployDir = Paths.get(projectRoot, "operator/controller/src/test/deploy");
+        var testDeployDir = Paths.get(projectRoot, "operator/olm-tests/src/test/deploy");
 
         // Catalog Source
 
