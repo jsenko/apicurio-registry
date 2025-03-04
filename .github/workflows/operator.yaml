@@ -32,10 +32,9 @@ jobs:
       # deploys it with `imagePullPolicy: Always`; and also the operator image itself for the same reason.
       - name: Configure env. variables 2
         run: |
-          echo "IMAGE=ttl.sh/apicurio-registry-operator-$UUID:8h" >> $GITHUB_ENV
-          echo "BUNDLE_IMAGE=ttl.sh/apicurio-registry-operator-bundle-$UUID:8h" >> $GITHUB_ENV
-          echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-operator-catalog-$UUID:8h" >> $GITHUB_ENV
-          echo "ADDITIONAL_CATALOG_IMAGE=" >> $GITHUB_ENV
+          echo "IMAGE=ttl.sh/apicurio-registry-3-operator-$UUID:8h" >> $GITHUB_ENV
+          echo "BUNDLE_IMAGE=ttl.sh/apicurio-registry-3-operator-bundle-$UUID:8h" >> $GITHUB_ENV
+          echo "CATALOG_IMAGE=ttl.sh/apicurio-registry-3-operator-catalog-$UUID:8h" >> $GITHUB_ENV
 
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
@@ -123,6 +122,7 @@ jobs:
       # Do not publish (version)-snapshot tag, instead use `latest-snapshot`.
       - name: Configure env. variables
         run: |
+          # We want to use latest-snapshot instead of x.y.z-snapshot
           echo "IMAGE_TAG=latest-snapshot" >> $GITHUB_ENV
           echo "BUNDLE_IMAGE_TAG=latest-snapshot" >> $GITHUB_ENV
 
