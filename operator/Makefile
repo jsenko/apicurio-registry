@@ -26,7 +26,7 @@ IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 ADDITIONAL_IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(ADDITIONAL_IMAGE_TAG)
 
 OPERAND_IMAGE_TAG ?= latest-snapshot
-STUDIO_UI_IMAGE_TAG ?= latest-snapshot
+STUDIO_UI_IMAGE_TAG ?= 1.1.0-Beta3
 
 REGISTRY_APP_IMAGE ?= quay.io/apicurio/apicurio-registry:$(OPERAND_IMAGE_TAG)
 REGISTRY_UI_IMAGE ?= quay.io/apicurio/apicurio-registry-ui:$(OPERAND_IMAGE_TAG)
