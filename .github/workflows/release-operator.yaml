@@ -34,6 +34,14 @@ jobs:
           echo "BRANCH=$(cat release.json | jq -r '.target_commitish')" >> $GITHUB_ENV
           echo "RUN_TESTS=${{ github.event.inputs.run_tests }}" >> $GITHUB_ENV
 
+      - name: Check release type
+        if: contains(env.RELEASE_VERSION, 'RC')
+        run: |
+          # TODO: Figure out what pre-release operator looks like. Maybe just skip OperatorHub?
+          # We we would have to remove the pre-release version from standard-release catalog.
+          echo "Operator cannot be released as part of a pre-release version yet."
+          exit 1
+
       - name: Download Source Code
         run: |
           git config --global user.name "apicurio-ci"
@@ -137,7 +145,7 @@ jobs:
         working-directory: registry/operator
         run: |
           source "$CUSTOM_ENV"
-          # TODO:
+          # TODO
           # make REMOTE_TESTS_ALL_INSTALL_FILE=install/install.yaml BUILD_OPTS=--no-transfer-progress remote-tests-all
           make BUILD_OPTS=--no-transfer-progress remote-tests-all
 
