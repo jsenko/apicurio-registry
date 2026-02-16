@@ -8,14 +8,14 @@ import io.apicurio.registry.content.TypedContent;
 import io.apicurio.registry.logging.Logged;
 import io.apicurio.registry.metrics.health.liveness.ResponseErrorLivenessCheck;
 import io.apicurio.registry.metrics.health.readiness.ResponseTimeoutReadinessCheck;
-import io.apicurio.registry.rest.HeadersHack;
 import io.apicurio.registry.rest.MethodMetadata;
 import io.apicurio.registry.rest.RestConfig;
-import io.apicurio.registry.rest.cache.ImmutableCache;
+import io.apicurio.registry.rest.cache.EntityIdCache;
+import io.apicurio.registry.rest.cache.strategy.EntityIdContentCacheStrategy;
+import io.apicurio.registry.rest.impl.shared.CommonResourceOperations;
 import io.apicurio.registry.rest.v3.IdsResource;
 import io.apicurio.registry.rest.v3.beans.ArtifactReference;
 import io.apicurio.registry.rest.v3.beans.HandleReferencesType;
-import io.apicurio.registry.rest.impl.shared.CommonResourceOperations;
 import io.apicurio.registry.storage.dto.ArtifactVersionMetaDataDto;
 import io.apicurio.registry.storage.dto.ContentWrapperDto;
 import io.apicurio.registry.storage.dto.StoredArtifactVersionDto;
@@ -31,10 +31,13 @@ import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.apicurio.registry.rest.MethodParameterKeys.MPK_ENTITY_ID;
+import static io.apicurio.registry.rest.cache.HttpCaching.caching;
+import static io.apicurio.registry.rest.headers.Headers.checkIfDeprecated;
+import static io.apicurio.registry.storage.impl.sql.RegistryContentUtils.recursivelyResolveReferenceContentIds;
+import static io.apicurio.registry.utils.Cell.cellWithLoader;
 
 @ApplicationScoped
 @Interceptors({ResponseErrorLivenessCheck.class, ResponseTimeoutReadinessCheck.class})
@@ -47,28 +50,22 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
     @Inject
     RestConfig restConfig;
 
-    private void checkIfDeprecated(Supplier<VersionState> stateSupplier, String artifactId, String version,
-                                   Response.ResponseBuilder builder) {
-        HeadersHack.checkIfDeprecated(stateSupplier, null, artifactId, version, builder);
-    }
-
     /**
      * @see io.apicurio.registry.rest.v3.IdsResource#getContentById(long)
      */
     @Override
     @Authorized(style = AuthorizedStyle.None, level = AuthorizedLevel.Read)
-    @ImmutableCache
     @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID})
+    @EntityIdCache
     public Response getContentById(long contentId) {
         ContentWrapperDto dto = storage.getContentById(contentId);
         boolean isEmptyContent = ContentTypes.isEmptyContentType(dto.getContentType());
         boolean isDraft = dto.getContentHash() != null && dto.getContentHash().startsWith("draft:");
-        if (isEmptyContent || (isDraft && !restConfig.isDraftProductionModeEnabled())) {
+        if (isEmptyContent || isDraft && !restConfig.isDraftProductionModeEnabled()) {
             throw new ContentNotFoundException(contentId);
         }
-        ContentHandle content = dto.getContent();
-        Response.ResponseBuilder builder = Response.ok(content, ArtifactMediaTypes.BINARY);
-        return builder.build();
+        return Response.ok().entity(dto.getContent())
+                .type(ArtifactMediaTypes.BINARY).build();
     }
 
     /**
@@ -76,38 +73,44 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
      */
     @Override
     @Authorized(style = AuthorizedStyle.GlobalId, level = AuthorizedLevel.Read)
-    @ImmutableCache
-    @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID})
     public Response getContentByGlobalId(long globalId, HandleReferencesType references,
                                          Boolean returnArtifactType) {
+
+        references = references != null ? references : HandleReferencesType.PRESERVE;
+        final var artifactCell = cellWithLoader(() -> storage.getArtifactVersionContent(globalId));
+
+        caching(
+                EntityIdContentCacheStrategy.builder()
+                        .entityId(globalId)
+                        .references(references)
+                        .referenceTreeContentIds(() -> recursivelyResolveReferenceContentIds(artifactCell.get(),
+                                ref -> storage.getArtifactVersionContent(ref.getGroupId(), ref.getArtifactId(), ref.getVersion())
+                        ))
+                        .returnArtifactType(returnArtifactType)
+                        .build()
+        ).prepare();
+
         ArtifactVersionMetaDataDto metaData = storage.getArtifactVersionMetaData(globalId);
-        if (VersionState.DISABLED.equals(metaData.getState())) {
-            throw new ArtifactNotFoundException(null, String.valueOf(globalId));
-        }
-        if (VersionState.DRAFT.equals(metaData.getState()) && !restConfig.isDraftProductionModeEnabled()) {
+        if (VersionState.DISABLED.equals(metaData.getState())
+                || (VersionState.DRAFT.equals(metaData.getState())) && !restConfig.isDraftProductionModeEnabled()) {
             throw new ArtifactNotFoundException(null, String.valueOf(globalId));
         }
 
-        if (references == null) {
-            references = HandleReferencesType.PRESERVE;
-        }
-
-        StoredArtifactVersionDto artifact = storage.getArtifactVersionContent(globalId);
-        boolean isEmptyContent = ContentTypes.isEmptyContentType(artifact.getContentType());
+        boolean isEmptyContent = ContentTypes.isEmptyContentType(artifactCell.get().getContentType());
         if (isEmptyContent) {
-            throw new ContentNotFoundException(artifact.getContentId());
+            throw new ContentNotFoundException(artifactCell.get().getContentId());
         }
 
-        TypedContent contentToReturn = TypedContent.create(artifact.getContent(), artifact.getContentType());
+        TypedContent contentToReturn = TypedContent.create(artifactCell.get().getContent(), artifactCell.get().getContentType());
         contentToReturn = handleContentReferences(references, metaData.getArtifactType(), contentToReturn,
-                artifact.getReferences());
+                artifactCell.get().getReferences());
 
-        Response.ResponseBuilder builder = Response.ok(contentToReturn.getContent(),
-                contentToReturn.getContentType());
+        var builder = Response.ok().entity(contentToReturn.getContent())
+                .type(contentToReturn.getContentType());
         if (returnArtifactType != null && returnArtifactType) {
             builder.header("X-Registry-ArtifactType", metaData.getArtifactType());
         }
-        checkIfDeprecated(metaData::getState, metaData.getArtifactId(), metaData.getVersion(), builder);
+        checkIfDeprecated(metaData::getState, null, metaData.getArtifactId(), metaData.getVersion(), builder);
         return builder.build();
     }
 
@@ -116,12 +119,11 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
      */
     @Override
     @Authorized(style = AuthorizedStyle.None, level = AuthorizedLevel.Read)
-    @ImmutableCache
     @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID})
+    @EntityIdCache
     public Response getContentByHash(String contentHash) {
         ContentHandle content = storage.getContentByHash(contentHash).getContent();
-        Response.ResponseBuilder builder = Response.ok(content, ArtifactMediaTypes.BINARY);
-        return builder.build();
+        return Response.ok(content, ArtifactMediaTypes.BINARY).build();
     }
 
     /**
@@ -129,6 +131,8 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
      */
     @Override
     @Authorized(style = AuthorizedStyle.None, level = AuthorizedLevel.Read)
+    @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID})
+    @EntityIdCache
     public List<ArtifactReference> referencesByContentHash(String contentHash) {
         return common.getReferencesByContentHash(contentHash, V3ApiUtil::referenceDtoToReference);
     }
@@ -138,6 +142,8 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
      */
     @Override
     @Authorized(style = AuthorizedStyle.None, level = AuthorizedLevel.Read)
+    @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID})
+    @EntityIdCache
     public List<ArtifactReference> referencesByContentId(long contentId) {
         ContentWrapperDto artifact = storage.getContentById(contentId);
         return artifact.getReferences().stream().map(V3ApiUtil::referenceDtoToReference)
@@ -150,6 +156,8 @@ public class IdsResourceImpl extends AbstractResourceImpl implements IdsResource
      */
     @Override
     @Authorized(style = AuthorizedStyle.GlobalId, level = AuthorizedLevel.Read)
+    @MethodMetadata(extractParameters = {"0", MPK_ENTITY_ID}) // TODO: refType
+    @EntityIdCache
     public List<ArtifactReference> referencesByGlobalId(long globalId, ReferenceType refType) {
         if (refType == ReferenceType.OUTBOUND || refType == null) {
             StoredArtifactVersionDto artifact = storage.getArtifactVersionContent(globalId);

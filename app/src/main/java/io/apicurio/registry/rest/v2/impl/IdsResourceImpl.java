@@ -9,7 +9,6 @@ import io.apicurio.registry.content.TypedContent;
 import io.apicurio.registry.logging.Logged;
 import io.apicurio.registry.metrics.health.liveness.ResponseErrorLivenessCheck;
 import io.apicurio.registry.metrics.health.readiness.ResponseTimeoutReadinessCheck;
-import io.apicurio.registry.rest.HeadersHack;
 import io.apicurio.registry.rest.v2.IdsResource;
 import io.apicurio.registry.rest.v2.beans.ArtifactReference;
 import io.apicurio.registry.rest.impl.shared.CommonResourceOperations;
@@ -22,7 +21,6 @@ import io.apicurio.registry.storage.impl.sql.RegistryContentUtils;
 import io.apicurio.registry.types.ArtifactMediaTypes;
 import io.apicurio.registry.types.ArtifactState;
 import io.apicurio.registry.types.ReferenceType;
-import io.apicurio.registry.types.VersionState;
 import io.apicurio.registry.types.provider.ArtifactTypeUtilProvider;
 import io.apicurio.registry.types.provider.ArtifactTypeUtilProviderFactory;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,8 +29,9 @@ import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static io.apicurio.registry.rest.headers.Headers.checkIfDeprecated;
 
 @ApplicationScoped
 @Interceptors({ResponseErrorLivenessCheck.class, ResponseTimeoutReadinessCheck.class})
@@ -48,11 +47,6 @@ public class IdsResourceImpl implements IdsResource {
 
     @Inject
     ArtifactTypeUtilProviderFactory factory;
-
-    private void checkIfDeprecated(Supplier<VersionState> stateSupplier, String artifactId, String version,
-            Response.ResponseBuilder builder) {
-        HeadersHack.checkIfDeprecated(stateSupplier, null, artifactId, version, builder);
-    }
 
     /**
      * @see io.apicurio.registry.rest.v2.IdsResource#getContentById(long)
@@ -104,7 +98,7 @@ public class IdsResourceImpl implements IdsResource {
 
         Response.ResponseBuilder builder = Response.ok(contentToReturn.getContent(),
                 contentToReturn.getContentType());
-        checkIfDeprecated(metaData::getState, metaData.getArtifactId(), metaData.getVersion(), builder);
+        checkIfDeprecated(metaData::getState, null, metaData.getArtifactId(), metaData.getVersion(), builder);
         return builder.build();
     }
 
