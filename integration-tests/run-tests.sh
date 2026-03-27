@@ -7,7 +7,7 @@ show_usage() {
     echo "This script runs the apicurio-registry integration tests against a deployed Registry instance."
     echo ""
     echo "Arguments:"
-    echo "  --testProfile       Optional. Test profile to run (default: all). Allowed values: all, smoke, auth"
+    echo "  --testProfile       Optional. Test group(s) to run (default: smoke|serdes|acceptance). Examples: smoke, auth, 'smoke|serdes'"
     echo "  --registryProtocol  Optional. Registry protocol (default: http)"
     echo "  --registryHost      Optional. Registry host (default: localhost)"
     echo "  --registryPort      Optional. Registry port (default: 8080)"
@@ -15,7 +15,7 @@ show_usage() {
 }
 
 # Parse command line arguments
-TEST_PROFILE="all"
+TEST_PROFILE=""
 REGISTRY_PROTOCOL=""
 REGISTRY_HOST=""
 REGISTRY_PORT=""
@@ -55,18 +55,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Check if required arguments are provided
-if [ -z "$TEST_PROFILE" ]; then
-    TEST_PROFILE=all
-    exit 1
-fi
-
-# Validate the test profile value
-if [[ "$TEST_PROFILE" != "all" && "$TEST_PROFILE" != "smoke" && "$TEST_PROFILE" != "auth" ]]; then
-    echo "Error: Invalid testProfile value '$TEST_PROFILE'. Allowed values are: all, smoke, auth"
-    show_usage
-    exit 1
-fi
+# If no test profile specified, use the default groups from the pom.xml
+# (smoke | serdes | acceptance)
 
 if [ -z "$REGISTRY_PROTOCOL" ]; then
     REGISTRY_PROTOCOL=http
@@ -99,13 +89,19 @@ curl -s $REGISTRY_URL/apis/registry/v3/system/info | jq
 echo "--"
 echo ""
 echo "------------------------------------"
-echo "Running Integration Tests ($TEST_PROFILE profile)..."
+echo "Running Integration Tests (groups: ${TEST_PROFILE:-default})..."
 echo "------------------------------------"
+
+# Build the groups argument if a test profile was specified
+GROUPS_ARG=""
+if [ -n "$TEST_PROFILE" ]; then
+    GROUPS_ARG="-Dgroups=$TEST_PROFILE"
+fi
 
 # Run the integration tests
 ./mvnw verify -am --no-transfer-progress \
     -Pintegration-tests \
-    -P$TEST_PROFILE \
+    $GROUPS_ARG \
     -pl integration-tests \
     -Dmaven.javadoc.skip=true \
     -Dquarkus.oidc.token-path=$TOKEN_AUTH_URL \

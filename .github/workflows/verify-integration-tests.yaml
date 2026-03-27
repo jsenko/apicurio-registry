@@ -13,21 +13,23 @@ on:
 
 jobs:
   integration-tests:
-    name: Integration Tests (${{ matrix.storage }}-${{ matrix.profile }})
+    name: Integration Tests (${{ matrix.storage }}-${{ matrix.groups }})
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         storage: [h2, postgresql, kafkasql]
-        profile: [ci, auth, migration]
+        groups: ['smoke | serdes | acceptance', 'auth', 'migration']
         include:
           - storage: h2
+            groups: 'debezium,debezium-snapshot,debezium-mysql,debezium-mysql-snapshot'
             profile: debezium-all
           - storage: kafkasql
-            profile: kafkasql-snapshotting
+            groups: 'kafkasql-snapshotting'
           - storage: kubernetesops
-            profile: kubernetesopsit
+            groups: 'kubernetesopsit'
           - storage: h2
+            groups: 'iceberg'
             profile: iceberg
     steps:
       - name: Checkout Code
@@ -76,8 +78,9 @@ jobs:
         run: |
           ./mvnw verify -am --no-transfer-progress \
             -Pintegration-tests \
-            -P${{ matrix.profile }} \
+            ${{ matrix.profile && format('-P{0}', matrix.profile) || '' }} \
             -P${{ steps.storage-vars.outputs.remote-profile }} \
+            -Dgroups="${{ matrix.groups }}" \
             -D${{ steps.storage-vars.outputs.image-prop }}=apicurio/apicurio-registry:${{ inputs.image-tag }} \
             -pl integration-tests \
             -Dmaven.javadoc.skip=true
@@ -90,5 +93,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: tests-logs-${{ matrix.storage }}-${{ matrix.profile }}
+          name: tests-logs-${{ matrix.storage }}-${{ matrix.groups }}
           path: artifacts
