@@ -1,5 +1,7 @@
 package io.apicurio.tests.search;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.rest.client.models.CreateArtifactResponse;
 import io.apicurio.registry.rest.client.models.EditableVersionMetaData;
 import io.apicurio.registry.rest.client.models.Labels;
@@ -9,7 +11,6 @@ import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.ContentTypes;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
-import io.apicurio.tests.utils.Constants;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -23,7 +24,7 @@ import java.util.Map;
  * They are excluded from normal test runs and can be executed via the {@code -Psearch} maven
  * profile or by selecting the {@code search} JUnit tag.
  */
-@Tag(Constants.SEARCH)
+@Tag(SEARCH)
 @QuarkusIntegrationTest
 public class SearchIT extends ApicurioRegistryBaseIT {
 

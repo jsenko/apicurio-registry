@@ -1,7 +1,8 @@
 package io.apicurio.tests.serdes.apicurio.debezium.postgresql;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.tests.serdes.apicurio.debezium.DebeziumAvroV2DeserializerMixin;
-import io.apicurio.tests.utils.Constants;
 import io.debezium.testing.testcontainers.DebeziumContainer;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
@@ -16,7 +17,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * Tests schema auto-registration, evolution, PostgreSQL data types, and CDC
  * operations.
  */
-@Tag(Constants.DEBEZIUM)
+@Tag(DEBEZIUM)
 @QuarkusIntegrationTest
 @QuarkusTestResource(value = DebeziumContainerResource.class, restrictToAnnotatedClass = true)
 public class DebeziumPostgreSQLAvroIntegrationIT extends DebeziumPostgreSQLAvroBaseIT

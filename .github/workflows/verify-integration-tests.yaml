@@ -23,14 +23,12 @@ jobs:
         include:
           - storage: h2
             groups: 'debezium,debezium-snapshot,debezium-mysql,debezium-mysql-snapshot'
-            profile: debezium-all
           - storage: kafkasql
             groups: 'kafkasql-snapshotting'
           - storage: kubernetesops
             groups: 'kubernetesopsit'
           - storage: h2
             groups: 'iceberg'
-            profile: iceberg
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -78,7 +76,6 @@ jobs:
         run: |
           ./mvnw verify -am --no-transfer-progress \
             -Pintegration-tests \
-            ${{ matrix.profile && format('-P{0}', matrix.profile) || '' }} \
             -P${{ steps.storage-vars.outputs.remote-profile }} \
             -Dgroups="${{ matrix.groups }}" \
             -D${{ steps.storage-vars.outputs.image-prop }}=apicurio/apicurio-registry:${{ inputs.image-tag }} \

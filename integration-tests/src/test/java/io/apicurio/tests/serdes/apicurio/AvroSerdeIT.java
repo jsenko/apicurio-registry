@@ -1,5 +1,7 @@
 package io.apicurio.tests.serdes.apicurio;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.rest.client.models.VersionMetaData;
 import io.apicurio.registry.serde.avro.AvroKafkaDeserializer;
 import io.apicurio.registry.serde.avro.AvroKafkaSerializer;
@@ -18,7 +20,6 @@ import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.registry.utils.tests.TooManyRequestsMock;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.common.serdes.TestObject;
-import io.apicurio.tests.utils.Constants;
 import io.apicurio.tests.utils.KafkaFacade;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.apache.avro.Schema;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag(Constants.SERDES)
+@Tag(SERDES)
 @QuarkusIntegrationTest
 public class AvroSerdeIT extends ApicurioRegistryBaseIT {
 
@@ -60,7 +61,7 @@ public class AvroSerdeIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testTopicIdStrategyFindLatest() throws Exception {
         String topicName = TestUtils.generateTopic();
         String artifactId = topicName + "-value";
@@ -83,7 +84,7 @@ public class AvroSerdeIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testSimpleTopicIdStrategyFindLatest() throws Exception {
         String topicName = TestUtils.generateTopic();
         String artifactId = topicName;
@@ -157,7 +158,7 @@ public class AvroSerdeIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testTopicIdStrategyAutoRegister() throws Exception {
         String topicName = TestUtils.generateTopic();
         // because of using TopicIdStrategy

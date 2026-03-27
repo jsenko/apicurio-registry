@@ -103,7 +103,7 @@ are in a separate module and need to be explicitly enabled:
 
 ```bash
 # Run default integration tests (smoke + serdes + acceptance)
-./mvnw verify -Pintegration-tests -Plocal-tests -pl integration-tests -am
+./mvnw verify -Pintegration-tests -pl integration-tests -am
 ```
 
 See the [integration tests module](integration-tests/) for test groups, deployment

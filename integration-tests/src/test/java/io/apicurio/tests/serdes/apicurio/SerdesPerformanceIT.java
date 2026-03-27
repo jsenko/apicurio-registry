@@ -1,5 +1,7 @@
 package io.apicurio.tests.serdes.apicurio;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.Message;
 import io.apicurio.registry.rest.client.models.CreateRule;
@@ -18,7 +20,6 @@ import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.common.serdes.json.ValidMessage;
 import io.apicurio.tests.common.serdes.proto.TestCmmn;
-import io.apicurio.tests.utils.Constants;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
@@ -48,7 +49,7 @@ import java.util.UUID;
  * - JSON Schema
  * - Protobuf
  */
-@Tag(Constants.SERDES)
+@Tag(SERDES)
 @QuarkusIntegrationTest
 public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
 
@@ -84,7 +85,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     // ==================== AVRO TESTS ====================
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testAvroSerializerPerformance() throws Exception {
         String groupId = "avro-perf-test-serializer-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";
@@ -106,7 +107,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testAvroRoundTripPerformance() throws Exception {
         String groupId = "avro-perf-test-roundtrip-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";
@@ -277,7 +278,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     // ==================== JSON SCHEMA TESTS ====================
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testJsonSchemaSerializerPerformance() throws Exception {
         String groupId = "json-perf-test-serializer-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";
@@ -302,7 +303,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testJsonSchemaRoundTripPerformance() throws Exception {
         String groupId = "json-perf-test-roundtrip-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";
@@ -474,7 +475,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     // ==================== PROTOBUF TESTS ====================
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testProtobufSerializerPerformance() throws Exception {
         String groupId = "protobuf-perf-test-serializer-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";
@@ -502,7 +503,7 @@ public class SerdesPerformanceIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testProtobufRoundTripPerformance() throws Exception {
         String groupId = "protobuf-perf-test-roundtrip-" + UUID.randomUUID();
         String apicurioArtifactId = TestUtils.generateSubject() + "-apicurio";

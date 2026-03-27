@@ -1,5 +1,7 @@
 package io.apicurio.tests.smokeTests.apicurio;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Disabled;

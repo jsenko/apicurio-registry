@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+
 import static io.apicurio.deployment.KubernetesTestResources.APPLICATION_DEPLOYMENT;
 import static io.apicurio.deployment.KubernetesTestResources.APPLICATION_KAFKA_RESOURCES;
 import static io.apicurio.deployment.KubernetesTestResources.APPLICATION_KAFKA_SECURED_RESOURCES;
@@ -38,9 +39,9 @@ public class KafkaSqlDeploymentManager {
     private static final String NEW_ARTIFACTS_SNAPSHOT_TEST_GROUP_ID = "SNAPSHOT_TEST_GROUP_ID";
 
     static void deployKafkaApp(String registryImage) throws Exception {
-        if (Constants.TEST_PROFILE.equals(Constants.AUTH)) {
+        if (TestGroups.isAnyGroupActive(TestGroups.AUTH)) {
             prepareTestsInfra(KAFKA_RESOURCES, APPLICATION_KAFKA_SECURED_RESOURCES, true, registryImage);
-        } else if (Constants.TEST_PROFILE.equals(Constants.KAFKA_SQL_SNAPSHOTTING)) {
+        } else if (TestGroups.isAnyGroupActive(TestGroups.KAFKA_SQL_SNAPSHOTTING)) {
             prepareKafkaSqlSnapshottingTests(registryImage);
         } else {
             prepareTestsInfra(KAFKA_RESOURCES, APPLICATION_KAFKA_RESOURCES, false, registryImage);

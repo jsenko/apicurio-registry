@@ -1,5 +1,7 @@
 package io.apicurio.tests.serdes.apicurio;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import com.google.protobuf.DynamicMessage;
 import io.apicurio.registry.rest.client.models.VersionMetaData;
 import io.apicurio.registry.serde.config.SerdeConfig;
@@ -15,7 +17,6 @@ import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.common.serdes.proto.TestCmmn;
 import io.apicurio.tests.protobuf.ProtobufTestMessage;
-import io.apicurio.tests.utils.Constants;
 import io.apicurio.tests.utils.KafkaFacade;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag(Constants.SERDES)
+@Tag(SERDES)
 @QuarkusIntegrationTest
 public class ProtobufSerdeIT extends ApicurioRegistryBaseIT {
 
@@ -44,7 +45,7 @@ public class ProtobufSerdeIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testTopicIdStrategyFindLatest() throws Exception {
         String topicName = TestUtils.generateTopic();
         String artifactId = topicName + "-value";
@@ -325,7 +326,7 @@ public class ProtobufSerdeIT extends ApicurioRegistryBaseIT {
     }
 
     @Test
-    @Tag(Constants.ACCEPTANCE)
+    @Tag(ACCEPTANCE)
     void testTopicIdStrategyAutoRegister() throws Exception {
         String topicName = TestUtils.generateTopic();
         // because of using TopicIdStrategy

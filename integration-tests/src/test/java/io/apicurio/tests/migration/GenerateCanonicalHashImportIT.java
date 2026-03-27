@@ -1,5 +1,7 @@
 package io.apicurio.tests.migration;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.model.BranchId;
 import io.apicurio.registry.rest.client.RegistryClient;
 import io.apicurio.registry.rest.client.models.ProblemDetails;
@@ -14,7 +16,6 @@ import io.apicurio.registry.utils.impexp.v3.ContentEntity;
 import io.apicurio.registry.utils.impexp.v3.EntityWriter;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.serdes.apicurio.JsonSchemaMsgFactory;
-import io.apicurio.tests.utils.Constants;
 import io.kiota.http.vertx.VertXRequestAdapter;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.vertx.core.Vertx;
@@ -42,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusIntegrationTest
-@Tag(Constants.MIGRATION)
+@Tag(MIGRATION)
 @Disabled
 public class GenerateCanonicalHashImportIT extends ApicurioRegistryBaseIT {
 

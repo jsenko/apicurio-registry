@@ -1,5 +1,7 @@
 package io.apicurio.tests.kubernetesops;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.rest.client.models.ArtifactMetaData;
 import io.apicurio.registry.rest.client.models.ArtifactSearchResults;
 import io.apicurio.registry.rest.client.models.CreateArtifact;
@@ -11,7 +13,6 @@ import io.apicurio.registry.types.ArtifactType;
 import io.apicurio.registry.types.ContentTypes;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ReadOnlyRegistryBaseIT;
-import io.apicurio.tests.utils.Constants;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * The KubernetesOps storage is read-only: all data comes from ConfigMaps, and write
  * operations are not supported. These tests verify read operations only.
  */
-@Tag(Constants.KUBERNETES_OPS)
+@Tag(KUBERNETES_OPS)
 @QuarkusIntegrationTest
 public class KubernetesOpsIT extends ReadOnlyRegistryBaseIT {
 

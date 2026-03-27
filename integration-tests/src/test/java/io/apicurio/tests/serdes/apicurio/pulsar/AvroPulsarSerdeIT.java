@@ -1,5 +1,7 @@
 package io.apicurio.tests.serdes.apicurio.pulsar;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.serde.avro.AvroPulsarSerde;
 import io.apicurio.registry.serde.avro.AvroPulsarSerdeSchema;
 import io.apicurio.registry.serde.avro.strategy.TopicRecordIdStrategy;
@@ -10,7 +12,6 @@ import io.apicurio.registry.utils.IoUtil;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
 import io.apicurio.tests.serdes.apicurio.AvroGenericRecordSchemaFactory;
-import io.apicurio.tests.utils.Constants;
 import io.apicurio.tests.utils.PulsarFacade;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.apache.avro.generic.GenericRecord;
@@ -27,7 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag(Constants.SERDES)
+@Tag(SERDES)
 @QuarkusIntegrationTest
 public class AvroPulsarSerdeIT extends ApicurioRegistryBaseIT {
 

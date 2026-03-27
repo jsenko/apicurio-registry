@@ -1,5 +1,7 @@
 package io.apicurio.tests.auth;
 
+import static io.apicurio.deployment.TestGroups.*;
+
 import io.apicurio.registry.client.RegistryClientFactory;
 import io.apicurio.registry.client.common.RegistryClientOptions;
 import io.apicurio.registry.rest.client.RegistryClient;
@@ -20,7 +22,6 @@ import io.apicurio.registry.types.ContentTypes;
 import io.apicurio.registry.utils.tests.KeycloakTestContainerManager;
 import io.apicurio.registry.utils.tests.TestUtils;
 import io.apicurio.tests.ApicurioRegistryBaseIT;
-import io.apicurio.tests.utils.Constants;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(Constants.AUTH)
+@Tag(AUTH)
 @QuarkusIntegrationTest
 public class SimpleAuthIT extends ApicurioRegistryBaseIT {
 
