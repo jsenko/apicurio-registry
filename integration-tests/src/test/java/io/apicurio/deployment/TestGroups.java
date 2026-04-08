@@ -23,6 +23,7 @@ public final class TestGroups {
     public static final String KUBERNETES_OPS = "kubernetesopsit";
     public static final String ICEBERG = "iceberg";
     public static final String SEARCH = "search";
+    public static final String OPENSHIFT = "openshift";
 
     private static final String ACTIVE_GROUPS =
             Optional.ofNullable(System.getProperty("groups")).orElse("");

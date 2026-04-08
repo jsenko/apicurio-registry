@@ -21,8 +21,8 @@ import java.util.Map;
 /**
  * Integration tests for the Elasticsearch-based search feature. These tests require a running
  * Elasticsearch cluster and the search feature to be enabled in the registry configuration.
- * They are excluded from normal test runs and can be executed via the {@code -Psearch} maven
- * profile or by selecting the {@code search} JUnit tag.
+ * They are excluded from normal test runs and can be executed by selecting the
+ * {@code search} group, for example via {@code -Dgroups=search}.
  */
 @Tag(SEARCH)
 @QuarkusIntegrationTest

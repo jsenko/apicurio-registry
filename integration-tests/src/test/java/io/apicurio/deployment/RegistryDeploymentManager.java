@@ -196,7 +196,7 @@ public class RegistryDeploymentManager implements TestExecutionListener {
 
     static void setupTestNetworking() {
         // For openshift, a route to the application is created and used for networking.
-        if (TestGroups.isAnyGroupActive("openshift")) {
+        if (TestGroups.isAnyGroupActive(TestGroups.OPENSHIFT)) {
 
             OpenShiftClient openShiftClient = new DefaultOpenShiftClient();
 
